@@ -1,4 +1,3 @@
-
 --角色的各种相关内容
 
 --角色的创建模板
@@ -12,8 +11,6 @@ function makerole()
 	role.spr=0
 	role.speed=0
 
-	role.allstate={}
-	role.state=role.allstate[1]
 	role.roll=false
 	role.rollspeed=0
 	role.att=false
@@ -23,39 +20,16 @@ function makerole()
 	role.aniframe=0
 	role.animsprs={}
 	role.sprflip=false
+	
 	return role
 end
 
-
-
-function wyfsm(sb)
-
-	
-	if sb.state == "idle" then
-
-	elseif sb.state == "move" then
-
-	elseif sb.state == "attack" then
-
-	elseif sb.state == "roll" then
-
-	elseif sb.state == "hurt" then
-
-	elseif sb.state == "death" then
-	
-	end
-
-end
-
-
-
 --主角行为
 function wy_act(sb)
-	--检测方向
+--检测方向
 	if not wy.roll and not wy.att then
 		input_direct_sys(sb)
 	end
-	
 	if not wy.att then 
 		move(sb)
 	end
@@ -66,14 +40,12 @@ function wy_act(sb)
 		sb.speed=1.3
 	end
 
-	
 	--按下翻滚时候，主角翻滚
 	if sb.roll then
 		roll(sb)
 	else--否则默认的翻滚速度为8
 		sb.rollspeed=8
 	end
-
 	--player move
 	--角色移动加成
 	sb.x+=sb.spx
@@ -132,6 +104,8 @@ function wy_anim(sb)
 
 end
 
+
+
 --主角移动	
 function move(sb)
 	sb.spx=0
@@ -174,6 +148,7 @@ function move(sb)
 	end
 
 end
+
 
 --翻滚制作
 function roll(sb)
@@ -221,6 +196,8 @@ function roll(sb)
 	
 end
 
+
+
 --绘制武器
 function draweapon(sb)
 	local sword_spr=0
@@ -259,5 +236,4 @@ function draweapon(sb)
 	end
 	spr(sword_spr,swordx,swordy,1,1,sw_flipx,sw_flipy)
 end
-
 

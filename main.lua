@@ -8,21 +8,11 @@ function _init()
 
 	--主角
 	wy=makerole()
-	wy.allstate={
-		idle="idle",
-		move="move",
-		attack="attack",
-		roll="roll",
-		hurt="hurt",
-		death="death"
-	}
-	wy.state=wy.allstate.idle
 	wy.x=60
 	wy.y=60
 	wy.spx=0
 	wy.spy=0
 	wy.speed=1.3
-
 	wy.rollspeed=8
 
 	wy.move_t=0
@@ -61,7 +51,6 @@ function _draw()
 	--动画播放
 	wy_anim(wy)
 
-	print(wy.state)
 	--UI显示
 	--ui()
 
