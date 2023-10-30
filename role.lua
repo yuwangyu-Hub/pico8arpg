@@ -1,6 +1,6 @@
 --dev
 --角色的各种相关内容
-
+--简单测试
 --角色的创建模板
 function makerole()
 	local role={}
