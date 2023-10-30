@@ -30,13 +30,11 @@ function input_direct_sys(sb)
 	end
 	
 	if btn(🅾️) then --攻击为真
-		--sb.att=true
-		sb.state=sb.allstate.attack
+		sb.att=true
 	end
 
 	if btnp(❎)  then --翻滚为真
-		--sb.roll=true
-		sb.state=sb.allstate.roll
+		sb.roll=true
 	end
 end
 
@@ -79,7 +77,7 @@ end
 
 
 
---[[绘制方向系统
+--绘制方向系统
 function draw_direct_sys(sb)
 	local dircx1=100
 	local dircy1=20
