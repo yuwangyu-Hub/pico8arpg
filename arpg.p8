@@ -6,7 +6,7 @@ __lua__
 #include main.lua
 #include tool.lua
 #include role.lua
---#include ui.lua
+#include ui.lua
 #include paeffects.lua
 
 
