@@ -28,59 +28,46 @@ end
 
 
 
-function wyfsm(sb)
-
-	
-	if sb.state == "idle" then
-
-	elseif sb.state == "move" then
-
-	elseif sb.state == "attack" then
-
-	elseif sb.state == "roll" then
-
-	elseif sb.state == "hurt" then
-
-	elseif sb.state == "death" then
-	
-	end
-
-end
-
-
-
---主角行为
-function wy_act(sb)
-	--检测方向
+function wyfsm()
+--检测方向
 	if not wy.roll and not wy.att then
-		input_direct_sys(sb)
+		input_direct_sys(wy)
 	end
 	
-	if not wy.att then 
-		move(sb)
-	end
-	--移动的方向归一化
-	if sb.dire==2 or  sb.dire==4 or sb.dire==6 or sb.dire==8 then
-		sb.speed=sqrt(1.3*1.3/2)
-	else
-		sb.speed=1.3
-	end
-
-	
-	--按下翻滚时候，主角翻滚
-	if sb.roll then
-		roll(sb)
-	else--否则默认的翻滚速度为8
-		sb.rollspeed=8
-	end
-
 	--player move
 	--角色移动加成
-	sb.x+=sb.spx
-	sb.y+=sb.spy
+	wy.x+=wy.spx
+	wy.y+=wy.spy
+
+	if wy.state == "idle" then--------------------------------------------------------------idle
+		if wy.dire!=0 then
+			wy.state=wy.allstate.move
+		end
+		wy.rollspeed=8
+	elseif wy.state == "move" then----------------------------------------------------------move
+		--移动的方向归一化
+		if wy.dire==2 or  wy.dire==4 or wy.dire==6 or wy.dire==8 then
+			wy.speed=sqrt(1.3*1.3/2)
+		else
+			wy.speed=1.3
+		end
+
+		move(wy)
+
+		if wy.dire==0 then
+			wy.state=wy.allstate.idle
+		end
+	elseif wy.state == "attack" then-------------------------------------------------------attack
+
+	elseif wy.state == "roll" then
+		roll(wy)
+	elseif wy.state == "hurt" then
+
+	elseif wy.state == "death" then
+	
+	end
+
 end
-
-
 
 --动画播放（角色、物品等）
 function wy_anim(sb)

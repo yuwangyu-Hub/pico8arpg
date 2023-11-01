@@ -3,41 +3,42 @@
 --工具栏
 
 --带检测方向的输入系统
-function input_direct_sys(sb)
+function input_direct_sys()
 	if btn(⬅️) then 
-		sb.sprflip=true
+		wy.sprflip=true
 		if btn(⬆️) then      
-			sb.dire=2           --------------------2
+			wy.dire=2           --------------------2
 		elseif btn(⬇️) then  
-			sb.dire=8           --------------------8
+			wy.dire=8           --------------------8
 		else
-			sb.dire=1           --------------------1	
+			wy.dire=1           --------------------1	
 		end
 	elseif btn(➡️) then
-		sb.sprflip=false 
+		wy.sprflip=false 
 		if btn(⬆️) then
-			sb.dire=4           --------------------4
+			wy.dire=4           --------------------4
 		elseif btn(⬇️) then
-			sb.dire=6           --------------------6
+			wy.dire=6           --------------------6
 		else
-			sb.dire=5           --------------------5
+			wy.dire=5           --------------------5
 		end
 	elseif btn(⬆️) then
-		sb.dire=3               --------------------3
+		wy.dire=3               --------------------3
 	elseif btn(⬇️) then
-		sb.dire=7               --------------------7
+		wy.dire=7               --------------------7
 	else
-		sb.dire=0              
+		wy.dire=0              
 	end
 	
+
 	if btn(🅾️) then --攻击为真
 		--sb.att=true
-		sb.state=sb.allstate.attack
+		wy.state=wy.allstate.attack
 	end
 
 	if btnp(❎)  then --翻滚为真
 		--sb.roll=true
-		sb.state=sb.allstate.roll
+		wy.state=wy.allstate.roll
 	end
 end
 

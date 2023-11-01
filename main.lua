@@ -1,6 +1,4 @@
 --dev
-
-
 --主框架
 --动画系统
 --攻击制作
@@ -47,7 +45,8 @@ function _update()
 	--墙壁检测
 	checkwall(wy)
 	--主角的行为
-	wy_act(wy)
+	--wy_act(wy)
+	wyfsm()
 end
 
 
