@@ -29,7 +29,7 @@ function _init()
 	wy.roll_t=0
 	wy.att_t=0
 
-	wy.aniframe=2
+	wy.aniframe=wy.animsprs.idle
 	--精灵动画的表
 	wy.animsprs={
 		idle=2,
@@ -59,8 +59,8 @@ function _draw()
 		--draweapon(wy)
 	end
 
-	--动画播放
-	wy_anim(wy)
+	--主角精灵显示
+	spr(wy.aniframe, wy.x, wy.y, 1, 1,wy.sprflip)--sb spr
 
 	print(wy.state)
 	--UI显示

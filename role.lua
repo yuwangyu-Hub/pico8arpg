@@ -30,21 +30,28 @@ end
 
 function wyfsm()
 --检测方向
-	if not wy.roll and not wy.att then
+	if wy.state!= wy.allstate.roll and wy.state!= wy.allstate.attack then
 		input_direct_sys(wy)
 	end
-	
 	--player move
 	--角色移动加成
 	wy.x+=wy.spx
 	wy.y+=wy.spy
+	
 
 	if wy.state == "idle" then--------------------------------------------------------------idle
 		if wy.dire!=0 then
 			wy.state=wy.allstate.move
 		end
 		wy.rollspeed=8
+
+		--动画
+		wy.aniframe= wy.animsprs.idle
+		wy.move_t=0
+		
+
 	elseif wy.state == "move" then----------------------------------------------------------move
+
 		--移动的方向归一化
 		if wy.dire==2 or  wy.dire==4 or wy.dire==6 or wy.dire==8 then
 			wy.speed=sqrt(1.3*1.3/2)
@@ -53,69 +60,48 @@ function wyfsm()
 		end
 
 		move(wy)
-
 		if wy.dire==0 then
 			wy.state=wy.allstate.idle
 		end
+
+		--动画相关
+		wy.move_t+=0.2
+		wy.aniframe=wy.animsprs.move[ceil(wy.move_t%#wy.animsprs.move)]
+
+
 	elseif wy.state == "attack" then-------------------------------------------------------attack
-
-	elseif wy.state == "roll" then
-		roll(wy)
-	elseif wy.state == "hurt" then
-
-	elseif wy.state == "death" then
-	
-	end
-
-end
-
---动画播放（角色、物品等）
-function wy_anim(sb)
-	local animspr= sb.animsprs.idle
-
-	--检测是否移动，播放移动动画
-	if (sb.spx!=0 or sb.spy!=0) and not sb.roll then
-		sb.move_t+=0.2
-		animspr=sb.animsprs.move[ceil(sb.move_t%#sb.animsprs.move)]
-	else
-		animspr= sb.animsprs.idle
-		sb.move_t=0
-	end
-
-	--翻滚动画
-	if sb.roll then 
-		sb.roll_t+=1
-		animspr=sb.animsprs.roll[ceil(sb.roll_t%#sb.animsprs.roll)+1]
-
-		if sb.roll_t>=9 then
-			sb.roll=false
-			sb.roll_t=0
-		end
-	end
-
-
-	--攻击动画持续性
-	if sb.att then
-		sb.spx=0
-		sb.spy=0
-		if sb.dire==1 or sb.dire ==5 or sb.dire==0 then
-			animspr=sb.animsprs.attack[1]
-		elseif sb.dire==2 or sb.dire== 3 or sb.dire==4 then
-			animspr=sb.animsprs.attack[3]
+		wy.spx=0
+		wy.spy=0
+		if wy.dire==1 or wy.dire ==5 or wy.dire==0 then
+			wy.aniframe=wy.animsprs.attack[1]
+		elseif wy.dire==2 or wy.dire== 3 or wy.dire==4 then
+			wy.aniframe=wy.animsprs.attack[3]
 		else
-			animspr=sb.animsprs.attack[2]
+			wy.aniframe=wy.animsprs.attack[2]
 		end
 		
-		sb.att_t+=0.2
-		if sb.att_t > 2 then
-			sb.att=false
-			sb.att_t=0
-			sb.aniframe=2
+		wy.att_t+=0.2
+		if wy.att_t > 2 then
+			wy.att=false
+			wy.att_t=0
+			wy.state=wy.allstate.idle
 		end
-	end
+	elseif wy.state == "roll" then----------------------------------------------------------roll
+		roll(wy)
 
-	--精灵绘制
-	spr(animspr, sb.x, wy.y, 1, 1,wy.sprflip)--player spr
+		--动画相关
+		wy.roll_t+=1
+		wy.aniframe=wy.animsprs.roll[ceil(wy.roll_t%#wy.animsprs.roll)+1]
+		if wy.roll_t>=9 then
+			wy.roll=false
+			wy.roll_t=0
+			wy.state=wy.allstate.idle
+		end
+	elseif wy.state == "hurt" then-----------------------------------------------------------hurt
+
+	elseif wy.state == "death" then----------------------------------------------------------death
+	
+	end
 
 end
 
@@ -126,40 +112,31 @@ function move(sb)
 	if sb.dire==1 then 	
 		sb.spx=-wy.speed
 	end
-
 	if sb.dire==2 then
 		sb.spx=-wy.speed
 		sb.spy=-wy.speed
 	end
-
 	if sb.dire==3 then 
 		sb.spy=-wy.speed
 	end
-	
 	if sb.dire==4 then
 		sb.spx=wy.speed 
 		sb.spy=-wy.speed
 	end
-
 	if sb.dire==5 then 
 		sb.spx=wy.speed 
 	end
-
-	
 	if sb.dire==6 then
 		sb.spx=wy.speed 
 		sb.spy=wy.speed
 	end
-	
 	if sb.dire==7 then 
 		sb.spy=wy.speed
 	end
-
 	if sb.dire==8 then
 		sb.spx=-wy.speed
 		sb.spy=wy.speed
 	end
-
 end
 
 --翻滚制作
