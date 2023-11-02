@@ -29,16 +29,14 @@ function input_direct_sys()
 	else
 		wy.dire=0              
 	end
-
 	if btn(🅾️) then --攻击为真
-		--sb.att=true
+		--wy.att=true
 		wy.state=wy.allstate.attack
 	end
-	if btnp(❎)  then --翻滚为真
+	if btnp(❎) then --翻滚为真
 		--sb.roll=true
 		wy.state=wy.allstate.roll
 	end
-	
 end
 
 

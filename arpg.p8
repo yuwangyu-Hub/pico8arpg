@@ -8,9 +8,10 @@ __lua__
 #include role.lua
 #include ui.lua
 #include paeffects.lua
+#include initdata.lua
 
 
---1174
+--1140
 
 
 __gfx__

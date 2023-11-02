@@ -1,6 +1,6 @@
 --dev
 --角色的各种相关内容
---简单测试
+
 --角色的创建模板
 function makerole()
 	local role={}
@@ -14,11 +14,10 @@ function makerole()
 
 	role.allstate={}
 	role.state=role.allstate[1]
-	role.roll=false
+	--role.roll=false
 	role.rollspeed=0
-	role.att=false
-	role.move_t=0
-	role.roll_t=0
+	role.t=0
+	--role.att=false
 	role.att_t=0
 	role.aniframe=0
 	role.animsprs={}
@@ -29,7 +28,7 @@ end
 
 
 function wyfsm()
---检测方向
+	--检测方向
 	if wy.state!= wy.allstate.roll and wy.state!= wy.allstate.attack then
 		input_direct_sys(wy)
 	end
@@ -40,6 +39,8 @@ function wyfsm()
 	
 
 	if wy.state == "idle" then--------------------------------------------------------------idle
+		wy.spx=0
+		wy.spy=0
 		if wy.dire!=0 then
 			wy.state=wy.allstate.move
 		end
@@ -47,11 +48,10 @@ function wyfsm()
 
 		--动画
 		wy.aniframe= wy.animsprs.idle
-		wy.move_t=0
+		wy.t=0
 		
 
 	elseif wy.state == "move" then----------------------------------------------------------move
-
 		--移动的方向归一化
 		if wy.dire==2 or  wy.dire==4 or wy.dire==6 or wy.dire==8 then
 			wy.speed=sqrt(1.3*1.3/2)
@@ -65,8 +65,11 @@ function wyfsm()
 		end
 
 		--动画相关
-		wy.move_t+=0.2
-		wy.aniframe=wy.animsprs.move[ceil(wy.move_t%#wy.animsprs.move)]
+
+		wy.t+=0.2
+		wy.aniframe=wy.animsprs.move[ceil(wy.t%#wy.animsprs.move)]
+		--wy.move_t+=0.2
+		--wy.aniframe=wy.animsprs.move[ceil(wy.move_t%#wy.animsprs.move)]
 
 
 	elseif wy.state == "attack" then-------------------------------------------------------attack
@@ -80,21 +83,20 @@ function wyfsm()
 			wy.aniframe=wy.animsprs.attack[2]
 		end
 		
+		
 		wy.att_t+=0.2
 		if wy.att_t > 2 then
-			wy.att=false
+			--wy.att=false
 			wy.att_t=0
 			wy.state=wy.allstate.idle
 		end
 	elseif wy.state == "roll" then----------------------------------------------------------roll
 		roll(wy)
-
 		--动画相关
-		wy.roll_t+=1
-		wy.aniframe=wy.animsprs.roll[ceil(wy.roll_t%#wy.animsprs.roll)+1]
-		if wy.roll_t>=9 then
-			wy.roll=false
-			wy.roll_t=0
+		wy.t+=1
+		wy.aniframe=wy.animsprs.roll[ceil(wy.t%#wy.animsprs.roll)]
+		if wy.t>=9 then
+			--wy.roll=false
 			wy.state=wy.allstate.idle
 		end
 	elseif wy.state == "hurt" then-----------------------------------------------------------hurt
@@ -174,12 +176,10 @@ function roll(sb)
 	if sb.dire==7 then 
 		sb.spy=sb.rollspeed
 	end
-
 	if sb.dire==8 then
 		sb.spx=-sqrtsp
 		sb.spy=sqrtsp
 	end
-
 	sb.rollspeed-=1
 
 	
