@@ -35,10 +35,6 @@ function _draw()
 	--UI显示
 	--ui()
 
-	--[[--测试用八方向显示
-	if not wy.roll then
-		draw_direct_sys(wy)
-	end--]]
 end
 
 
