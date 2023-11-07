@@ -23,7 +23,7 @@ function playerdata()
     wy.animsprs={
         idle=2,
         move={1,2,3,4},
-        roll={5,5,6,6,7,7,8,8},
+        roll={5,6,6,7,7,5},
         attack={9,10,11}
     }
     wy.dire=0 
@@ -42,30 +42,75 @@ function weapon()
 	sw_flipx=false
 	sw_flipy=false
 
+    if wy.dire==0 then
+		if  wy.sprflip then
+            --角色:左
+		    swordx=wy.x-8
+		    swordy=wy.y
+		    sword_spr=23 --flip
+		    sw_flipx=true
+        else
+            --角色：右
+            swordx=wy.x+8
+            swordy=wy.y
+            sword_spr=23
+        end
+		
+	end
+
 	if wy.dire==1 then
-		--角色向左
+		--角色:左
 		swordx=wy.x-8
 		swordy=wy.y
-		sword_spr=8
+		sword_spr=23 --flip
+		sw_flipx=true
+	end
+    if wy.dire==2 then
+		--角色:左上
+		swordx=wy.x-8
+		swordy=wy.y-8
+		sword_spr=22 --flip
 		sw_flipx=true
 	end
 	if wy.dire==3 then
-		--角色向上
+		--角色：上
 		swordx=wy.x
 		swordy=wy.y-8
-		sword_spr=9
+		sword_spr=24
+	end
+    if wy.dire==4 then
+		--角色：右上
+		swordx=wy.x+8
+		swordy=wy.y-8
+		sword_spr=22
+
 	end
 	if wy.dire==5 then
-		--角色向右
+		--角色：右
 		swordx=wy.x+8
 		swordy=wy.y
-		sword_spr=8
+		sword_spr=23
+	end
+    if wy.dire==6 then
+		--角色：右下
+		swordx=wy.x+8
+		swordy=wy.y+8
+		sword_spr=22
+        sw_flipy=true
 	end
 	if wy.dire==7 then
-		--角色向下
+		--角色：下
 		swordx=wy.x
 		swordy=wy.y+8
-		sword_spr=9
+		sword_spr=24
+		sw_flipy=true
+	end
+    if wy.dire==8 then
+		--角色：左下
+		swordx=wy.x-8
+		swordy=wy.y+8
+		sword_spr=22
+        sw_flipx=true
 		sw_flipy=true
 	end
 	spr(sword_spr,swordx,swordy,1,1,sw_flipx,sw_flipy)

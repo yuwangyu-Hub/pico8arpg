@@ -93,9 +93,9 @@ function wyfsm()
 	elseif wy.state == "roll" then--------------------------------------------roll
 		roll(wy)
 		--动画相关
-		wy.t+=1
+		wy.t+=0.5
 		wy.aniframe=wy.animsprs.roll[ceil(wy.t%#wy.animsprs.roll)]
-		if wy.t>=9 then
+		if wy.t>=5 then
 			--wy.roll=false
 			wy.state=wy.allstate.idle
 		end

@@ -1,7 +1,5 @@
 --dev
---主框架
---动画系统
---攻击制作
+--敌人追踪系统
 --翻滚粒子特效
 
 function _init()
@@ -31,10 +29,13 @@ function _draw()
 	spr(wy.aniframe, wy.x, wy.y, 1, 1,wy.sprflip)--sb spr
 
 	print(wy.state)
-	print(wy.dire)
+	print(ceil(wy.t%#wy.animsprs.roll))
 	--UI显示
 	--ui()
-
+	if wy.state == wy.allstate.attack then
+		weapon()
+	end
+	
 end
 
 
