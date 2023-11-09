@@ -31,11 +31,11 @@ function input_direct_sys()
 	end
 	if btn(🅾️) then --攻击为真
 		--wy.att=true
-		wy.state=wy.allstate.attack
+		wy.isattack=true
 	end
 	if btnp(❎) then --翻滚为真
-		--sb.roll=true
-		wy.state=wy.allstate.roll
+		wy.isroll=true
+		--wy.state=wy.allstate.roll
 	end
 end
 
@@ -55,7 +55,8 @@ end
 
 
 --attack colbox check
---攻击盒检测
+--碰撞攻击盒检测
+--物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
 function attackboxcheck(sb1,sb2,w1,h1,w2,h2)
 	
 	local ax1=sb1.x
