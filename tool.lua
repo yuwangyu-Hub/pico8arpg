@@ -47,7 +47,7 @@ function checkwall(sb)
 	if sb.x<0 then sb.x=0 end
 	if sb.x>120 then sb.x=120 end 
 
-	if sb.y<0 then sb.y=0 end
+	if sb.y<28 then sb.y=28 end
 	if sb.y>120 then sb.y=120 end
 
 	return sb
@@ -57,8 +57,7 @@ end
 --attack colbox check
 --碰撞攻击盒检测
 --物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
-function attackboxcheck(sb1,sb2,w1,h1,w2,h2)
-	
+function attackboxcheck(sb1,sb2,w1,h1,w2,h2) 
 	local ax1=sb1.x
 	local ay1=sb1.y
 	local ax2=sb1.x+w1
@@ -73,7 +72,6 @@ function attackboxcheck(sb1,sb2,w1,h1,w2,h2)
 	elseif bx2<ax1 or by2<ay1 then
 		return false
 	end
-
 	return true
 end
 

@@ -9,14 +9,15 @@ function makerole()
 	role.y=0
 	role.spx=0--speedx
 	role.spy=0--speedy
-	role.spr=0
+	--role.spr=0
 	role.speed=0
 
 	role.allstate={}
 	role.state=role.allstate[1]
 	role.isroll=false
 	role.rollspeed=0
-	role.t=0
+	role.move_t=0
+	role.roll_t=0
 	role.isattack=false
 	role.att_t=0
 	role.aniframe=0
@@ -37,6 +38,88 @@ function wyfsm()
 	wy.x+=wy.spx
 	wy.y+=wy.spy
 
+	local switchstate={
+		idle = function()
+			wy.spx=0
+			wy.spy=0
+			if wy.isattack then
+				wy.state=wy.allstate.attack
+			end
+			if wy.isroll then
+				wy.state=wy.allstate.roll
+			end
+			if wy.dire!=0 and not wy.isroll then
+				wy.state=wy.allstate.move
+			end
+			wy.rollspeed=8
+			--动画
+			wy.aniframe= wy.animsprs.idle
+		end,
+		move = function()
+			--移动的方向归一化
+			if wy.dire==2 or  wy.dire==4 or wy.dire==6 or wy.dire==8 then
+				wy.speed=sqrt(1.3*1.3/2)
+			else
+				wy.speed=1.3
+			end
+			move(wy)
+			--动画相关
+			wy.move_t+=0.2
+			wy.aniframe=wy.animsprs.move[ceil(wy.move_t%#wy.animsprs.move)]
+			if wy.dire==0 then
+				wy.move_t=0
+				wy.state=wy.allstate.idle
+			end
+			if wy.isattack then
+				wy.state=wy.allstate.attack
+			end
+			if wy.isroll then
+				wy.state=wy.allstate.roll
+			end
+		end,
+		attack=function()
+			wy.spx=0
+			wy.spy=0
+			if wy.dire==1 or wy.dire ==5 or wy.dire==0 then
+				wy.aniframe=wy.animsprs.attack[1]
+			elseif wy.dire==2 or wy.dire== 3 or wy.dire==4 then
+				wy.aniframe=wy.animsprs.attack[3]
+			else
+				wy.aniframe=wy.animsprs.attack[2]
+			end
+			wy.att_t+=0.2
+			if wy.att_t > 2 then
+				wy.isattack=false
+				wy.att_t=0
+				wy.state=wy.allstate.idle
+			end
+		end,
+		roll=function()
+			if wy.dire==2 or  wy.dire==4 or wy.dire==6 or wy.dire==8 then
+				wy.rollspeed=2.1213--sqrt(wy.rollspeed*wy.rollspeed/2)--斜方向归一化
+			else
+				wy.rollspeed=3
+			end
+			roll(wy)
+			--动画相关
+			wy.roll_t+=0.5
+			wy.aniframe=wy.animsprs.roll[ceil(wy.roll_t%#wy.animsprs.roll)]
+			if wy.roll_t>=5 then
+				wy.isroll=false
+				wy.roll_t=0
+				wy.state=wy.allstate.idle
+				
+			end
+		end,
+		hurt=function()
+		end,
+		death=function()
+		end
+	}
+		
+	switchstate[wy.state]()
+
+--[[
 
 	if wy.state == "idle" then------------------------------------------------idle
 		wy.spx=0
@@ -47,7 +130,7 @@ function wyfsm()
 			wy.state=wy.allstate.attack
 		end
 
-		if wy.dire!=0 then
+		if wy.dire!=0 and not wy.isroll then
 			wy.state=wy.allstate.move
 		end
 		wy.rollspeed=8
@@ -86,8 +169,6 @@ function wyfsm()
 
 		wy.t+=0.2
 		wy.aniframe=wy.animsprs.move[ceil(wy.t%#wy.animsprs.move)]
-		--wy.move_t+=0.2
-		--wy.aniframe=wy.animsprs.move[ceil(wy.move_t%#wy.animsprs.move)]
 
 
 	elseif wy.state == "attack" then------------------------------------------attack
@@ -101,7 +182,6 @@ function wyfsm()
 			wy.aniframe=wy.animsprs.attack[2]
 		end
 		
-		
 		wy.att_t+=0.2
 		if wy.att_t > 2 then
 			wy.isattack=false
@@ -114,8 +194,6 @@ function wyfsm()
 		else
 			wy.rollspeed=3
 		end
-	
-		
 		roll(wy)
 		--动画相关
 		wy.t+=0.5
@@ -130,51 +208,50 @@ function wyfsm()
 	elseif wy.state == "death" then------------------------------------------death
 	
 	end
+--]]
 
 end
 
 
 --攻击时武器的显示
-function attack()  
-	sword_spr=0
-    swordx=0
-	swordy=0
-	sw_flipx=false
-	sw_flipy=false
-
-
-	
-	local swordire={
-		--{x,y,spr,flipx,flipy}
-		{-8, 0, 23,true},      ----1
-		{-8,-8, 22,true},      ----2
-		{ 0,-8, 24},           ----3
-		{ 8,-8, 22},           ----4
-		{ 8, 0, 23},           ----5
-		{ 8, 8, 22,false,true},----6
-		{ 0, 8, 24,false,true},----7
-		{-8, 8, 22,true,true} -----8
+function attacksword()  
+	sword={
+		spr=0,
+    	x=0,
+		y=0,
+		flipx=false,
+		flipy=false,
+		dire={
+			--{x,y,spr,flipx,flipy}
+			{-8, 0, 23,true},      ----1
+			{-8,-8, 22,true},      ----2
+			{ 0,-8, 24},           ----3
+			{ 8,-8, 22},           ----4
+			{ 8, 0, 23},           ----5
+			{ 8, 8, 22,false,true},----6
+			{ 0, 8, 24,false,true},----7
+			{-8, 8, 22,true,true} -----8
+		}
 	}
 	if wy.dire!=0 then
-		swordx=wy.x+swordire[wy.dire][1]
-		swordy=wy.y+swordire[wy.dire][2]
-		sword_spr=swordire[wy.dire][3]
-		sw_flipx=swordire[wy.dire][4]
-		sw_flipy=swordire[wy.dire][5]
+		sword.x=wy.x+sword.dire[wy.dire][1]
+		sword.y=wy.y+sword.dire[wy.dire][2]
+		sword.spr=sword.dire[wy.dire][3]
+		sword.flipx = sword.dire[wy.dire][4]
+		sword.flipy = sword.dire[wy.dire][5]
 	else
 		if wy.sprflip then
-			swordx=wy.x-8
-			swordy=wy.y
-			sword_spr=23 --flip
-			sw_flipx=true
-		else
-			swordx=wy.x+8
-			swordy=wy.y
-			sword_spr=23
+			sword.x=wy.x-8
+			sword.y=wy.y
+			sword.spr=23 --flip
+			sword.flipx=true
+		else 
+			sword.x=wy.x+8
+			sword.y=wy.y
+			sword.spr=23
 		end
 	end
-
-	spr(sword_spr,swordx,swordy,1,1,sw_flipx,sw_flipy)
+	spr(sword.spr, sword.x, sword.y,1,1,sword.flipx, sword.flipy)
 	--[[
 		if wy.dire==1 or (wy.dire ==0 and wy.sprflip)then
 			--角色:左
@@ -342,6 +419,15 @@ function roll(sb)
 end
 
 
+function hurt()
+	--攻击碰撞后，向收到攻击的方向后退
+	--1识别受到攻击的方向
+	--2向后退
+
+
+
+end
+--[[
 --追逐
 function chase(sb1,sb2)
 	if sb1.x < sb2.x then
@@ -357,3 +443,4 @@ function chase(sb1,sb2)
 		sb1.y-=sb1.speed
 	end
 end
+--]]
