@@ -1,10 +1,15 @@
 function _init()
     t=0
-    p_ani={48,49,50,51}
+    p_ani={240,241,242,243}
 
-    dirx={-1,1,0,0}
-    diry={0,0,-1,1}
+    --dirx={-1,1,0,0}
+    --diry={0,0,-1,1}
 
+    dirx={-1,1,0,0,1,1,-1,-1}
+    diry={0,0,-1,1,-1,1,1,-1}
+
+    --230代表主角的动画第一帧、192代表史莱姆动画第一帧
+    mob_ani={240,192}
 
 
     
@@ -25,24 +30,37 @@ function _update60()
 end
 
 function _draw()
-    _drw()
+    _drw()--执行当前变量所指向的具体函数
+    drawind()
 end
 
 function startgame()
-    --缓冲区按钮，用来储存按键输入，在动画播放完之后执行
-    --button_buffer
+    
+    
+    --button_buffer--缓冲区按钮，用来储存按键输入，在动画播放完之后执行，可以精确到每个按钮的输入。
     buttbuff=-1
     
+    mob={}
+    p_mob = addmob(1,1,1) --主角
+    addmob(2,2,3)
+    --[[
     p_x=1
     p_y=1
-    p_ox=0 --运动过程中的偏移量(会随着变化)，让角色在移动中的动画显示上有一个偏移量移动的效果
-    p_oy=0 --运动过程中的偏移量(会随着变化)
-    p_sox=0 --一开始时候的偏移量
-    p_soy=0 --一开始时候的偏移量
+    p_ox=0 
+    p_oy=0 
+    p_sox=0 
+    p_soy=0 
+    p_mov=nil 
+    p_flip=false]]--
+    
     p_t=0 --计时器
-    p_mov=nil --移动的动画模式，通过变量指向相应的动画行为函数。（行走、撞墙）
 
-    p_flip=false --精灵翻转值
+    --ui窗口数量的数组
+    wind={}
+
+    talkwind=nil --对话窗口
+    
+  
 end
 
 

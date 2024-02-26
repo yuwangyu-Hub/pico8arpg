@@ -15,3 +15,16 @@ function drawspr(_spr,_x,_y,_c,_flip)
     --通过重置颜色让其他的还原，这两种方式可以单独修改某一物体颜色
     pal() 
 end
+
+--一种变体的绘制填充矩形的方式，输入左上角坐标加上长宽
+function rectfill2(_x,_y,_w,_h,_c)
+    rectfill(_x,_y,_x+max(_w-1,0),_y+max(_h-1,0),_c)
+end
+
+--覆盖打印显示，在打印的文字会显示边框
+function oprint8(_t,_x,_y,_c,_c2)
+    for i=1,8 do
+        print(_t,_x+dirx[i],_y+diry[i],_c2)
+    end
+    print(_t,_x,_y,_c)
+end
