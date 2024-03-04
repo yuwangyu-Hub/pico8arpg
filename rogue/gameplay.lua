@@ -5,54 +5,37 @@ function moveplayer(dx,dy)
     --destx,desty代表目标移动位置，用来检测目标移动位置是否在不可移动的位置上。
     local destx, desty = p_mob.x+dx, p_mob.y+dy 
     
-    --获取目的地位置的地图块编号
+    --获取目的地位置的地图块精灵
     local tile = mget(destx,desty)
-     --检测角色翻转
-    if dx<0 then
-        p_mob.flp =true
-    elseif dx>0 then
-        p_mob.flp =false
-    end
-
-    --判断地图块是否能够碰撞(墙或者其他可交互物，不能穿过)，0代表第一个位置上的红灯，返回true则点亮
-    if fget(tile,0) then 
-        --wall
-        --根据输入，获取初始偏移值
-        p_mob.sox= dx*8--将两行代码，简化为一行，能省一个代币
-        p_mob.soy= dy*8
-        --将0值赋给p_ox,p_oy(实际偏移值),这样一开始就不会偏移
-        p_mob.ox = 0 
-        p_mob.oy = 0 
-        --将用来移动的时间重置为0
-        p_t=0
-        --游戏模式改为pturn状态
-        _upd=update_pturn
-        --将pturn下的移动状态改为：撞
-        p_mob.mov=mov_bump --一种状态机的用法，将方法放入变量内，然后执行变量(),即执行该方法
-
-        --如果碰撞物可交互，则为1为true
-        if fget(tile,1) then
-            --触发碰撞函数(获取目标方向位置)
-            trig_bump(tile,destx,desty)
-        end
-    else--如果不为墙，则可以移动
-        sfx(63)
-        --移动相应的位置
-        p_mob.x+=dx
-        p_mob.y+=dy
     
-        --根据输入，获取初始偏移值，然后作为反量抵消移动
-        p_mob.sox, p_mob.soy = -dx*8, -dy*8--将两行代码，简化为一行，能省一个代币
-        --将初始偏移值赋给p_ox,p_oy(实际偏移值)
-        p_mob.ox, p_mob.oy = p_mob.sox, p_mob.soy 
+
+
+    --判断地图块是否能够碰撞(墙或者其他可交互物，不能穿过)，0代表第一个位置上的红灯，如果点亮了会返回true
+    if iswalkable(destx,desty,"checkmobs") then --无阻挡，可以移动
+        sfx(63)
+        mobwalk(p_mob,dx,dy)
         --将用来移动的时间重置为0
         p_t=0
-
-        --游戏模式改为pturn状态
-        _upd=update_pturn
-        --将pturn下的移动状态改为：可移动
-        p_mob.mov=mov_walk
+    else--不可移动（有碰撞效果）
+        mobbump(p_mob,dx,dy)
+        --将用来移动的时间重置为0
+        p_t=0
+        local mob=getmob(destx,desty)--获取该位置上的角色
+        if mob==false then --如果没有角色，检测其他碰撞
+            --如果碰撞物可交互，则为1为true
+            if fget(tile,1) then
+                --触发碰撞函数(获取目标方向位置)
+                trig_bump(tile,destx,desty) 
+            end
+        else --如果有
+            sfx(58)
+            hitmob(p_mob,mob)--攻击
+        end
     end
+    mobflip(p_mob,dx)
+
+    --游戏模式改为pturn状态
+    _upd=update_pturn
 end
 
 
@@ -92,3 +75,65 @@ function trig_bump(tile,destx,desty)
 
     end
 end
+
+
+--获取当前某个位置的角色
+function getmob(x,y)
+    for m in all(mob) do
+        --遍历角色组中所有角色，如果输入的位置与某个角色的位置重叠，返回该角色
+        if m.x==x and m.y==y then
+            return m
+        end 
+    end
+    return false --如果不是返回false
+end
+
+
+--判断是否能够行走
+function iswalkable(x,y,mode)
+    if mode==nil then mode="" end
+    if inbounds(x,y) then --如果在界限之内
+        local tile = mget(x,y)--只能获取到地图快上的精灵，我们绘制的角色无法在这里获取，所以需要单独进行检测角色碰撞
+
+        --用于检测不可穿越地图快精灵
+        if fget(tile,0)==false then --如果返回false则获取的该图块未点亮0编号（点亮为设置的不可穿越物体）
+             --用于检测角色精灵
+            if mode=="checkmobs" then--如果模式为检查角色
+                return getmob(x,y)==false --如果函数结果为真，则等于false，返回false。反之返回true
+            end
+            return true
+        end
+    end
+    return false --不能行走
+end
+
+--判断是否在画面边界内
+function inbounds(x,y)
+    return not (x<0 or y<0 or x>15 or y>15) --如果括号内都不满足既没错去，为false。 not false为true。表达上在限制内为真 
+end
+
+function hitmob(atkm,defm) --攻击者，受击者
+    local dmg=atkm.atk   
+    defm.hp-=dmg
+    defm.flash=10
+ 
+    addfloat("-"..dmg, defm.x*8, defm.y*8, 8)
+
+    if defm.hp<=0 then--当被攻击者生命值小于0
+        add(dmob,defm)--添加到死亡合集
+        del(mob,defm)--从mob合集中移除
+        defm.dur=15
+    end
+end 
+
+--检测是否结束
+function checkend()
+    if p_mob.hp<=0 then
+        wind={}--将窗口集合清空
+        _upd=update_gover
+        _drw=draw_gover
+        fadeout(0.02)--淡出120帧，也就是两秒
+        return false
+    end
+    return true
+end 

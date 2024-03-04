@@ -28,3 +28,51 @@ function oprint8(_t,_x,_y,_c,_c2)
     end
     print(_t,_x,_y,_c)
 end
+
+--勾股定理获取对角边长度
+function dist(fx,fy,tx,ty)
+    local dx,dy=fx-tx,fy-ty
+    return sqrt(dx*dx+dy*dy)--sqrt开根号
+end
+
+--淡入效果
+function dofade()
+    local p,kmax,col,k=flr(mid(0,fadeperc,1)*100)
+    for j=1,15 do
+        col=j
+        kamx=flr((p+(j*1.46))/22)
+        for k=1,kamx do
+            col=dpal[col]
+        end
+        pal(j,col,1)
+    end
+end
+
+--用于检测淡出，当淡出的百分比大于0，执行淡出效果
+function checkfade()
+    if fadeperc>0 then
+        fadeperc=max(fadeperc-0.04,0)
+        dofade()
+    end
+end
+
+--一种暂停游戏的方式，_wait输入暂停等待的时间，所有更新被中断
+function wait(_wait)
+    repeat
+        _wait-=1
+        flip()
+    until _wait<0
+end
+
+--淡出效果
+--spd淡出的速度
+function fadeout(spd,_wait)
+    if (spd==nil) spd=0.04
+    if (_wait==nil) _wait=0
+    repeat
+        fadeperc=min(fadeperc+spd,1)
+        dofade()
+        flip()
+    until fadeperc==1
+    wait(_wait)
+end
