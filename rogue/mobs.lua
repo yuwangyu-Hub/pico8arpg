@@ -8,15 +8,22 @@ function addmob(typ,mx,my)
         y=my,
         ox=0,--运动过程中的偏移量(会随着变化)，让角色在移动中的动画显示上有一个偏移量移动的效果
         oy=0,--运动过程中的偏移量(会随着变化)，让角色在移动中的动画显示上有一个偏移量移动的效果
-        sox=0,--一开始时候的偏移量
-        soy=0,--一开始时候的偏移量
+        
+        --可以在设置的时候再创建，而不需要一开始创建好
+        --sox=0,--一开始时候的偏移量，
+        --soy=0,--一开始时候的偏移量
+        
         flp=false, --精灵翻转值
-        mov=nil,--移动的动画模式，通过变量指向相应的动画行为函数。（行走、撞墙）
+        
+        --可以在设置的时候再创建，而不需要一开始创建好
+        --mov=nil,--移动的动画模式，通过变量指向相应的动画行为函数。（行走、撞墙）
+        
         ani={},--动画帧集合
         flash=0,--闪烁
         hp=mob_hp[typ],--当前血量
         hpmax=mob_hp[typ],--最大血量
-        atk=mob_atk[typ]
+        atk=mob_atk[typ],
+        task=ai_wait--当前模式，状态机
     }
 
     for i=0,3 do
@@ -26,13 +33,14 @@ function addmob(typ,mx,my)
     add(mob,m)
     return m
 end
-
 --角色移动,适用于所有角色
 function mobwalk(mb,dx,dy)
     --移动相应的位置
     mb.x+=dx--真正的位移在draw中的角色显示上，乘以8个像素位
     mb.y+=dy
     --根据输入，获取初始偏移值，然后作为反量抵消移动
+   
+    --一开始时候的偏移量，需要使用时再创建
     mb.sox, mb.soy = -dx*8, -dy*8--将两行代码，简化为一行，省代币
     --将初始偏移值赋给p_ox,p_oy(实际偏移值)
     mb.ox, mb.oy = mb.sox, mb.soy 
@@ -82,7 +90,6 @@ function mov_bump(mb,ani_t)--p_t
     mb.ox=mb.sox*tme
     mb.oy=mb.soy*tme
 end 
-
 --角色反转
 function mobflip(mb,dx)
    --检测角色翻转
@@ -97,34 +104,64 @@ function doai()
     for m in all(mob) do
         if m !=p_mob then--非player的所有角色
             m.mov=nil--因为mov行为在AI上一次的移动中被赋值，所以当即时是攻击玩家时候，仍然为该动画效果
-            if dist(m.x,m.y,p_mob.x,p_mob.y) ==1 then --判断敌人与player是否为邻近
-                --攻击玩家
+            m.task(m)--怪物状态机
 
-                --通过用player坐标减去当前角色的坐标，获取到撞击的方向。
-                dx,dy=p_mob.x-m.x,p_mob.y-m.y
-                mobbump(m,dx,dy)
-                hitmob(m,p_mob)
-                sfx(57)
+
             
-            else
-                --移动向玩家
-                local bdst,bx,by = 999,0,0 --bdst最佳距离 best distance，999，0，0为初始默认值
-                for i=1,4 do
-                    local dx,dy=dirx[i],diry[i]
-                    local tx,ty=m.x+dx,m.y+dy --tx，ty：目标x和目标y
-                    --如果是可行动的
-                    if iswalkable(tx,ty,"checkmobs") then
-                        local dst=dist(tx, ty, p_mob.x,p_mob.y)--获取当前角色正四方位上每个位置与player的距离
-        
-                        if dst<bdst then
-                            bdst,bx,by=dst,dx,dy--通过这个方法对八个方位上的与player的距离进行对比，选出最近位置。
-                        end
+           
+        end
+    end
+end
+
+function ai_wait(m)
+    if los(m.x,m.y,p_mob.x,p_mob.y)then --可以看到，
+        --攻击和追
+        addfloat("!", m.x*8+2, m.y*8, 10)
+        m.task=ai_attack--状态设置为攻击
+        m.tx,m.ty=p_mob.x,p_mob.y --将当下player位置，设置为目标位置
+    end
+end
+
+function ai_attack(m)
+    if dist(m.x,m.y,p_mob.x,p_mob.y) ==1 then --判断敌人与player是否为邻近
+        --攻击玩家
+        --通过用player坐标减去当前角色的坐标，获取到撞击的方向。
+        dx,dy=p_mob.x-m.x,p_mob.y-m.y
+        mobbump(m,dx,dy)
+        hitmob(m,p_mob)
+        sfx(57)
+    else
+        --移动向玩家
+        if los(m.x,m.y,p_mob.x,p_mob.y)then --可以看到，
+            --攻击和追
+            m.tx,m.ty=p_mob.x,p_mob.y --将当下player位置，设置为目标位置
+        end
+
+        if m.x==m.tx and m.y==m.ty then
+            addfloat("?", m.x*8+2, m.y*8, 10)
+            m.task=ai_wait
+        else
+            local bdst,bx,by = 999,0,0 --bdst最佳距离 best distance，999，0，0为初始默认值
+            for i=1,4 do
+                local dx,dy=dirx[i],diry[i]
+                local tx,ty=m.x+dx,m.y+dy --tx，ty：目标x和目标y
+                --如果是可行动的
+                if iswalkable(tx,ty,"checkmobs") then
+                    local dst=dist(tx, ty, m.tx,m.ty)--获取当前角色正四方位上每个位置与player最后获取的目标位置的距离
+
+                    if dst<bdst then
+                        bdst,bx,by=dst,dx,dy--通过这个方法对八个方位上的与player的距离进行对比，选出最近位置。
                     end
                 end
-                mobwalk(m,bx,by)
-                _upd=update_aiturn
-                p_t=0
             end
+            mobwalk(m,bx,by)
+            _upd=update_aiturn
+            --不确实是否保留：在追逐到目标位置的过程中更新视野
+            --if los(m.x,m.y,p_mob.x,p_mob.y)then --可以看到，
+                --攻击和追
+                --m.tx,m.ty=p_mob.x,p_mob.y --将当下player位置，设置为目标位置
+            --end
+            p_t=0
         end
     end
 end

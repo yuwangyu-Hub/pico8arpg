@@ -92,6 +92,7 @@ end
 --判断是否能够行走
 function iswalkable(x,y,mode)
     if mode==nil then mode="" end
+    --sight
     if inbounds(x,y) then --如果在界限之内
         local tile = mget(x,y)--只能获取到地图快上的精灵，我们绘制的角色无法在这里获取，所以需要单独进行检测角色碰撞
 
@@ -117,7 +118,8 @@ function hitmob(atkm,defm) --攻击者，受击者
     defm.hp-=dmg
     defm.flash=10
  
-    addfloat("-"..dmg, defm.x*8, defm.y*8, 8)
+    --悬浮物显示
+    addfloat("-"..dmg, defm.x*8, defm.y*8, 9)
 
     if defm.hp<=0 then--当被攻击者生命值小于0
         add(dmob,defm)--添加到死亡合集
@@ -137,3 +139,48 @@ function checkend()
     end
     return true
 end 
+
+
+--视线
+--转向实现检测，获取到player坐标和该小怪坐标，然后检测两点之间是否遮挡。如果有遮挡则看不到。无遮挡就能看到
+--返回true则可看到允许做其他行为，返回false则看不到
+function los(x1,y1,x2,y2)--源点和目标点
+    --sx,sy,dx,dy局部变量，用于实际的算法
+    local fast,sx,sy,dx,dy=true --fast初始赋值为真，其他无初始默认值
+
+    --如果距离为邻近则可以看到
+    if dist(x1,y1,x2,y2)==1 then return true end--如果距离为1，则不必进行算法直接返回真
+    
+    if x1<x2 then
+        sx=1
+        dx=x2-x1
+    else
+        sx=-1
+        dx=x1-x2
+    end
+    if y1<y2 then
+        sy=1
+        dy=y2-y1
+    else
+        sy=-1
+        dy=y1-y2
+    end
+
+    local err,e2=dx-dy,nil
+
+    while not(x1==x2 and y1==y2) do
+        --sight 一种新的模式（视野）
+        if not fast and iswalkable(x1,y1,"sight")==false then return false end
+        fast=false
+        e2=err+err
+        if e2>-dy then
+        err=err-dy
+        x1=x1+sx
+        end
+        if e2<dx then
+            err=err+dx
+            y1=y1+sy
+        end
+    end
+    return true
+end

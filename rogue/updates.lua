@@ -43,7 +43,7 @@ end
 
 --非player的角色转向状态
 function update_aiturn()
-    
+    dobuffbutt()--待小怪移动时也需要获取按钮缓冲的输入
     --可控制移动速度
     p_t = min(p_t+0.125,1) --使用去最小值的方法，让p_t始终在1的范围之内
     
