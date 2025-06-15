@@ -59,7 +59,7 @@ function printbug()
 	print("spd:"..wy.speed)
 	print(debug)
 	print(debug1)
-	print(debug2)
+	print(iscoll)
 	print(wy.spd.spx)
 	print(wy.spd.spy)
 	

@@ -68,6 +68,13 @@ function wyfsm(sb)--状态机
 					if sb.dire==1 or sb.dire==2 or sb.dire==8 then
 						sb.spd.spx=0
 						sb.spd.spy=diry[sb.dire]*sb.speed
+						sb.frame=sb.sprs.push[(colldire+1)/2]
+					elseif sb.dire==3 or sb.dire==7 then
+						iscoll=false
+						sb.spd.spx=0
+						sb.spd.spy=diry[sb.dire]*sb.speed
+						sb.move_t+=.2
+						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
 						move(sb)
 					end
@@ -75,6 +82,13 @@ function wyfsm(sb)--状态机
 					if sb.dire==3  or sb.dire==2 or sb.dire==4 then
 						sb.spd.spx=dirx[sb.dire]*sb.speed
 						sb.spd.spy=0
+						sb.frame=sb.sprs.push[(colldire+1)/2]
+					elseif sb.dire==1 or sb.dire==5 then
+						iscoll=false
+						sb.spd.spx=dirx[sb.dire]*sb.speed
+						sb.spd.spy=0
+						sb.move_t+=.2
+						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
 						move(sb)
 					end
@@ -82,6 +96,13 @@ function wyfsm(sb)--状态机
 					if sb.dire==5  or sb.dire==4 or sb.dire==6 then
 						sb.spd.spx=0
 						sb.spd.spy=diry[sb.dire]*sb.speed
+						sb.frame=sb.sprs.push[(colldire+1)/2]
+					elseif sb.dire==3 or sb.dire==7 then
+						iscoll=false
+						sb.spd.spx=0
+						sb.spd.spy=diry[sb.dire]*sb.speed
+						sb.move_t+=.2
+						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
 						move(sb)
 					end
@@ -89,12 +110,17 @@ function wyfsm(sb)--状态机
 					if sb.dire==7  or sb.dire==8 or sb.dire==6 then
 						sb.spd.spx=dirx[sb.dire]*sb.speed
 						sb.spd.spy=0
+						sb.frame=sb.sprs.push[(colldire+1)/2]
+					elseif sb.dire==1 or sb.dire==5 then
+						iscoll=false
+						sb.spd.spx=dirx[sb.dire]*sb.speed
+						sb.spd.spy=0
+						sb.move_t+=.2
+						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
 						move(sb)
 					end
 				end
-				sb.frame=sb.sprs.push[(colldire+1)/2]
-
 			else
 				iscoll=false
 				move(sb)

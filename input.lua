@@ -1,9 +1,9 @@
 function input_direct_sys()
 	local btnv=btn()&0b1111 --遮罩剔除掉X\O的输入
 	wy.dire = input_dire[btnv+1] --获取方向
-	if (wy.dire==2 or wy.dire==1 or wy.dire==8) and  iscoll then
+	if (wy.dire==2 or wy.dire==1 or wy.dire==8) and  not iscoll then
 		wy.sprflip=true --如果是右上方向，精灵翻转
-	elseif (wy.dire==4 or wy.dire==5 or wy.dire==6) and  iscoll then
+	elseif (wy.dire==4 or wy.dire==5 or wy.dire==6) and  not iscoll then
 		wy.sprflip=false --其他方向不翻转
 	end
 	if btnp()&0b110000 ==16 then --攻击为真
