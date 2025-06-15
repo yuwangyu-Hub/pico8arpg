@@ -56,23 +56,23 @@ function wyfsm(sb)--状态机
 
 
 			local colldire=checkdir(_obj,sb)--检测方向
-
-
+			--debug="move"
 			if ck_item(_obj,sb,0,0,0,0) then
 				iscoll=true
 				--and (a== wy.dire or b == wy.dire or c == wy.dire) then
 				--注意，因为pico-8的缺陷，所以存在如果要斜角度归一化，那么像素级别的碰撞，在右边和下边两个角度上，斜角度移动会在设置的像素碰撞上再进一个像素
+				debug="push"
 				--检测碰撞方向
-				--如果监测到移动前方有物体（flag get）进入push状态
+				 --如果监测到移动前方有物体（flag get）进入push状态
 				if colldire==1 then
 					if sb.dire==1 or sb.dire==2 or sb.dire==8 then
 						sb.spd.spx=0
 						sb.spd.spy=diry[sb.dire]*sb.speed
 						sb.frame=sb.sprs.push[(colldire+1)/2]
 					elseif sb.dire==3 or sb.dire==7 then
+						iscoll=false
 						sb.spd.spx=0
 						sb.spd.spy=diry[sb.dire]*sb.speed
-						--动画相关
 						sb.move_t+=.2
 						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
@@ -84,9 +84,9 @@ function wyfsm(sb)--状态机
 						sb.spd.spy=0
 						sb.frame=sb.sprs.push[(colldire+1)/2]
 					elseif sb.dire==1 or sb.dire==5 then
+						iscoll=false
 						sb.spd.spx=dirx[sb.dire]*sb.speed
 						sb.spd.spy=0
-						--动画相关
 						sb.move_t+=.2
 						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
@@ -98,9 +98,9 @@ function wyfsm(sb)--状态机
 						sb.spd.spy=diry[sb.dire]*sb.speed
 						sb.frame=sb.sprs.push[(colldire+1)/2]
 					elseif sb.dire==3 or sb.dire==7 then
+						iscoll=false
 						sb.spd.spx=0
 						sb.spd.spy=diry[sb.dire]*sb.speed
-						--动画相关
 						sb.move_t+=.2
 						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
@@ -112,16 +112,15 @@ function wyfsm(sb)--状态机
 						sb.spd.spy=0
 						sb.frame=sb.sprs.push[(colldire+1)/2]
 					elseif sb.dire==1 or sb.dire==5 then
+						iscoll=false
 						sb.spd.spx=dirx[sb.dire]*sb.speed
 						sb.spd.spy=0
-						--动画相关
 						sb.move_t+=.2
 						sb.frame=sb.sprs.move[ceil(sb.move_t%#sb.sprs.move)]
 					else
 						move(sb)
 					end
 				end
-				
 			else
 				iscoll=false
 				move(sb)
