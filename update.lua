@@ -2,6 +2,7 @@
 function update_game()
 	wyfsm(wy)--主角的行为
 	--chase(snake,wy)
+	spr_flip(wy)
 end
 
 function jishi()

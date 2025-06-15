@@ -116,6 +116,119 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 		return false
 	end
 end
+
+function move_not_push(_sb,_colldire)
+	if _colldire==1 then
+		if _sb.dire==1 or _sb.dire==2 or _sb.dire==8 then
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==3 or _sb.dire==7 then
+			iscoll=false
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
+	elseif _colldire==3 then
+		if _sb.dire==3  or _sb.dire==2 or _sb.dire==4 then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==1 or _sb.dire==5 then
+			iscoll=false
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
+	elseif _colldire==5 then
+		if _sb.dire==5  or _sb.dire==4 or _sb.dire==6 then
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==3 or _sb.dire==7 then
+			iscoll=false
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
+	elseif _colldire==7 then
+		--当角色在边缘位置时候
+		if _sb.dire==7  or _sb.dire==8 or _sb.dire==6 then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==1 or _sb.dire==5 then
+			iscoll=false
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
+	end
+end
+
+function spr_flip(_sb)
+    if (_sb.dire==2 or _sb.dire==1 or _sb.dire==8) and  not iscoll then
+		_sb.sprflip=true --如果是右上方向，精灵翻转
+	elseif (_sb.dire==4 or _sb.dire==5 or _sb.dire==6) and  not iscoll then
+		_sb.sprflip=false --其他方向不翻转
+	end
+end
+
+function move_anim(_sb)
+	_sb.move_t+=.2
+	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
+end
+function pull_anim(_sb,_colldire)
+    _sb.frame=_sb.sprs.push[(_colldire+1)/2]
+end
+
+function attack_swordpos(_sb)--处理update中的武器实时位置
+    if _sb.dire!=0 then
+        sword.x = _sb.x+dirx[_sb.dire]*8
+        sword.y = _sb.y+diry[_sb.dire]*8
+    elseif _sb.dire==0 then
+        if _sb.sprflip then
+            sword.x = _sb.x-7
+        else
+            sword.x = _sb.x+7
+        end
+        sword.y = _sb.y
+    end
+end
+function move(_sb)
+	_sb.spd.spx=0
+	_sb.spd.spy=0
+	if _sb.dire!=0 then
+		_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+		_sb.spd.spy=diry[_sb.dire]*_sb.speed
+	end
+end
+function roll(_sb)
+	if _sb.dire!=0 then
+		_sb.spd.spx=dirx[_sb.dire]*_sb.rollspeed
+		_sb.spd.spy=diry[_sb.dire]*_sb.rollspeed
+	else
+		if _sb.sprflip then
+			_sb.spd.spx=-_sb.rollspeed
+		else
+			_sb.spd.spx=_sb.rollspeed
+		end
+	end
+end
+function hurt()
+	--攻击碰撞后，向收到攻击的方向后退
+	--1识别受到攻击的方向
+	--2向后退
+end
+
 --归一化
 function nomalize(sb,speed1,speed2)
 	local respeed=0
