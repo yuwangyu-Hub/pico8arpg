@@ -1,64 +1,86 @@
---主框架
+--项目目标实现：
+--战斗系统
+--背包系统
+  --武器系统
+  --道具系统
+--技能系统
+--boss战（1个）
+--地图切换系统（不规则地图）
+--对话系统
+--UI系统
+------------------------------------------------------------
+input_dire={0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0 } --btn()0-15所对应的方向：从左边开始顺时针8方向
+dirx={-1,-1, 0, 1,1,1, 0,-1}
+diry={ 0,-1,-1,-1,0,1, 1, 1}
+character={} --敌人和NPC
+item={}--物品：获取
+obj={}--物体：分为两种，可推动的物体和不可推动的物体
+cb_line={}--碰撞盒
 
---动画系统
---攻击制作
---翻滚粒子特效
-
+px1,py1,px2,py2=0,0,0,0
+iscoll=false
+debug=""
+debug1=""
+debug2=""
+debug3=""
 function _init()
-
-	--主角
-	wy=makerole()
-	wy.x=60
-	wy.y=60
-	wy.spx=0
-	wy.spy=0
-	wy.speed=1.3
-	wy.rollspeed=8
-
-	wy.move_t=0
-	wy.roll_t=0
-	wy.att_t=0
-
-	wy.aniframe=2
-	--精灵动画的表
-	wy.animsprs={
-		idle=2,
-		move={1,2,3,4},
-		roll={5,5,6,6,7,7,8,8},
-		attack={9,10,11}
-	}
-	wy.att=false--if attack
-	wy.dire=0
+	startgame()
+	playerdata()
+	sword()
+	makeobj(1,100,80,7,7,0,0,0,0)--wood
+	makeobj(2,64,64,8,8,0,0,0,0)--box
+	makeobj(3,32,64,8,8,0,0,0,0)--coin
+	
+	--enemydata()
 end
-
-function _update()
-	--墙壁检测
-	checkwall(wy)
-	--主角的行为
-	wy_act(wy)
+function _update() 
+	_upd()
 end
-
-
-
 function _draw()
-	cls(3)--屏幕颜色
-
-	--攻击武器动画
-	if wy.att then
-		--draweapon(wy)
-	end
-
-	--动画播放
-	wy_anim(wy)
-
-	--UI显示
-	--ui()
-
-	--[[--测试用八方向显示
-	if not wy.roll then
-		draw_direct_sys(wy)
-	end--]]
+	cls()
+	_drw()
+	printbug()
 end
+function startgame()
+	_upd=update_mamenu
+	_drw=draw_mamenu
+	--menu光标
+	mainmenu_cursor={
+		count=1,
+		x=64,
+		y=90,
+		spr=112
+	}
+	blinkt=0
+end
+function printbug()
+	print(wy.state,20,2,7)
+	print("dire:"..wy.dire)
+	print("spd:"..wy.speed)
+	print(debug)
+	print(debug1)
+	print(debug2)
+	print(wy.spd.spx)
+	print(wy.spd.spy)
+	
+	--[[
+	if #cb_line>0 then
+		print(cb_line[1].num,1,20,1)
+		print(cb_line[1].coll,10,20,1)
+		print(cb_line[2].num,1,30,1)
+		print(cb_line[2].coll,10,30,1)
+		print(cb_line[3].num,1,40,1)
+		print(cb_line[3].coll,10,40,1)
+		print(cb_line[4].num,1,50,1)
+		print(cb_line[4].coll,10,50,1)
+	end]]
+
+	
+end
+
+
+
+
 
 
 
