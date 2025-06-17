@@ -56,20 +56,12 @@ function wyfsm(sb)--状态机
 			local colldire=checkdir(_obj,sb)--检测方向
 			--debug="move"
 			if ck_item(_obj,sb,0,0,0,0) then
-				iscoll=true
 				--and (a== wy.dire or b == wy.dire or c == wy.dire) then
 				--注意，因为pico-8的缺陷，所以存在如果要斜角度归一化，那么像素级别的碰撞，在右边和下边两个角度上，斜角度移动会在设置的像素碰撞上再进一个像素
 				--检测碰撞方向
 				--如果监测到移动前方有物体（flag get）进入push状态
-				if _obj.type=="fixed" then
-					--推不动的各种交互逻辑
-					move_not_push(sb,colldire)
-				elseif _obj.type=="move" then
-					sb.state=sb.allstate.push
-				end
-				
+				move_not_push(_obj,sb,colldire)
 			else
-				iscoll=false
 				move(sb)
 				move_anim(sb)
 			end

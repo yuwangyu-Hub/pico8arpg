@@ -18,7 +18,7 @@ obj={}--物体：分为两种，可推动的物体和不可推动的物体
 cb_line={}--碰撞盒
 
 px1,py1,px2,py2=0,0,0,0
-iscoll=false
+iscollFlip=false --是否碰撞翻转
 debug=""
 debug1=""
 debug2=""
@@ -59,9 +59,7 @@ function printbug()
 	print("spd:"..wy.speed)
 	print(debug)
 	print(debug1)
-	print(iscoll)
-	print(wy.spd.spx)
-	print(wy.spd.spy)
+	print(debug2)
 	
 	--[[
 	if #cb_line>0 then
