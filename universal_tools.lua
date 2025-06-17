@@ -89,14 +89,23 @@ function checkdir(obj,sb)
 	local sx1,sy1=sb.x,sb.y
 	local sx2=sb.x+sb.w
  	local sy2=sb.y+sb.h
-	if sx1>=ox2-1 and sy2>=oy1 and sy1<=oy2 then--物体在左边
-		return 1--,8,2
-	elseif sx2<=ox1+1 and sy2>=oy1 and sy1<=oy2 then--物体在右边
-		return 5--,4,6	
-	elseif sy2<=oy1+1 and sx2>=ox1 and sx1<=ox2 then--物体在下边
-		return 7--,8,6
-	elseif sy1>=oy2-1 and sx2>=ox1 and sx1<=ox2 then--物体在上边
-		return 3--,2,4
+
+	if sx1>=ox2 and sy2>oy1 and sy1<oy2 then--物体在左边
+		return 1
+	elseif sx2<=ox1 and sy2<=oy1 then
+		return 2--物体在右上边
+	elseif sy1>=oy2 and sx2>ox1 and sx1<ox2 then--物体在上边
+		return 3
+	elseif sx1>=ox2 and sy2<=oy1 then
+		return 4--物体在左上边
+	elseif sx2<=ox1 and sy2>oy1 and sy1<oy2 then--物体在右边
+		return 5	
+	elseif sx1>=ox2 and sy1>=oy2 then
+		return 6--物体在右下边
+	elseif sy2<=oy1 and sx2>ox1 and sx1<ox2 then--物体在下边
+		return 7 
+	elseif sx2<=ox1 and sy1>=oy2 then
+		return 8--物体在左下边 
 	else
 		return 0
 	end
@@ -126,7 +135,6 @@ function move_not_push(_sb,_colldire)
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
 			pull_anim(_sb,_colldire)
 		elseif _sb.dire==3 or _sb.dire==7 then
-			iscoll=false
 			_sb.spd.spx=0
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
 			move_anim(_sb)
@@ -139,7 +147,6 @@ function move_not_push(_sb,_colldire)
 			_sb.spd.spy=0
 			pull_anim(_sb,_colldire)
 		elseif _sb.dire==1 or _sb.dire==5 then
-			iscoll=false
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 			_sb.spd.spy=0
 			move_anim(_sb)
@@ -152,7 +159,7 @@ function move_not_push(_sb,_colldire)
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
 			pull_anim(_sb,_colldire)
 		elseif _sb.dire==3 or _sb.dire==7 then
-			iscoll=false
+	
 			_sb.spd.spx=0
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
 			move_anim(_sb)
@@ -166,10 +173,38 @@ function move_not_push(_sb,_colldire)
 			_sb.spd.spy=0
 			pull_anim(_sb,_colldire)
 		elseif _sb.dire==1 or _sb.dire==5 then
-			iscoll=false
+
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 			_sb.spd.spy=0
 			move_anim(_sb)
+		else
+			move(_sb)
+		end
+	elseif _colldire==2 then
+		if _sb.dire==6 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	elseif _colldire==4 then
+		if _sb.dire==8 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	elseif _colldire==6 then
+		if _sb.dire==2 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	elseif _colldire==8 then
+		if _sb.dire==4 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
 		else
 			move(_sb)
 		end

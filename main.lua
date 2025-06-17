@@ -56,24 +56,12 @@ end
 function printbug()
 	print(wy.state,20,2,7)
 	print("dire:"..wy.dire)
-	print("spd:"..wy.speed)
+	print(iscoll)
 	print(debug)
 	print(debug1)
-	print(iscoll)
 	print(wy.spd.spx)
 	print(wy.spd.spy)
 	
-	--[[
-	if #cb_line>0 then
-		print(cb_line[1].num,1,20,1)
-		print(cb_line[1].coll,10,20,1)
-		print(cb_line[2].num,1,30,1)
-		print(cb_line[2].coll,10,30,1)
-		print(cb_line[3].num,1,40,1)
-		print(cb_line[3].coll,10,40,1)
-		print(cb_line[4].num,1,50,1)
-		print(cb_line[4].coll,10,50,1)
-	end]]
 
 	
 end
