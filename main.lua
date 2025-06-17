@@ -17,7 +17,7 @@ item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
 cb_line={}--碰撞盒
 
-px1,py1,px2,py2=0,0,0,0
+--px1,py1,px2,py2=0,0,0,0
 iscoll=false
 debug=""
 debug1=""
@@ -28,8 +28,8 @@ function _init()
 	playerdata()
 	sword()
 	makeobj(1,100,80,7,7,0,0,0,0)--wood
-	makeobj(2,64,64,8,8,0,0,0,0)--box
-	makeobj(3,32,64,8,8,0,0,0,0)--coin
+	makeobj(2,64,64,7,7,0,0,0,0)--box
+	makeobj(3,32,64,7,7,0,0,0,0)--coin
 	
 	--enemydata()
 end

@@ -8,7 +8,7 @@ function draw_game()
     --物体精灵显示
     for o in all (obj) do
         spr(o.spr, o.sprx, o.spry)
-        --rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
+        rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end
     --主角
     spr(wy.frame, wy.x, wy.y, 1, 1, wy.sprflip)
@@ -16,6 +16,9 @@ function draw_game()
     --UI显示
     ui_show()
     --检测碰撞线显示
+    for c in all(cb_line) do
+       rect(c.x1,c.y1,c.x2,c.y2,c.c)
+    end
 end
 function att_weapon(_sb)--显示攻击武器
     --攻击时候的武器绘制

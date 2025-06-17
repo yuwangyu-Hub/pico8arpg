@@ -64,6 +64,8 @@ function act_checkline(sb)--识别方向激活检测
     end
 end
 function ck_item(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
+	creat_ck_line(_sb,cx,cy,cw,ch)--创建检测线
+	act_checkline(_sb)--激活检测盒
 	local p={
 		x=_sb.x+cx,
 		y=_sb.y+cy,
@@ -175,9 +177,9 @@ function move_not_push(_sb,_colldire)
 end
 
 function spr_flip(_sb)
-    if (_sb.dire==2 or _sb.dire==1 or _sb.dire==8) and  not iscoll then
+    if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
 		_sb.sprflip=true --如果是右上方向，精灵翻转
-	elseif (_sb.dire==4 or _sb.dire==5 or _sb.dire==6) and  not iscoll then
+	elseif _sb.dire==4 or _sb.dire==5 or _sb.dire==6 then
 		_sb.sprflip=false --其他方向不翻转
 	end
 end
