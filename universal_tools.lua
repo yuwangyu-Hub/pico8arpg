@@ -1,8 +1,6 @@
---通用工具lib
---镜头抖动
+--通用工具lib,镜头抖动
 function doshake()
-	local shakex=rnd(shake)-(shake/2)
-	local shakey=rnd(shake)-(shake/2)
+	local shakex,shakey=rnd(shake)-(shake/2),rnd(shake)-(shake/2)
 	camera(shakex,shakey)
 	if shake>10 then
 		shake*=0.9
@@ -11,7 +9,6 @@ function doshake()
 		if(shake<1)shake=0
 	end
 end
---闪烁工具
 --闪烁工具，返回闪烁的颜色动画
 function blink()
 	local blink_anim={5,5,5,5,5,5,5,5,6,6,7,7,6,6,5,5}
@@ -23,8 +20,6 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
---画面检测：128X128
---对象、左、右、上、下
 function checkwall(sb,lx,rx,uy,dy)
 	if sb.x<lx then sb.x=lx end
 	if sb.x>rx then sb.x=rx end 
@@ -32,13 +27,8 @@ function checkwall(sb,lx,rx,uy,dy)
 	if sb.y>dy then sb.y=dy end
 	return sb
 end
-
 function creat_ck_line(_sb,cx,cy,cw,ch)--显示检测的四边
-	local collx=_sb.x+cx
-	local colly=_sb.y+cy
-	local collw=_sb.w+cw 
-	local collh=_sb.h+ch
-	----ck:check，coll:collision
+	local collx,colly,collw,collh=_sb.x+cx,_sb.y+cy,_sb.w+cw ,_sb.h+ch
 	cb_line[1]={num=1,x1=collx,   y1=colly+7,x2=collx,  y2=colly,   c=14, ck=false, coll=false}
 	cb_line[2]={num=3,x1=collx,   y1=colly,  x2=collx+7,y2=colly,   c=14, ck=false, coll=false}
 	cb_line[3]={num=5,x1=collx+7, y1=colly,  x2=collx+7,y2=colly+7, c=14, ck=false, coll=false}
@@ -79,16 +69,11 @@ function ck_item(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
 	else
 		return false
 	end
-	
 end
 --检测被检测对象在检测对象的哪个方向
 function checkdir(obj,sb)
-	local ox1,oy1=obj.x,obj.y
-	local ox2=obj.x+obj.w
-	local oy2=obj.y+obj.h
-	local sx1,sy1=sb.x,sb.y
-	local sx2=sb.x+sb.w
- 	local sy2=sb.y+sb.h
+	local ox1,oy1,ox2,oy2=obj.x,obj.y,obj.x+obj.w,obj.y+obj.h
+	local sx1,sy1,sx2,sy2=sb.x,sb.y,sb.x+sb.w,sb.y+sb.h
 
 	if sx1>=ox2 and sy2>oy1 and sy1<oy2 then--物体在左边
 		return 1
@@ -113,14 +98,8 @@ end
 --碰撞盒检测
 --物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
 function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh) 
-	local px1=_px
-	local py1=_py
-	local px2=_px+_pw
-	local py2=_py+_ph
-	local bx1=_bx
-	local by1=_by
-	local bx2=_bx+_bw
-	local by2=_by+_bh
+	local px1,py1,px2,py2=_px,_py,_px+_pw,_py+_ph	
+	local bx1,by1,bx2,by2=_bx,_by,_bx+_bw,_by+_bh
 	if px2>=bx1 and px1<=bx2 and py2>=by1 and py1<=by2 then
 		return true
 	else
@@ -129,6 +108,7 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 end
 
 function move_not_push(_sb,_colldire)
+	--移动状态下碰撞到不可移动的物体时的反馈（像素级别）
 	if _colldire==1 then
 		if _sb.dire==1 or _sb.dire==2 or _sb.dire==8 then
 			_sb.spd.spx=0
@@ -159,7 +139,6 @@ function move_not_push(_sb,_colldire)
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
 			pull_anim(_sb,_colldire)
 		elseif _sb.dire==3 or _sb.dire==7 then
-	
 			_sb.spd.spx=0
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
 			move_anim(_sb)
@@ -167,13 +146,11 @@ function move_not_push(_sb,_colldire)
 			move(_sb)
 		end
 	elseif _colldire==7 then
-		--当角色在边缘位置时候
 		if _sb.dire==7  or _sb.dire==8 or _sb.dire==6 then
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 			_sb.spd.spy=0
 			pull_anim(_sb,_colldire)
 		elseif _sb.dire==1 or _sb.dire==5 then
-
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 			_sb.spd.spy=0
 			move_anim(_sb)
@@ -210,7 +187,6 @@ function move_not_push(_sb,_colldire)
 		end
 	end
 end
-
 function spr_flip(_sb)
     if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
 		_sb.sprflip=true --如果是右上方向，精灵翻转
@@ -218,7 +194,6 @@ function spr_flip(_sb)
 		_sb.sprflip=false --其他方向不翻转
 	end
 end
-
 function move_anim(_sb)
 	_sb.move_t+=.2
 	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
@@ -226,7 +201,6 @@ end
 function pull_anim(_sb,_colldire)
     _sb.frame=_sb.sprs.push[(_colldire+1)/2]
 end
-
 function attack_swordpos(_sb)--处理update中的武器实时位置
     if _sb.dire!=0 then
         sword.x = _sb.x+dirx[_sb.dire]*8
