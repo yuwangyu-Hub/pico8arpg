@@ -87,14 +87,22 @@ function checkdir(obj,sb)
 	local sx1,sy1=sb.x,sb.y
 	local sx2=sb.x+sb.w
  	local sy2=sb.y+sb.h
-	if sx1>=ox2-1 and sy2>=oy1 and sy1<=oy2 then--物体在左边
+	if sx1>=ox2 and sy2>oy1 and sy1<oy2 then--物体在左边
 		return 1
-	elseif sx2<=ox1+1 and sy2>=oy1 and sy1<=oy2 then--物体在右边
-		return 5
-	elseif sy2<=oy1+1 and sx2>=ox1 and sx1<=ox2 then--物体在下边
-		return 7
-	elseif sy1>=oy2-1 and sx2>=ox1 and sx1<=ox2 then--物体在上边
+	elseif sx2<=ox1 and sy2<=oy1 then	
+		return 2
+	elseif sy1>=oy2 and sx2>ox1 and sx1<ox2 then--物体在上边
 		return 3
+	elseif sx1>=ox2 and sy2<=oy1 then
+		return 4
+	elseif sx2<=ox1 and sy2>oy1 and sy1<oy2 then--物体在右边
+		return 5
+	elseif sx1>=ox2 and sy1>=oy2 then
+		return 6
+	elseif sy2<=oy1 and sx2>ox1 and sx1<ox2 then--物体在下边
+		return 7
+	elseif sx2<=ox1 and sy1>=oy2 then
+		return 8
 	else
 		return 0
 	end
@@ -119,8 +127,7 @@ end
 
 function move_not_push(_obj,_sb,_colldire)
 	--一种1、3、5、7方向数据的整合码
-	--Dimensional dataset
-	--
+	--[[Dimensional dataset
 	d_date={
 	  --正角度、斜角度1、斜角度2，直角度1，直角度2，x对应值，y对应值
 		{1,2,8,3,7,0,1},
@@ -145,140 +152,157 @@ function move_not_push(_obj,_sb,_colldire)
 		end
 	elseif _obj.type=="move"  then
 		--推动的各种物体交互逻辑
-	end
-	--[[*边缘滑动过渡效果
+	end]]
+	--*边缘滑动过渡效果
 	if _colldire==1 then
-		if _obj.type=="fixed" then
-			--推不动的各种交互逻辑
+		if _sb.dire==1  then
 			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.y-(_sb.y+_sb.h))<=_sb.h/2 and _sb.dire==1 then
+				if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==1 then
 					_sb.spd.spx=0
 					_sb.spd.spy=-1*_sb.speed
-				elseif abs((_obj.y+_obj.h)-_sb.y)<=_sb.h/2 and _sb.dire==1 then
+				elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==1 then
 					_sb.spd.spx=0
 					_sb.spd.spy=1*_sb.speed
 				end
-				debug2="colledge_1"
 			else
-				if _sb.dire==1 or _sb.dire==2 or _sb.dire==8 then
-					_sb.spd.spx=0
-					_sb.spd.spy=diry[_sb.dire]*_sb.speed
-					pull_anim(_sb,_colldire)
-				elseif _sb.dire==3 or _sb.dire==7 then
-					_sb.spd.spx=0
-					_sb.spd.spy=diry[_sb.dire]*_sb.speed
-					move_anim(_sb)
-				else
-					move(_sb)
-				end
+				_sb.spd.spx=0
+				_sb.spd.spy=diry[_sb.dire]*_sb.speed
+				pull_anim(_sb,_colldire)
 			end
-			debug2=""
-		elseif _obj.type=="move" then
-			--推动的各种物体交互逻辑
+		elseif  _sb.dire==2 or _sb.dire==8 then
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==3 or _sb.dire==7 then
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			move_anim(_sb)
+		else
+			move(_sb)
 		end
 	elseif _colldire==3 then
-		if _obj.type=="fixed" then
-			--推不动的各种交互逻辑
+		if _sb.dire==3   then
 			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.x-(_sb.x+_sb.w))<=_sb.w/2 and _sb.dire==3 then
+				if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==3 then
 					_sb.spd.spx=-1*_sb.speed
 					_sb.spd.spy=0
-				elseif abs((_obj.x+_obj.w)-_sb.x)<=_sb.w/2 and _sb.dire==3 then
+				elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==3 then
 					_sb.spd.spx=1*_sb.speed
 					_sb.spd.spy=0
-				end
-				debug2="colledge_3"
+				end	
 			else
-				if _sb.dire==3  or _sb.dire==2 or _sb.dire==4 then
-					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-					_sb.spd.spy=0
-					pull_anim(_sb,_colldire)
-				elseif _sb.dire==1 or _sb.dire==5 then
-					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-					_sb.spd.spy=0
-					move_anim(_sb)
-				else
-					move(_sb)
-				end
+				_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+				_sb.spd.spy=0
+				pull_anim(_sb,_colldire)
 			end
-			debug2=""
-		elseif _obj.type=="move" then
-			--推动的各种物体交互逻辑
-		end	
+		elseif _sb.dire==2 or _sb.dire==4 then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==1 or _sb.dire==5 then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
 	elseif _colldire==5 then
-		if _obj.type=="fixed" then
+		if _sb.dire==5  then
 			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.y-(_sb.y+_sb.h))<=_sb.h/2 and _sb.dire==5 then
+				if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==5 then
 					_sb.spd.spx=0
 					_sb.spd.spy=-1*_sb.speed
-				elseif abs((_obj.y+_obj.h)-_sb.y)<=_sb.h/2 and _sb.dire==5 then
+				elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==5 then
 					_sb.spd.spx=0
 					_sb.spd.spy=1*_sb.speed
 				end
-				debug2="colledge_5"
 			else
-				if _sb.dire==5  or _sb.dire==4 or _sb.dire==6 then
-					_sb.spd.spx=0
-					_sb.spd.spy=diry[_sb.dire]*_sb.speed
-					pull_anim(_sb,_colldire)
-				elseif _sb.dire==3 or _sb.dire==7 then
-					_sb.spd.spx=0
-					_sb.spd.spy=diry[_sb.dire]*_sb.speed
-					move_anim(_sb)
-				else
-					move(_sb)
-				end
-				debug2=""
+				_sb.spd.spx=0
+				_sb.spd.spy=diry[_sb.dire]*_sb.speed
+				pull_anim(_sb,_colldire)
 			end
-		elseif _obj.type=="move" then
-			--推动的各种物体交互逻辑
-		end	
+		elseif _sb.dire==4 or _sb.dire==6 then
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==3 or _sb.dire==7 then
+			_sb.spd.spx=0
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
 	elseif _colldire==7 then
-		if _obj.type=="fixed" then
-			--当角色在边缘位置时候
+		if _sb.dire==7 then
 			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.x-(_sb.x+_sb.w))<=_sb.w/2  and _sb.dire==7 then
+				if abs(_obj.x-(_sb.x+_sb.w))<=3  and _sb.dire==7 then
 					_sb.spd.spx=-1*_sb.speed
 					_sb.spd.spy=0
-				elseif abs((_obj.x+_obj.w)-_sb.x)<=_sb.w/2 and _sb.dire==7 then
+				elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==7 then
 					_sb.spd.spx=1*_sb.speed
 					_sb.spd.spy=0
 				end
-				debug2="colledge_7"
 			else
-				if _sb.dire==7  or _sb.dire==8 or _sb.dire==6 then
-					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-					_sb.spd.spy=0
-					pull_anim(_sb,_colldire)
-				elseif _sb.dire==1 or _sb.dire==5 then
-					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-					_sb.spd.spy=0
-					move_anim(_sb)
-				else
-					move(_sb)
-				end
-				debug2=""
+				_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+				_sb.spd.spy=0
+				pull_anim(_sb,_colldire)
 			end
-		elseif _obj.type=="move" then
-			--推动的各种物体交互逻辑
-		end	
-	end]]
+		elseif  _sb.dire==8 or _sb.dire==6 then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			pull_anim(_sb,_colldire)
+		elseif _sb.dire==1 or _sb.dire==5 then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=0
+			move_anim(_sb)
+		else
+			move(_sb)
+		end
+	elseif _colldire==2 then
+		if _sb.dire==6 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	elseif _colldire==4 then
+		if _sb.dire==8 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	elseif _colldire==6 then
+		if _sb.dire==2 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	elseif _colldire==8 then
+		if _sb.dire==4 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			move(_sb)
+		end
+	end
 end
 
 function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞边缘
-	local edgew=_sb.w/2 --3/7方向使用
-	local edgeh=_sb.h/2 --1/5方向使用
+	--local edgew=_sb.w/2 --3/7方向使用
+	--local edgeh=_sb.h/2 --1/5方向使用
 	local sbcenter_x=_sb.x+_sb.w/2
 	local sbcenter_y=_sb.y+_sb.h/2
 	local objcenter_x=_obj.x+_obj.w/2
 	local objcenter_y=_obj.y+_obj.h/2
 
 	if _colldire==1 or _colldire==5 then
-		if abs(_obj.y-(_sb.y+_sb.h))<=edgeh or abs((_obj.y+_obj.h)-_sb.y)<=edgeh then
+		if abs(_obj.y-(_sb.y+_sb.h))<=3 or abs((_obj.y+_obj.h)-_sb.y)<=3 then
 			return true
 		end
 	elseif _colldire==3 or _colldire==7 then
-		if abs(_obj.x-(_sb.x+_sb.w))<=edgew or abs((_obj.x+_obj.w)-_sb.x)<=edgew then
+		if abs(_obj.x-(_sb.x+_sb.w))<=3 or abs((_obj.x+_obj.w)-_sb.x)<=3 then
 			return true
 		end
 	else
@@ -287,9 +311,9 @@ function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞边缘
 end
 
 function spr_flip(_sb)
-	if (_sb.dire==2 or _sb.dire==1 or _sb.dire==8)  then
+	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
 		_sb.sprflip=true --如果是右上方向，精灵翻转
-	elseif (_sb.dire==4 or _sb.dire==5 or _sb.dire==6)  then
+	elseif _sb.dire==4 or _sb.dire==5 or _sb.dire==6 then
 		_sb.sprflip=false --其他方向不翻转
 	end
 	

@@ -59,7 +59,8 @@ function printbug()
 	print("spd:"..wy.speed)
 	print(debug)
 	print(debug1)
-	print(debug2)
+	print(wy.x)
+	print(wy.y)
 	
 	--[[
 	if #cb_line>0 then
