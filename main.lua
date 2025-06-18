@@ -16,8 +16,6 @@ character={} --敌人和NPC
 item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
 cb_line={}--碰撞盒
-
-px1,py1,px2,py2=0,0,0,0
 iscollFlip=false --是否碰撞翻转
 debug=""
 debug1=""
@@ -30,7 +28,6 @@ function _init()
 	makeobj(1,100,80,7,7,0,0,0,0)--wood
 	makeobj(2,64,64,8,8,0,0,0,0)--box
 	makeobj(3,32,64,8,8,0,0,0,0)--coin
-	
 	--enemydata()
 end
 function _update() 
@@ -61,25 +58,4 @@ function printbug()
 	print(debug1)
 	print(wy.x)
 	print(wy.y)
-	
-	--[[
-	if #cb_line>0 then
-		print(cb_line[1].num,1,20,1)
-		print(cb_line[1].coll,10,20,1)
-		print(cb_line[2].num,1,30,1)
-		print(cb_line[2].coll,10,30,1)
-		print(cb_line[3].num,1,40,1)
-		print(cb_line[3].coll,10,40,1)
-		print(cb_line[4].num,1,50,1)
-		print(cb_line[4].coll,10,50,1)
-	end]]
-
-	
 end
-
-
-
-
-
-
-

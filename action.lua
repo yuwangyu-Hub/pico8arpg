@@ -1,4 +1,3 @@
---行为
 function wyfsm(sb)--状态机
 	--检测方向
 	if sb.state!= sb.allstate.roll and sb.state!= sb.allstate.attack then
@@ -12,7 +11,6 @@ function wyfsm(sb)--状态机
 		sb.x=flr(sb.x)
 		sb.y=flr(sb.y)
 	end]]
-
 	--角色移动加成（翻滚或移动或推）
 	if (sb.dire>0 or sb.state==sb.allstate.roll) and sb.state!=sb.allstate.attack then
 		sb.x=sb.x+sb.spd.spx
@@ -30,20 +28,13 @@ function wyfsm(sb)--状态机
 			if sb.isroll then
 				sb.state=sb.allstate.roll
 			end
-			
-			
 			--动画
 			sb.frame=sb.sprs.idle
 		end,
 		move = function()
 			--sb.speed = nomalize(sb,.7,1)
-			--需求：
-			--1.前方有物体停下 
-			--2.如果有物体，检测物体的类型
-			--3.如果是可以推动的物体，进行推动
-			--4.如果是不可推动的物体，进行斜角度移动
-			
-			local _obj --a为正，bc为斜
+			--需求：如果是可以推动的物体，进行推动
+			local _obj
 			local moreclose =128
 			for o in all(obj) do
 				if sqrt(abs(o.x-sb.x)+abs(o.y-sb.y)) < moreclose then
@@ -61,17 +52,12 @@ function wyfsm(sb)--状态机
 				if _obj.type=="fixed" then
 					move_not_push(_obj,sb,colldire)
 				elseif _obj.type=="move" then
-
+					move_push(_obj,sb,colldire)
 				end
-				
-				
 			else
 				move(sb)
 				move_anim(sb)
 			end
-           	debug1=colldire
-			
-			
 			if sb.dire==0 then
 				sb.move_t=0
 				sb.state=sb.allstate.idle
@@ -117,7 +103,6 @@ function wyfsm(sb)--状态机
 		end,
         push=function()
 			--推动
-
 			if sb.dire==0 then --如果检测碰撞返回false
         		sb.state=sb.allstate.idle
             end

@@ -5,8 +5,7 @@ function draw_game()
     for c in all (character) do
         spr(c.frame, c.x, c.y, 1, 1, c.sprflip)
     end]]
-    --物体精灵显示
-    for o in all (obj) do
+    for o in all (obj) do--物体显示
         spr(o.spr, o.sprx, o.spry)
         rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end

@@ -1,5 +1,4 @@
---角色的创建模板
-function makerole()
+function makerole()--角色的创建模板
 	local role={}
 	role.allstate={}
 	role.x=0
@@ -51,13 +50,10 @@ function playerdata()
 		get=12
     }	
 end
-
 function sword()
     sword=makerole()--武器
 	sword.sprs={27,23,26,24,25,40,28,39}--匹配角色1-8方向
 end
-
-
 --[[
 --敌人-蛇
 function enemydata()
@@ -72,7 +68,6 @@ function enemydata()
     snake.y=0
     snake.speed=0.5
 end
-
 --[[
 --追逐
 function chase(sb1,sb2)

@@ -1,6 +1,5 @@
 --通用工具lib
---镜头抖动
-function doshake()
+function doshake()--镜头抖动
 	local shakex=rnd(shake)-(shake/2)
 	local shakey=rnd(shake)-(shake/2)
 	camera(shakex,shakey)
@@ -11,7 +10,6 @@ function doshake()
 		if(shake<1)shake=0
 	end
 end
---闪烁工具
 --闪烁工具，返回闪烁的颜色动画
 function blink()
 	local blink_anim={5,5,5,5,5,5,5,5,6,6,7,7,6,6,5,5}
@@ -32,7 +30,6 @@ function checkwall(sb,lx,rx,uy,dy)
 	if sb.y>dy then sb.y=dy end
 	return sb
 end
-
 function creat_ck_line(_sb,cx,cy,cw,ch)--显示检测的四边
 	local collx=_sb.x+cx
 	local colly=_sb.y+cy
@@ -77,7 +74,6 @@ function ck_item(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
 	else
 		return false
 	end
-	
 end
 --检测被检测对象在检测对象的哪个方向
 function checkdir(obj,sb)
@@ -124,7 +120,6 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 		return false
 	end
 end
-
 function move_not_push(_obj,_sb,_colldire)
 	--一种1、3、5、7方向数据的整合码
 	--[[Dimensional dataset
@@ -136,23 +131,21 @@ function move_not_push(_obj,_sb,_colldire)
 		{7,8,6,1,3,1,0}
 	}
 	local direnum=(_colldire+1)/2
-	if _obj.type=="fixed"  then
-		if _sb.dire==d_date[direnum][1] or _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then
-			--如果是正角度或者斜角度1、斜角度2
-			_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
-			_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
-			pull_anim(_sb,_colldire)
-		elseif _sb.dire==d_date[direnum][4] or _sb.dire==d_date[direnum][5] then
-			--如果是直角度1、直角度2
-			_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
-			_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
-			move_anim(_sb)
-		else
-			move(_sb)
-		end
-	elseif _obj.type=="move"  then
-		--推动的各种物体交互逻辑
-	end]]
+	
+	if _sb.dire==d_date[direnum][1] or _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then
+		--如果是正角度或者斜角度1、斜角度2
+		_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
+		_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
+		pull_anim(_sb,_colldire)
+	elseif _sb.dire==d_date[direnum][4] or _sb.dire==d_date[direnum][5] then
+		--如果是直角度1、直角度2
+		_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
+		_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
+		move_anim(_sb)
+	else
+		move(_sb)
+	end
+	]]
 	--*边缘滑动过渡效果
 	if _colldire==1 then
 		if _sb.dire==1  then
@@ -288,15 +281,9 @@ function move_not_push(_obj,_sb,_colldire)
 		end
 	end
 end
-
 function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞边缘
-	--local edgew=_sb.w/2 --3/7方向使用
-	--local edgeh=_sb.h/2 --1/5方向使用
-	local sbcenter_x=_sb.x+_sb.w/2
-	local sbcenter_y=_sb.y+_sb.h/2
-	local objcenter_x=_obj.x+_obj.w/2
-	local objcenter_y=_obj.y+_obj.h/2
-
+	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
+	local objcenter_x,objcenter_y=_obj.x+_obj.w/2,_obj.y+_obj.h/2
 	if _colldire==1 or _colldire==5 then
 		if abs(_obj.y-(_sb.y+_sb.h))<=3 or abs((_obj.y+_obj.h)-_sb.y)<=3 then
 			return true
@@ -310,15 +297,19 @@ function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞边缘
 	end
 end
 
+function move_push(_obj,_sb,_colldire)
+	local pushspd=0.5
+	
+
+
+end
 function spr_flip(_sb)
 	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
 		_sb.sprflip=true --如果是右上方向，精灵翻转
 	elseif _sb.dire==4 or _sb.dire==5 or _sb.dire==6 then
 		_sb.sprflip=false --其他方向不翻转
 	end
-	
 end
-
 function move_anim(_sb)
 	_sb.move_t+=.2
 	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
@@ -326,7 +317,6 @@ end
 function pull_anim(_sb,_colldire)
     _sb.frame=_sb.sprs.push[(_colldire+1)/2]
 end
-
 function attack_swordpos(_sb)--处理update中的武器实时位置
     if _sb.dire!=0 then
         sword.x = _sb.x+dirx[_sb.dire]*8
@@ -341,8 +331,7 @@ function attack_swordpos(_sb)--处理update中的武器实时位置
     end
 end
 function move(_sb)
-	_sb.spd.spx=0
-	_sb.spd.spy=0
+	_sb.spd.spx,_sb.spd.spy=0,0
 	if _sb.dire!=0 then
 		_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 		_sb.spd.spy=diry[_sb.dire]*_sb.speed
@@ -365,9 +354,7 @@ function hurt()
 	--1识别受到攻击的方向
 	--2向后退
 end
-
---归一化
-function nomalize(sb,speed1,speed2)
+function nomalize(sb,speed1,speed2)--归一化
 	local respeed=0
 	if sb.dire==2 or  sb.dire==4 or sb.dire==6 or sb.dire==8 then
 		respeed=speed1 --2.1213--sqrt(wy.rollspeed*wy.rollspeed/2)--斜方向归一化
@@ -377,5 +364,4 @@ function nomalize(sb,speed1,speed2)
 	return respeed
 end
 --输入系统检测1:像素级别
-
 --输入系统检测2:固定距离
