@@ -120,7 +120,7 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 		return false
 	end
 end
-function move_not_push(_obj,_sb,_colldire)
+function move_and_push(_obj,_sb,_colldire)
 	--一种1、3、5、7方向数据的整合码
 	--[[Dimensional dataset
 	d_date={
@@ -158,9 +158,14 @@ function move_not_push(_obj,_sb,_colldire)
 					_sb.spd.spy=1*_sb.speed
 				end
 			else
-				_sb.spd.spx=0
-				_sb.spd.spy=diry[_sb.dire]*_sb.speed
-				pull_anim(_sb,_colldire)
+				if _obj.type=="fixed" then
+					_sb.spd.spx=0
+					_sb.spd.spy=diry[_sb.dire]*_sb.speed
+					pull_anim(_sb,_colldire)
+				elseif _obj.type=="move" then
+					pushsth(_obj,_sb,_colldire)
+					pull_anim(_sb,_colldire)
+				end
 			end
 		elseif  _sb.dire==2 or _sb.dire==8 then
 			_sb.spd.spx=0
@@ -184,9 +189,14 @@ function move_not_push(_obj,_sb,_colldire)
 					_sb.spd.spy=0
 				end	
 			else
-				_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-				_sb.spd.spy=0
-				pull_anim(_sb,_colldire)
+				if _obj.type=="fixed" then
+					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+					_sb.spd.spy=0
+					pull_anim(_sb,_colldire)
+				elseif _obj.type=="move" then
+					pushsth(_obj,_sb,_colldire)
+					pull_anim(_sb,_colldire)
+				end
 			end
 		elseif _sb.dire==2 or _sb.dire==4 then
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
@@ -210,9 +220,15 @@ function move_not_push(_obj,_sb,_colldire)
 					_sb.spd.spy=1*_sb.speed
 				end
 			else
-				_sb.spd.spx=0
-				_sb.spd.spy=diry[_sb.dire]*_sb.speed
-				pull_anim(_sb,_colldire)
+				if _obj.type=="fixed" then
+					_sb.spd.spx=0
+					_sb.spd.spy=diry[_sb.dire]*_sb.speed
+					pull_anim(_sb,_colldire)
+				elseif _obj.type=="move" then
+					pushsth(_obj,_sb,_colldire)
+					pull_anim(_sb,_colldire)
+				end
+				
 			end
 		elseif _sb.dire==4 or _sb.dire==6 then
 			_sb.spd.spx=0
@@ -236,9 +252,14 @@ function move_not_push(_obj,_sb,_colldire)
 					_sb.spd.spy=0
 				end
 			else
-				_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-				_sb.spd.spy=0
-				pull_anim(_sb,_colldire)
+				if _obj.type=="fixed" then
+					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+					_sb.spd.spy=0
+					pull_anim(_sb,_colldire)
+				elseif _obj.type=="move" then
+					pushsth(_obj,_sb,_colldire)
+					pull_anim(_sb,_colldire)
+				end
 			end
 		elseif  _sb.dire==8 or _sb.dire==6 then
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
@@ -297,10 +318,29 @@ function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞边缘
 	end
 end
 
-function move_push(_obj,_sb,_colldire)
-	local pushspd=0.5
-	
-
+function pushsth(_obj,_sb,_colldire)
+	local pushspd=1
+	if _sb.dire==1 then
+		_sb.spd.spx=-pushspd
+		_sb.spd.spy=0
+		_obj.x-=pushspd
+		_obj.sprx-=pushspd
+	elseif _sb.dire==3 then
+		_sb.spd.spx=0
+		_sb.spd.spy=-pushspd
+		_obj.y-=pushspd
+		_obj.spry-=pushspd
+	elseif _sb.dire==5 then
+		_sb.spd.spx=pushspd
+		_sb.spd.spy=0
+		_obj.x+=pushspd
+		_obj.sprx+=pushspd
+	elseif _sb.dire==7 then
+		_sb.spd.spx=0
+		_sb.spd.spy=pushspd
+		_obj.y+=pushspd
+		_obj.spry+=pushspd
+	end
 
 end
 function spr_flip(_sb)
