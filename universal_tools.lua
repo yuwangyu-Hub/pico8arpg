@@ -31,16 +31,12 @@ function checkwall(sb,lx,rx,uy,dy)
 	return sb
 end
 function creat_ck_line(_sb,cx,cy,cw,ch)--显示检测的四边
-	local collx=_sb.x+cx
-	local colly=_sb.y+cy
-	local collw=_sb.w+cw 
-	local collh=_sb.h+ch
+	local collx,colly,collw,collh=_sb.x+cx,_sb.y+cy,_sb.w+cw,_sb.h+ch
 	----ck:check，coll:collision
-	cb_line[1]={num=1,x1=collx,   y1=colly+7,x2=collx,  y2=colly,   c=14, ck=false, coll=false}
-	cb_line[2]={num=3,x1=collx,   y1=colly,  x2=collx+7,y2=colly,   c=14, ck=false, coll=false}
-	cb_line[3]={num=5,x1=collx+7, y1=colly,  x2=collx+7,y2=colly+7, c=14, ck=false, coll=false}
-	cb_line[4]={num=7,x1=collx+7, y1=colly+7,x2=collx,  y2=colly+7, c=14, ck=false, coll=false}
-	--return collx,colly
+	cb_line[1]={num=1,x1=collx,   y1=colly+7,x2=collx,  y2=colly,   c=14, ck=false, coll=false} --1 0700
+	cb_line[2]={num=3,x1=collx,   y1=colly,  x2=collx+7,y2=colly,   c=14, ck=false, coll=false} --3 0070
+	cb_line[3]={num=5,x1=collx+7, y1=colly,  x2=collx+7,y2=colly+7, c=14, ck=false, coll=false} --5 7077
+	cb_line[4]={num=7,x1=collx+7, y1=colly+7,x2=collx,  y2=colly+7, c=14, ck=false, coll=false} --7 7707
 end
 function act_checkline(sb)--识别方向激活检测
     if sb.dire==1 or sb.dire== 3 or sb.dire==5 or sb.dire==7 then
@@ -120,6 +116,18 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 		return false
 	end
 end
+function cdis(_Group,_sb)--check_distance检测集合内的最近距离
+	local mdis =128--最大距离
+	local mdis_o
+	for o in all(_Group) do
+		if sqrt(abs(o.x-_sb.x)+abs(o.y-_sb.y)) < mdis then
+			mdis=sqrt(abs(o.x-_sb.x)+abs(o.y-_sb.y))
+			mdis_o =  o
+		end
+	end
+	return mdis_o
+end
+--[[
 function move_and_push(_obj,_sb,_colldire)
 	--一种1、3、5、7方向数据的整合码
 	--[[Dimensional dataset
@@ -145,17 +153,17 @@ function move_and_push(_obj,_sb,_colldire)
 	else
 		move(_sb)
 	end
-	]]
+	
 	--*边缘滑动过渡效果
 	if _colldire==1 then
 		if _sb.dire==1  then
 			if checkcolledge(_obj,_sb,_colldire) then
 				if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==1 then
 					_sb.spd.spx=0
-					_sb.spd.spy=-1*_sb.speed
+					_sb.spd.spy= -_sb.speed
 				elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==1 then
 					_sb.spd.spx=0
-					_sb.spd.spy=1*_sb.speed
+					_sb.spd.spy=_sb.speed
 				end
 			else
 				if _obj.type=="fixed" then
@@ -167,14 +175,14 @@ function move_and_push(_obj,_sb,_colldire)
 					pull_anim(_sb,_colldire)
 				end
 			end
-		elseif  _sb.dire==2 or _sb.dire==8 then
+		elseif  _sb.dire==2 or _sb.dire==8 or _sb.dire==3 or _sb.dire==7 then
 			_sb.spd.spx=0
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
-			pull_anim(_sb,_colldire)
-		elseif _sb.dire==3 or _sb.dire==7 then
-			_sb.spd.spx=0
-			_sb.spd.spy=diry[_sb.dire]*_sb.speed
-			move_anim(_sb)
+			if _sb.dire==2 or _sb.dire==8 then
+				pull_anim(_sb,_colldire)
+			else
+				move_anim(_sb)
+			end
 		else
 			move(_sb)
 		end
@@ -182,10 +190,10 @@ function move_and_push(_obj,_sb,_colldire)
 		if _sb.dire==3   then
 			if checkcolledge(_obj,_sb,_colldire) then
 				if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==3 then
-					_sb.spd.spx=-1*_sb.speed
+					_sb.spd.spx= -_sb.speed
 					_sb.spd.spy=0
 				elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==3 then
-					_sb.spd.spx=1*_sb.speed
+					_sb.spd.spx=_sb.speed
 					_sb.spd.spy=0
 				end	
 			else
@@ -198,14 +206,14 @@ function move_and_push(_obj,_sb,_colldire)
 					pull_anim(_sb,_colldire)
 				end
 			end
-		elseif _sb.dire==2 or _sb.dire==4 then
+		elseif _sb.dire==2 or _sb.dire==4 or _sb.dire==1 or _sb.dire==5 then
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 			_sb.spd.spy=0
-			pull_anim(_sb,_colldire)
-		elseif _sb.dire==1 or _sb.dire==5 then
-			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-			_sb.spd.spy=0
-			move_anim(_sb)
+			if _sb.dire==2 or _sb.dire==4 then
+				pull_anim(_sb,_colldire)
+			else
+				move_anim(_sb)
+			end
 		else
 			move(_sb)
 		end
@@ -214,10 +222,10 @@ function move_and_push(_obj,_sb,_colldire)
 			if checkcolledge(_obj,_sb,_colldire) then
 				if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==5 then
 					_sb.spd.spx=0
-					_sb.spd.spy=-1*_sb.speed
+					_sb.spd.spy= -_sb.speed
 				elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==5 then
 					_sb.spd.spx=0
-					_sb.spd.spy=1*_sb.speed
+					_sb.spd.spy=_sb.speed
 				end
 			else
 				if _obj.type=="fixed" then
@@ -228,16 +236,15 @@ function move_and_push(_obj,_sb,_colldire)
 					pushsth(_obj,_sb,_colldire)
 					pull_anim(_sb,_colldire)
 				end
-				
 			end
-		elseif _sb.dire==4 or _sb.dire==6 then
+		elseif _sb.dire==4 or _sb.dire==6 or _sb.dire==3 or _sb.dire==7 then
 			_sb.spd.spx=0
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed
-			pull_anim(_sb,_colldire)
-		elseif _sb.dire==3 or _sb.dire==7 then
-			_sb.spd.spx=0
-			_sb.spd.spy=diry[_sb.dire]*_sb.speed
-			move_anim(_sb)
+			if _sb.dire==4 or _sb.dire==6 then
+				pull_anim(_sb,_colldire)
+			else
+				move_anim(_sb)
+			end
 		else
 			move(_sb)
 		end
@@ -245,10 +252,10 @@ function move_and_push(_obj,_sb,_colldire)
 		if _sb.dire==7 then
 			if checkcolledge(_obj,_sb,_colldire) then
 				if abs(_obj.x-(_sb.x+_sb.w))<=3  and _sb.dire==7 then
-					_sb.spd.spx=-1*_sb.speed
+					_sb.spd.spx= -_sb.speed
 					_sb.spd.spy=0
 				elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==7 then
-					_sb.spd.spx=1*_sb.speed
+					_sb.spd.spx=_sb.speed
 					_sb.spd.spy=0
 				end
 			else
@@ -261,17 +268,21 @@ function move_and_push(_obj,_sb,_colldire)
 					pull_anim(_sb,_colldire)
 				end
 			end
-		elseif  _sb.dire==8 or _sb.dire==6 then
+		elseif  _sb.dire==8 or _sb.dire==6 or  _sb.dire==1 or _sb.dire==5 then
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 			_sb.spd.spy=0
-			pull_anim(_sb,_colldire)
-		elseif _sb.dire==1 or _sb.dire==5 then
-			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-			_sb.spd.spy=0
-			move_anim(_sb)
+			if _sb.dire==8 or _sb.dire==6 then
+				pull_anim(_sb,_colldire)
+			else
+				move_anim(_sb)
+			end
 		else
 			move(_sb)
 		end
+	else
+		 check_Diagonal(_colldire,_sb)
+	end
+	--[[
 	elseif _colldire==2 then
 		if _sb.dire==6 then
 			_sb.spd.spx=0
@@ -301,8 +312,70 @@ function move_and_push(_obj,_sb,_colldire)
 			move(_sb)
 		end
 	end
+end]]
+function move_and_push(_obj,_sb,_colldire)
+	local d_date={{1,2,8,3,7,0,1},{3,2,4,1,5,1,0},{5,4,6,3,7,0,1},{7,8,6,1,3,1,0}}
+	local direnum=(_colldire+1)/2
+	if _colldire==1 or _colldire==3 or _colldire==5 or _colldire==7 then
+		if _sb.dire==d_date[direnum][1] then
+			if checkcolledge(_obj,_sb,_colldire) then 
+				if  d_date[direnum][6]==1 then --x==1
+					if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==d_date[direnum][1] then
+						_sb.spd.spx=-_sb.speed
+						_sb.spd.spy=0
+					elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==d_date[direnum][1] then
+						_sb.spd.spx=_sb.speed
+						_sb.spd.spy=0
+					end
+				elseif d_date[direnum][7]==1 then--y==1
+					if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==d_date[direnum][1] then
+						_sb.spd.spx=0
+						_sb.spd.spy= -_sb.speed
+					elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==d_date[direnum][1] then
+						_sb.spd.spx=0
+						_sb.spd.spy=_sb.speed
+					end
+				end
+			else
+				if _obj.type=="fixed" then
+					_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
+					_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
+				elseif _obj.type=="move" then
+					pushsth(_obj,_sb,_colldire)
+				end
+				pull_anim(_sb,_colldire)
+			end
+		elseif _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] or _sb.dire==d_date[direnum][4] or _sb.dire==d_date[direnum][5] then
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
+			if _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then
+				pull_anim(_sb,_colldire)
+			else
+				move_anim(_sb)
+			end
+		else
+			move(_sb)
+		end
+	else --2468
+		check_Diagonal(_colldire,_sb)
+	end
 end
-function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞边缘
+
+function check_Diagonal(_colldire,_sb)
+	local coll_dire={{2,6},{4,8},{6,2},{8,4}}
+	for i=1,#coll_dire do
+		if coll_dire[i][1]==_colldire then
+			if coll_dire[i][2]==_sb.dire then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else
+				move(_sb)
+			end	
+		end
+	end
+end
+
+function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小于等于3的像素位置
 	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
 	local objcenter_x,objcenter_y=_obj.x+_obj.w/2,_obj.y+_obj.h/2
 	if _colldire==1 or _colldire==5 then

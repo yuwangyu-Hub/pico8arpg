@@ -24,7 +24,6 @@ function playerdata()
 		archery="archery",--射箭
 		roll="roll",
 		hurt="hurt",
-		push="push",--推
 		death="death"
 	}
     wy.state=wy.allstate.idle
@@ -47,26 +46,33 @@ function playerdata()
         roll={5,6,6,7,7,5},
         attack={8,9,10},
 		hurt=11,
-		get=12
+		get=12 --只一次
     }	
 end
 function sword()
     sword=makerole()--武器
 	sword.sprs={27,23,26,24,25,40,28,39}--匹配角色1-8方向
 end
---[[
---敌人-蛇
-function enemydata()
-    snake=makerole()
-    snake.allstate={
-        idle="idle",
-        trace="trace",
+--敌人分为三种：普通A、普通B、Boss
+--普通A：随机移动
+--普通B：先随机移动，后发现攻击
+--Boss：多种攻击手段
+function en_snake_data()
+    sk=makerole()
+	sk.allstate={
+        ran_move="ran_move",
+        trace="trace",--追踪
         death="death"
     }
-    snake.state=snake.allstate.idle
-    snake.x=30
-    snake.y=0
-    snake.speed=0.5
+    sk.state=sk.allstate.idle
+    sk.x=30
+    sk.y=60
+	sk.w=7
+	sk.h=7
+    sk.speed=0.5
+	sk.crange=5--检测范围
+	sk.spr=50
+	add(enemy,sk)
 end
 --[[
 --追逐
