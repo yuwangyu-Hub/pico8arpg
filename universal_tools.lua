@@ -57,14 +57,14 @@ function act_checkline(sb)--识别方向激活检测
     end
 end
 function ck_item(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
+	--creat_ck_line(_sb,0,0,0,0)--创建检测线
+	--act_checkline(_sb)--激活检测盒
 	local p={
 		x=_sb.x+cx,
 		y=_sb.y+cy,
 		w=_sb.w+cw,
 		h=_sb.h+ch
 	}
-	--creat_ck_line(_sb,0,0,0,0)--创建检测线
-	--act_checkline(_sb)--激活检测盒
 	if coll_boxcheck(p.x,p.y,p.w,p.h,_o.x,_o.y,_o.w,_o.h)then
 		return true
 	else
@@ -127,192 +127,7 @@ function cdis(_Group,_sb)--check_distance检测集合内的最近距离
 	end
 	return mdis_o
 end
---[[
-function move_and_push(_obj,_sb,_colldire)
-	--一种1、3、5、7方向数据的整合码
-	--[[Dimensional dataset
-	d_date={
-	  --正角度、斜角度1、斜角度2，直角度1，直角度2，x对应值，y对应值
-		{1,2,8,3,7,0,1},
-		{3,2,4,1,5,1,0},
-		{5,4,6,3,7,0,1},
-		{7,8,6,1,3,1,0}
-	}
-	local direnum=(_colldire+1)/2
-	
-	if _sb.dire==d_date[direnum][1] or _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then
-		--如果是正角度或者斜角度1、斜角度2
-		_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
-		_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
-		pull_anim(_sb,_colldire)
-	elseif _sb.dire==d_date[direnum][4] or _sb.dire==d_date[direnum][5] then
-		--如果是直角度1、直角度2
-		_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
-		_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
-		move_anim(_sb)
-	else
-		move(_sb)
-	end
-	
-	--*边缘滑动过渡效果
-	if _colldire==1 then
-		if _sb.dire==1  then
-			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==1 then
-					_sb.spd.spx=0
-					_sb.spd.spy= -_sb.speed
-				elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==1 then
-					_sb.spd.spx=0
-					_sb.spd.spy=_sb.speed
-				end
-			else
-				if _obj.type=="fixed" then
-					_sb.spd.spx=0
-					_sb.spd.spy=diry[_sb.dire]*_sb.speed
-					pull_anim(_sb,_colldire)
-				elseif _obj.type=="move" then
-					pushsth(_obj,_sb,_colldire)
-					pull_anim(_sb,_colldire)
-				end
-			end
-		elseif  _sb.dire==2 or _sb.dire==8 or _sb.dire==3 or _sb.dire==7 then
-			_sb.spd.spx=0
-			_sb.spd.spy=diry[_sb.dire]*_sb.speed
-			if _sb.dire==2 or _sb.dire==8 then
-				pull_anim(_sb,_colldire)
-			else
-				move_anim(_sb)
-			end
-		else
-			move(_sb)
-		end
-	elseif _colldire==3 then
-		if _sb.dire==3   then
-			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==3 then
-					_sb.spd.spx= -_sb.speed
-					_sb.spd.spy=0
-				elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==3 then
-					_sb.spd.spx=_sb.speed
-					_sb.spd.spy=0
-				end	
-			else
-				if _obj.type=="fixed" then
-					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-					_sb.spd.spy=0
-					pull_anim(_sb,_colldire)
-				elseif _obj.type=="move" then
-					pushsth(_obj,_sb,_colldire)
-					pull_anim(_sb,_colldire)
-				end
-			end
-		elseif _sb.dire==2 or _sb.dire==4 or _sb.dire==1 or _sb.dire==5 then
-			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-			_sb.spd.spy=0
-			if _sb.dire==2 or _sb.dire==4 then
-				pull_anim(_sb,_colldire)
-			else
-				move_anim(_sb)
-			end
-		else
-			move(_sb)
-		end
-	elseif _colldire==5 then
-		if _sb.dire==5  then
-			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==5 then
-					_sb.spd.spx=0
-					_sb.spd.spy= -_sb.speed
-				elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==5 then
-					_sb.spd.spx=0
-					_sb.spd.spy=_sb.speed
-				end
-			else
-				if _obj.type=="fixed" then
-					_sb.spd.spx=0
-					_sb.spd.spy=diry[_sb.dire]*_sb.speed
-					pull_anim(_sb,_colldire)
-				elseif _obj.type=="move" then
-					pushsth(_obj,_sb,_colldire)
-					pull_anim(_sb,_colldire)
-				end
-			end
-		elseif _sb.dire==4 or _sb.dire==6 or _sb.dire==3 or _sb.dire==7 then
-			_sb.spd.spx=0
-			_sb.spd.spy=diry[_sb.dire]*_sb.speed
-			if _sb.dire==4 or _sb.dire==6 then
-				pull_anim(_sb,_colldire)
-			else
-				move_anim(_sb)
-			end
-		else
-			move(_sb)
-		end
-	elseif _colldire==7 then
-		if _sb.dire==7 then
-			if checkcolledge(_obj,_sb,_colldire) then
-				if abs(_obj.x-(_sb.x+_sb.w))<=3  and _sb.dire==7 then
-					_sb.spd.spx= -_sb.speed
-					_sb.spd.spy=0
-				elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==7 then
-					_sb.spd.spx=_sb.speed
-					_sb.spd.spy=0
-				end
-			else
-				if _obj.type=="fixed" then
-					_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-					_sb.spd.spy=0
-					pull_anim(_sb,_colldire)
-				elseif _obj.type=="move" then
-					pushsth(_obj,_sb,_colldire)
-					pull_anim(_sb,_colldire)
-				end
-			end
-		elseif  _sb.dire==8 or _sb.dire==6 or  _sb.dire==1 or _sb.dire==5 then
-			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-			_sb.spd.spy=0
-			if _sb.dire==8 or _sb.dire==6 then
-				pull_anim(_sb,_colldire)
-			else
-				move_anim(_sb)
-			end
-		else
-			move(_sb)
-		end
-	else
-		 check_Diagonal(_colldire,_sb)
-	end
-	--[[
-	elseif _colldire==2 then
-		if _sb.dire==6 then
-			_sb.spd.spx=0
-			_sb.spd.spy=0
-		else
-			move(_sb)
-		end
-	elseif _colldire==4 then
-		if _sb.dire==8 then
-			_sb.spd.spx=0
-			_sb.spd.spy=0
-		else
-			move(_sb)
-		end
-	elseif _colldire==6 then
-		if _sb.dire==2 then
-			_sb.spd.spx=0
-			_sb.spd.spy=0
-		else
-			move(_sb)
-		end
-	elseif _colldire==8 then
-		if _sb.dire==4 then
-			_sb.spd.spx=0
-			_sb.spd.spy=0
-		else
-			move(_sb)
-		end
-	end
-end]]
+--当靠近物体碰撞时，不同的条件触发不同的效果
 function move_and_push(_obj,_sb,_colldire)
 	local d_date={{1,2,8,3,7,0,1},{3,2,4,1,5,1,0},{5,4,6,3,7,0,1},{7,8,6,1,3,1,0}}
 	local direnum=(_colldire+1)/2
