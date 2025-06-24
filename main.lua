@@ -13,7 +13,7 @@
 input_dire={0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0 } --btn()0-15所对应的方向：从左边开始顺时针8方向
 dirx={-1,-1, 0, 1,1,1, 0,-1}
 diry={ 0,-1,-1,-1,0,1, 1, 1}
-enemy={}--敌人
+enemies={}--敌人
 character={} --NPC
 item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
@@ -29,7 +29,7 @@ function _init()
 	sword()
 	makeobj(1,100,80,7,7,0,0,0,0)--wood
 	makeobj(2,64,64,8,8,0,0,0,0)--box
-	makeobj(3,32,64,8,8,0,0,0,0)--coin
+	makeobj(3,32,80,8,8,0,0,0,0)--coin
 	en_snake_data()
 end
 function _update() 
@@ -53,8 +53,8 @@ function startgame()
 end
 function printbug()
 	print(wy.state,20,2,7)
-	print("dire:"..wy.dire)
+	print("hurtdir:"..wy.hurtdir)
 	print("spd:"..wy.speed)
 	print(debug)
-	print(debug1)
+
 end

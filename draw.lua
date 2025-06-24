@@ -2,7 +2,7 @@ function draw_game()
     shadow(wy)
     att_weapon(wy)
     --角色(敌人/npc)精灵显示
-    for c in all (enemy) do
+    for c in all (enemies) do
         spr(c.spr, c.x, c.y)
         rect(c.x,c.y,c.x+c.w,c.y+c.h,12)
     end

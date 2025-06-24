@@ -7,6 +7,7 @@ function makerole()--角色的创建模板
 	role.speed=0
 	role.dire=0 
 	role.lastdire=0 --方向
+	role.hurtdire=0
 	role.state=role.allstate[1]
 	role.move_t=0
 	role.frame=0
@@ -72,7 +73,7 @@ function en_snake_data()
     sk.speed=0.5
 	sk.crange=5--检测范围
 	sk.spr=50
-	add(enemy,sk)
+	add(enemies,sk)
 end
 --[[
 --追逐

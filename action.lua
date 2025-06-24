@@ -60,6 +60,7 @@ function wyfsm(sb)--状态机
 			end
 		end,
 		roll=function()
+			--*翻滚撞墙弹回
 			sb.rollspeed=3
             --sb.rollspeed=nomalize(sb,2.1213,3)
 			roll(sb)
@@ -75,6 +76,7 @@ function wyfsm(sb)--状态机
 			end
 		end,
 		hurt=function()
+			hurtmove(sb)
 		end,
 		death=function()
 		end
