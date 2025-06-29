@@ -70,3 +70,14 @@ function draw_gover()
 end
 function draw_win()
 end
+
+function move_anim(_sb)
+	_sb.move_t+=.2
+	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
+end
+function pull_anim(_sb,_colldire)
+    _sb.frame=_sb.sprs.push[(_colldire+1)/2]
+end
+function hurt_anim()
+    
+end

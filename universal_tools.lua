@@ -30,6 +30,7 @@ function checkwall(sb,lx,rx,uy,dy)
 	if sb.y>dy then sb.y=dy end
 	return sb
 end
+--[[
 function creat_ck_line(_sb,cx,cy,cw,ch)--显示检测的四边
 	local collx,colly,collw,collh=_sb.x+cx,_sb.y+cy,_sb.w+cw,_sb.h+ch
 	----ck:check，coll:collision
@@ -55,7 +56,7 @@ function act_checkline(sb)--识别方向激活检测
         cb_line[(sb.dire/2)%4+1].c=8
         cb_line[(sb.dire/2)%4+1].ck=true
     end
-end
+end]]
 function ck_item(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
 	--creat_ck_line(_sb,0,0,0,0)--创建检测线
 	--act_checkline(_sb)--激活检测盒
@@ -81,19 +82,19 @@ function checkdir(obj,sb)
  	local sy2=sb.y+sb.h
 	if sx1>=ox2 and sy2>oy1 and sy1<oy2 then--物体在左边
 		return 1
-	elseif sx2<=ox1 and sy2<=oy1 then	--物体在右下
+	elseif sx1>=ox2 and sy1>=oy2 then--物体在左上
 		return 2
 	elseif sy1>=oy2 and sx2>ox1 and sx1<ox2 then--物体在上边
 		return 3
-	elseif sx1>=ox2 and sy2<=oy1 then  --物体在又上
+	elseif sx2<=ox1 and sy1>=oy2 then--物体在右上
 		return 4
 	elseif sx2<=ox1 and sy2>oy1 and sy1<oy2 then--物体在右边
 		return 5
-	elseif sx1>=ox2 and sy1>=oy2 then --物体在左上
+	elseif sx2<=ox1 and sy2<=oy1 then--物体在右下
 		return 6
 	elseif sy2<=oy1 and sx2>ox1 and sx1<ox2 then--物体在下边
 		return 7
-	elseif sx2<=ox1 and sy1>=oy2 then --物体在左下
+	elseif sx1>=ox2 and sy2<=oy1 then--物体在左下
 		return 8
 	else
 		return 0
@@ -130,13 +131,13 @@ end
 --当靠近物体碰撞时，不同的条件触发不同的效果
 function move_and_push(_obj,_sb,_colldire)
 	local d_date={
-		{1,2,8,3,7,0,1},
+		{1,2,8,3,7,0,1}, --与碰撞相同的方向、四个其他方向、x、y
 		{3,2,4,1,5,1,0},
 		{5,4,6,3,7,0,1},
 		{7,8,6,1,3,1,0}}
-	local direnum=(_colldire+1)/2
-	if _colldire==1 or _colldire==3 or _colldire==5 or _colldire==7 then
-		if _sb.dire==d_date[direnum][1] then
+	if _colldire==1 or _colldire==3 or _colldire==5 or _colldire==7 then--与物体碰撞的物体方向
+		local direnum=(_colldire+1)/2
+		if _sb.dire==d_date[direnum][1] then --当前移动方向
 			if checkcolledge(_obj,_sb,_colldire) then 
 				if  d_date[direnum][6]==1 then --x==1
 					if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==d_date[direnum][1] then
@@ -180,11 +181,11 @@ function move_and_push(_obj,_sb,_colldire)
 	end
 end
 
-function check_Diagonal(_colldire,_sb)
-	local coll_dire={{2,6},{4,8},{6,2},{8,4}}
+function check_Diagonal(_colldire,_sb)--检测对角线
+	local coll_dire={2,4,6,8}
 	for i=1,#coll_dire do
-		if coll_dire[i][1]==_colldire then
-			if coll_dire[i][2]==_sb.dire then
+		if coll_dire[i]==_colldire then
+			if coll_dire[i]==_sb.dire then
 				_sb.spd.spx=0
 				_sb.spd.spy=0
 			else
@@ -193,7 +194,6 @@ function check_Diagonal(_colldire,_sb)
 		end
 	end
 end
-
 function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小于等于3的像素位置
 	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
 	local objcenter_x,objcenter_y=_obj.x+_obj.w/2,_obj.y+_obj.h/2
@@ -210,30 +210,18 @@ function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小
 	end
 end
 
-function pushsth(_obj,_sb,_colldire)
+function pushsth(_obj,_sb,_colldire) --推物体
 	local pushspd=1
-	if _sb.dire==1 then
-		_sb.spd.spx=-pushspd
-		_sb.spd.spy=0
-		_obj.x-=pushspd
-		_obj.sprx-=pushspd
-	elseif _sb.dire==3 then
-		_sb.spd.spx=0
-		_sb.spd.spy=-pushspd
-		_obj.y-=pushspd
-		_obj.spry-=pushspd
-	elseif _sb.dire==5 then
-		_sb.spd.spx=pushspd
-		_sb.spd.spy=0
-		_obj.x+=pushspd
-		_obj.sprx+=pushspd
-	elseif _sb.dire==7 then
-		_sb.spd.spx=0
-		_sb.spd.spy=pushspd
-		_obj.y+=pushspd
-		_obj.spry+=pushspd
+	if _sb.dire%2==1 then
+		local xsum=pushspd*dirx[_sb.dire]
+		local ysum=pushspd*diry[_sb.dire]
+		_sb.spd.spx=xsum 
+		_sb.spd.spy=ysum
+		_obj.x=_obj.x+xsum
+		_obj.y=_obj.y+ysum
+		_obj.sprx=_obj.sprx+xsum
+		_obj.spry=_obj.spry+ysum
 	end
-
 end
 function spr_flip(_sb)
 	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
@@ -242,13 +230,7 @@ function spr_flip(_sb)
 		_sb.sprflip=false --其他方向不翻转
 	end
 end
-function move_anim(_sb)
-	_sb.move_t+=.2
-	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
-end
-function pull_anim(_sb,_colldire)
-    _sb.frame=_sb.sprs.push[(_colldire+1)/2]
-end
+
 function attack_swordpos(_sb)--处理update中的武器实时位置
     if _sb.dire!=0 then
         sword.x = _sb.x+dirx[_sb.dire]*8
@@ -281,11 +263,34 @@ function roll(_sb)
 		end
 	end
 end
-function hurt()
-	--攻击碰撞后，向收到攻击的方向后退
-	--1识别受到攻击的方向
-	--2向后退
+function checkhurt(_sb)--检测玩家受伤
+	local _ishurt
+	for e in all(enemies) do
+		_sb.hurtdire=checkdir(e,_sb)
+		_ishurt = coll_boxcheck(_sb.x,_sb.y,_sb.w,_sb.h,e.x,e.y,e.w,e.h)
+	end
+	return _ishurt
 end
+
+function hurtmove(_sb)--依照方向执行受伤
+	local m_spd=1
+	_sb.hurtmt+=0.1
+	local xsum=dirx[_sb.hurtdire]*-1 --反方向加权
+	local ysum=diry[_sb.hurtdire]*-1
+	_sb.spd.spx=xsum*m_spd
+	_sb.spd.spy=ysum*m_spd
+	hurt2idle(_sb)
+end
+function hurt2idle(_sb)--受伤结束-idle
+	if _sb.hurtmt>=0.7 then
+		_sb.hurtmt=0
+		_sb.spd.spx=0
+		_sb.spd.spy=0
+		_sb.state=_sb.allstate.idle
+	end
+end
+
+
 function nomalize(sb,speed1,speed2)--归一化
 	local respeed=0
 	if sb.dire==2 or  sb.dire==4 or sb.dire==6 or sb.dire==8 then

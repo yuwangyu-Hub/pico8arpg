@@ -26,6 +26,7 @@ function wyfsm(sb)--状态机
 			--sb.speed = nomalize(sb,.7,1)
 			local _obj=cdis(obj,wy)
 			local colldire=checkdir(_obj,sb)--检测方向
+			debug = colldire
 			if ck_item(_obj,sb,0,0,0,0) then
 				move_and_push(_obj,sb,colldire)
 			else
@@ -76,7 +77,7 @@ function wyfsm(sb)--状态机
 			end
 		end,
 		hurt=function()
-			direhurt(sb)
+			hurtmove(sb)
 			sb.x,sb.y=sb.x+sb.spd.spx,sb.y+sb.spd.spy
 		end,
 		death=function()
