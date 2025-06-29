@@ -76,7 +76,8 @@ function wyfsm(sb)--状态机
 			end
 		end,
 		hurt=function()
-			hurtmove(sb)
+			direhurt(sb)
+			sb.x,sb.y=sb.x+sb.spd.spx,sb.y+sb.spd.spy
 		end,
 		death=function()
 		end

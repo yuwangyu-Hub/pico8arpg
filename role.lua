@@ -8,6 +8,7 @@ function makerole()--角色的创建模板
 	role.dire=0 
 	role.lastdire=0 --方向
 	role.hurtdire=0
+	role.hurtmt=0 --受伤后的移动时间
 	role.state=role.allstate[1]
 	role.move_t=0
 	role.frame=0
@@ -16,6 +17,7 @@ function makerole()--角色的创建模板
 	return role
 end
 function playerdata()
+	--添加无敌时间
     wy=makerole()
     wy.allstate={
 		idle="idle",

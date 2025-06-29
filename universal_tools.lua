@@ -81,19 +81,19 @@ function checkdir(obj,sb)
  	local sy2=sb.y+sb.h
 	if sx1>=ox2 and sy2>oy1 and sy1<oy2 then--物体在左边
 		return 1
-	elseif sx2<=ox1 and sy2<=oy1 then	
+	elseif sx2<=ox1 and sy2<=oy1 then	--物体在右下
 		return 2
 	elseif sy1>=oy2 and sx2>ox1 and sx1<ox2 then--物体在上边
 		return 3
-	elseif sx1>=ox2 and sy2<=oy1 then
+	elseif sx1>=ox2 and sy2<=oy1 then  --物体在又上
 		return 4
 	elseif sx2<=ox1 and sy2>oy1 and sy1<oy2 then--物体在右边
 		return 5
-	elseif sx1>=ox2 and sy1>=oy2 then
+	elseif sx1>=ox2 and sy1>=oy2 then --物体在左上
 		return 6
 	elseif sy2<=oy1 and sx2>ox1 and sx1<ox2 then--物体在下边
 		return 7
-	elseif sx2<=ox1 and sy1>=oy2 then
+	elseif sx2<=ox1 and sy1>=oy2 then --物体在左下
 		return 8
 	else
 		return 0
@@ -125,11 +125,15 @@ function cdis(_Group,_sb)--check_distance检测集合内的最近距离
 			mdis_o =  o
 		end
 	end
-	return mdis_o
+	return mdis_o   
 end
 --当靠近物体碰撞时，不同的条件触发不同的效果
 function move_and_push(_obj,_sb,_colldire)
-	local d_date={{1,2,8,3,7,0,1},{3,2,4,1,5,1,0},{5,4,6,3,7,0,1},{7,8,6,1,3,1,0}}
+	local d_date={
+		{1,2,8,3,7,0,1},
+		{3,2,4,1,5,1,0},
+		{5,4,6,3,7,0,1},
+		{7,8,6,1,3,1,0}}
 	local direnum=(_colldire+1)/2
 	if _colldire==1 or _colldire==3 or _colldire==5 or _colldire==7 then
 		if _sb.dire==d_date[direnum][1] then

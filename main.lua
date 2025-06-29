@@ -53,8 +53,9 @@ function startgame()
 end
 function printbug()
 	print(wy.state,20,2,7)
-	print("hurtdir:"..wy.hurtdir)
+	print("hurtmt:"..wy.hurtmt)
 	print("spd:"..wy.speed)
-	print(debug)
+	print(wy.x)
+	print(wy.y)
 
 end

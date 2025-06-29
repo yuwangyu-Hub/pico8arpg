@@ -24,22 +24,91 @@ function checkhurt(_sb)--检测玩家受伤
 	return _ishurt
 end
 
-function hurtmove(_sb)
+function direhurt(_sb)--依照方向执行受伤
+	local m_spd=1
+	_sb.hurtmt+=0.1
 	if _sb.hurtdire==1 then
-
+		_sb.spd.spx=m_spd
+		_sb.spd.spy=0
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==2 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=-m_spd
+		_sb.spd.spy=-m_spd
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==3 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=0
+		_sb.spd.spy=m_spd
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==4 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=m_spd
+		_sb.spd.spy=-m_spd
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==5 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=-m_spd
+		_sb.spd.spy=0
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==6 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=m_spd
+		_sb.spd.spy=m_spd
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==7 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=0
+		_sb.spd.spy=-m_spd
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	elseif  _sb.hurtdire==8 then
-
+		--_sb.hurtmt+=0.1
+		_sb.spd.spx=-m_spd
+		_sb.spd.spy=m_spd
+		if _sb.hurtmt>=0.7 then
+			_sb.hurtmt=0
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+			_sb.state=_sb.allstate.idle
+		end
 	end
+end
+
+function hurtmove()
+
 end
