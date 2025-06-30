@@ -1,24 +1,23 @@
 function draw_game()
     shadow(wy)
     att_weapon(wy)
-    --[[角色(敌人/npc)精灵显示
-    for c in all (character) do
-        spr(c.frame, c.x, c.y, 1, 1, c.sprflip)
-    end]]
-    --物体精灵显示
-    for o in all (obj) do
+    --角色(敌人/npc)精灵显示
+    for c in all (enemies) do
+        spr(c.spr, c.x, c.y)
+        rect(c.x,c.y,c.x+c.w,c.y+c.h,12)
+    end
+
+    for o in all (obj) do--物体显示
         spr(o.spr, o.sprx, o.spry)
         rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end
     --主角
     spr(wy.frame, wy.x, wy.y, 1, 1, wy.sprflip)
-    --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
+    rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
+
     --UI显示
     ui_show()
     --检测碰撞线显示
-    for c in all(cb_line) do
-       rect(c.x1,c.y1,c.x2,c.y2,c.c)
-    end
 end
 function att_weapon(_sb)--显示攻击武器
     --攻击时候的武器绘制
@@ -72,3 +71,13 @@ end
 function draw_win()
 end
 
+function move_anim(_sb)
+	_sb.move_t+=.2
+	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
+end
+function pull_anim(_sb,_colldire)
+    _sb.frame=_sb.sprs.push[(_colldire+1)/2]
+end
+function hurt_anim(_sb)
+    _sb.frame=_sb.sprs.hurt
+end
