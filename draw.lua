@@ -78,6 +78,6 @@ end
 function pull_anim(_sb,_colldire)
     _sb.frame=_sb.sprs.push[(_colldire+1)/2]
 end
-function hurt_anim()
-    
+function hurt_anim(_sb)
+    _sb.frame=_sb.sprs.hurt
 end

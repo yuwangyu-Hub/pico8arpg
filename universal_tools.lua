@@ -57,7 +57,7 @@ function act_checkline(sb)--识别方向激活检测
         cb_line[(sb.dire/2)%4+1].ck=true
     end
 end]]
-function ck_item(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
+function ck_sthcoll(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
 	--creat_ck_line(_sb,0,0,0,0)--创建检测线
 	--act_checkline(_sb)--激活检测盒
 	local p={
