@@ -8,12 +8,10 @@ function input_direct_sys()
 	if btnp()&0b110000==32 then --翻滚为真
 		wy.isroll=true
 	end
-	if btnp()&0b110000==48 then
+	if btnp()&0b110000==48 then --xo一起按下
 		debug="inv"
 	end
 end
-
-
 function input_mamenu()--主菜单输入
     if btn(⬆️) then
         if mainmenu_cursor.count>1 then

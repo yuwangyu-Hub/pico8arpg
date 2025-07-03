@@ -10,28 +10,23 @@
 --UI系统
 ------------------------------------------------------------
 input_dire={0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0 } --btn()0-15所对应的方向：从左边开始顺时针8方向
-dirx={-1,-1, 0, 1,1,1, 0,-1}
-diry={ 0,-1,-1,-1,0,1, 1, 1}
-character={} --敌人和NPC
+dirx={-1,-1, 0, 1,1,1, 0,-1} 
+diry={ 0,-1,-1,-1,0,1, 1, 1} 
+enemies={}--敌人
+character={} --NPC
 item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
 cb_line={}--碰撞盒
-
---px1,py1,px2,py2=0,0,0,0
-iscoll=false
+iscollFlip=false --是否碰撞翻转
 debug=""
-debug1=""
-debug2=""
-debug3=""
 function _init()
 	startgame()
 	playerdata()
 	sword()
 	makeobj(1,100,80,7,7,0,0,0,0)--wood
-	makeobj(2,64,64,7,7,0,0,0,0)--box
-	makeobj(3,32,64,7,7,0,0,0,0)--coin
-	
-	--enemydata()
+	makeobj(2,64,64,8,8,0,0,0,0)--box
+	makeobj(3,32,80,8,8,0,0,0,0)--coin
+	en_snake_data()
 end
 function _update() 
 	_upd()
@@ -44,8 +39,7 @@ end
 function startgame()
 	_upd=update_mamenu
 	_drw=draw_mamenu
-	--menu光标
-	mainmenu_cursor={
+	mainmenu_cursor={--menu光标
 		count=1,
 		x=64,
 		y=90,
@@ -55,20 +49,5 @@ function startgame()
 end
 function printbug()
 	print(wy.state,20,2,7)
-	print("dire:"..wy.dire)
-	print(iscoll)
 	print(debug)
-	print(debug1)
-	print(wy.spd.spx)
-	print(wy.spd.spy)
-	
-
-	
 end
-
-
-
-
-
-
-

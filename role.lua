@@ -60,7 +60,6 @@ end
 --普通A：随机移动
 --普通B：先随机移动，后发现攻击
 --Boss：多种攻击手段
---蛇
 function en_snake_data()
     sk=makerole()
 	sk.allstate={
