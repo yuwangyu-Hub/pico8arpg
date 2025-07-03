@@ -16,6 +16,7 @@ enemies={}--敌人
 character={} --NPC
 item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
+near_o=nil--最近物品
 cb_line={}--碰撞盒
 iscollFlip=false --是否碰撞翻转
 debug=""
@@ -28,6 +29,14 @@ function _init()
 	makeobj(3,32,80,8,8,0,0,0,0)--coin
 	en_snake_data()
 end
+
+coll_date={
+		{1,2,8,3,7,0,1},
+		{3,2,4,1,5,1,0},
+		{5,4,6,3,7,0,1},
+		{7,8,6,1,3,1,0}}--与碰撞相同的方向、四个其他方向、x、y
+
+
 function _update() 
 	_upd()
 end

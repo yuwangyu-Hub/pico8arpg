@@ -126,20 +126,21 @@ function cdis(_Group,_sb)--check_distance检测集合内的最近距离
 			mdis_o =  o
 		end
 	end
-	return mdis_o   
+	return mdis_o
 end
 --当靠近物体碰撞时，不同的条件触发不同的效果
-function move_and_push(_obj,_sb,_colldire)
+function move_and_push(_obj,_sb,_colldire) --_colldire:物体在主角的方向
 	local d_date={
 		{1,2,8,3,7,0,1}, --与碰撞相同的方向、四个其他方向、x、y
 		{3,2,4,1,5,1,0},
 		{5,4,6,3,7,0,1},
 		{7,8,6,1,3,1,0}}
 	if _colldire==1 or _colldire==3 or _colldire==5 or _colldire==7 then--与物体碰撞的物体方向
+		
 		local direnum=(_colldire+1)/2
 		if _sb.dire==d_date[direnum][1] then --当前移动方向
-			if checkcolledge(_obj,_sb,_colldire) then 
-				if  d_date[direnum][6]==1 then --x==1
+			if checkcoll_edge(_obj,_sb,_colldire) then 
+				if  d_date[direnum][6]==1 then --检测x方向
 					if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==d_date[direnum][1] then
 						_sb.spd.spx=-_sb.speed
 						_sb.spd.spy=0
@@ -147,7 +148,7 @@ function move_and_push(_obj,_sb,_colldire)
 						_sb.spd.spx=_sb.speed
 						_sb.spd.spy=0
 					end
-				elseif d_date[direnum][7]==1 then--y==1
+				elseif d_date[direnum][7]==1 then--检测y方向
 					if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==d_date[direnum][1] then
 						_sb.spd.spx=0
 						_sb.spd.spy= -_sb.speed
@@ -165,16 +166,12 @@ function move_and_push(_obj,_sb,_colldire)
 				end
 				pull_anim(_sb,_colldire)
 			end
-		elseif _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] or _sb.dire==d_date[direnum][4] or _sb.dire==d_date[direnum][5] then
+		elseif _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then
 			_sb.spd.spx=dirx[_sb.dire]*_sb.speed*d_date[direnum][6]
 			_sb.spd.spy=diry[_sb.dire]*_sb.speed*d_date[direnum][7]
-			if _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then
-				pull_anim(_sb,_colldire)
-			else
-				move_anim(_sb)
-			end
+			pull_anim(_sb,_colldire)
 		else
-			move(_sb)
+			_sb.state=_sb.allstate.move
 		end
 	else --2468
 		check_Diagonal(_colldire,_sb)
@@ -194,7 +191,7 @@ function check_Diagonal(_colldire,_sb)--检测对角线
 		end
 	end
 end
-function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小于等于3的像素位置
+function checkcoll_edge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小于等于3的像素位置
 	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
 	local objcenter_x,objcenter_y=_obj.x+_obj.w/2,_obj.y+_obj.h/2
 	if _colldire==1 or _colldire==5 then
@@ -210,7 +207,7 @@ function checkcolledge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小
 	end
 end
 
-function pushsth(_obj,_sb,_colldire) --推物体
+function pushsth(_obj,_sb) --推物体
 	local pushspd=1
 	if _sb.dire%2==1 then
 		local xsum=pushspd*dirx[_sb.dire]

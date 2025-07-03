@@ -24,15 +24,32 @@ function wyfsm(sb)--状态机
 		end,
 		move = function()
 			--sb.speed = nomalize(sb,.7,1)
-			local _obj=cdis(obj,wy)
-			local colldire=checkdir(_obj,sb)--检测方向
-			debug = colldire
-			if ck_sthcoll(_obj,sb,0,0,0,0) then --检测物体与主角之间碰撞
-				move_and_push(_obj,sb,colldire)
+			local direnum=(colldire+1)/2
+			if checkcoll_edge(near_o,wy,colldire) then --如果在边缘
+				if  coll_date[direnum][6]==1 then --检测x方向
+						if abs(near_o.x-(wy.x+wy.w))<=3 and wy.dire==coll_date[direnum][1] then
+							wy.spd.spx=-wy.speed
+							wy.spd.spy=0
+						elseif abs((near_o.x+near_o.w)-wy.x)<=3 and wy.dire==coll_date[direnum][1] then
+							wy.spd.spx=wy.speed
+							wy.spd.spy=0
+						end
+				elseif coll_date[direnum][7]==1 then--检测y方向
+						if abs(near_o.y-(wy.y+wy.h))<=3 and wy.dire==coll_date[direnum][1] then
+							wy.spd.spx=0
+							wy.spd.spy= -wy.speed
+						elseif abs((near_o.y+near_o.h)-wy.y)<=3 and wy.dire==coll_date[direnum][1] then
+							wy.spd.spx=0
+							wy.spd.spy=wy.speed
+						end
+				end
 			else
 				move(sb)
-				move_anim(sb)
 			end
+			
+			
+			move_anim(sb)
+			
 			if sb.dire==0 then
 				sb.move_t=0
 				sb.state=sb.allstate.idle
@@ -75,6 +92,28 @@ function wyfsm(sb)--状态机
 				sb.roll_t=0
 				sb.state=sb.allstate.idle
 			end
+		end,
+		push=function()
+			--local colldire=checkdir(near_o,wy)--检测方向
+			--move_and_push(near_o,sb,colldire)
+			if near_o.type=="fixed" then
+				if wy.dire ==1 then
+					wy.spd.spx=0
+					wy.spd.spy=diry[wy.dire]*wy.speed*1
+				elseif wy.dire ==3 then
+					wy.spd.spx=dirx[wy.dire]*wy.speed*1
+					wy.spd.spy=0
+				elseif wy.dire ==5 then
+					wy.spd.spx=0
+					wy.spd.spy=diry[wy.dire]*wy.speed*1
+				elseif wy.dire ==7 then
+					wy.spd.spx=dirx[wy.dire]*wy.speed*1
+					wy.spd.spy=0
+				end
+			elseif near_o.type=="move" then
+				pushsth(near_o,wy)
+			end
+			pull_anim(wy)
 		end,
 		hurt=function()
 			hurtmove(sb)

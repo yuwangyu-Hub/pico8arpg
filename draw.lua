@@ -75,8 +75,14 @@ function move_anim(_sb)
 	_sb.move_t+=.2
 	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
 end
-function pull_anim(_sb,_colldire)
-    _sb.frame=_sb.sprs.push[(_colldire+1)/2]
+function pull_anim(_sb)
+    if(wy.dire!=0) then
+        if wy.dire%2==1 then
+            _sb.frame=_sb.sprs.push[(wy.dire+1)/2]
+        else
+            _sb.frame=_sb.sprs.push[(wy.dire)/2]
+        end
+    end
 end
 function hurt_anim(_sb)
     _sb.frame=_sb.sprs.hurt

@@ -26,15 +26,17 @@ function playerdata()
 		jump="jump",--跳跃（需获取道具）
 		archery="archery",--射箭
 		roll="roll",
+		push="push",
 		hurt="hurt",
 		death="death"
 	}
     wy.state=wy.allstate.idle
-    wy.x=32
+    wy.x=100
     wy.y=32
 	wy.w=7
 	wy.h=7 --精灵大小
     wy.speed=1
+	wy.iscoll=false
 	wy.isroll=false
     wy.rollspeed=3
 	wy.roll_t=0
@@ -45,7 +47,7 @@ function playerdata()
     wy.sprs={
         idle=2,
         move={1,2,3,4},
-		push={13,15,13,14},
+		push={13,15,13,14}, --1(1),2(3),3(5),4()
         roll={5,6,6,7,7,5},
         attack={8,9,10},
 		hurt=11,
@@ -60,7 +62,6 @@ end
 --普通A：随机移动
 --普通B：先随机移动，后发现攻击
 --Boss：多种攻击手段
---蛇
 function en_snake_data()
     sk=makerole()
 	sk.allstate={
