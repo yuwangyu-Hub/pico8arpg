@@ -54,9 +54,10 @@ function playerdata()
 		get=12 --只一次
     }	
 end
-function sword()
+function swordata()
     sword=makerole()--武器
 	sword.sprs={27,23,26,24,25,40,28,39}--匹配角色1-8方向
+	sword.isappear=false --出现
 end
 --敌人分为三种：普通A、普通B、Boss
 --普通A：随机移动

@@ -13,6 +13,7 @@ function wyfsm(sb)--状态机
 				sb.state=sb.allstate.move
             end
 			if sb.isattack then
+				sword.isappear=true
                 attack_swordpos(sb)
 				sb.state=sb.allstate.attack
 			end
@@ -55,6 +56,7 @@ function wyfsm(sb)--状态机
 				sb.state=sb.allstate.idle
 			end
 			if sb.isattack then
+				sword.isappear=true
                 attack_swordpos(sb)
 				sb.state=sb.allstate.attack
 			end
@@ -73,6 +75,7 @@ function wyfsm(sb)--状态机
 			sb.att_t+=.2
 			if sb.att_t>2 then
 				sb.isattack=false
+				sword.isappear=false
 				sb.att_t=0
 				sb.state=sb.allstate.idle
 			end

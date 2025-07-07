@@ -229,17 +229,20 @@ function spr_flip(_sb)
 end
 
 function attack_swordpos(_sb)--处理update中的武器实时位置
-    if _sb.dire!=0 then
-        sword.x = _sb.x+dirx[_sb.dire]*8
-        sword.y = _sb.y+diry[_sb.dire]*8
-    elseif _sb.dire==0 then
-        if _sb.sprflip then
-            sword.x = _sb.x-7
-        else
-            sword.x = _sb.x+7
-        end
-        sword.y = _sb.y
-    end
+	if sword then
+		if _sb.dire!=0 then
+			sword.x = _sb.x+dirx[_sb.dire]*8
+			sword.y = _sb.y+diry[_sb.dire]*8
+		elseif _sb.dire==0 then
+			if _sb.sprflip then
+				sword.x = _sb.x-7
+			else
+				sword.x = _sb.x+7
+			end
+			sword.y = _sb.y
+		end
+	end
+    
 end
 function move(_sb)
 	_sb.spd.spx,_sb.spd.spy=0,0
@@ -260,7 +263,7 @@ function roll(_sb)
 		end
 	end
 end
-function checkhurt(_sb)--检测玩家受伤
+function check_p_hurt(_sb)--检测玩家受伤
 	local _ishurt
 	for e in all(enemies) do
 		_sb.hurtdire=checkdir(e,_sb)
@@ -268,12 +271,14 @@ function checkhurt(_sb)--检测玩家受伤
 	end
 	return _ishurt
 end
-
+function check_en_hurt()
+	--if 
+end
 function hurtmove(_sb)--依照方向执行受伤
 	local m_spd=1
 	_sb.hurtmt+=0.1
 	local xsum=dirx[_sb.hurtdire]*-1 --反方向加权
-	local ysum=diry[_sb.hurtdire]*-1
+	local ysum=diry[_sb.hurtdire]*-1 
 	_sb.spd.spx=xsum*m_spd
 	_sb.spd.spy=ysum*m_spd
 	hurt2idle(_sb)

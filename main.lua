@@ -8,6 +8,7 @@
 --地图切换系统（不规则地图）
 --对话系统
 --UI系统
+--敌人系统：敌人的受伤
 ------------------------------------------------------------
 input_dire={0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0 } --btn()0-15所对应的方向：从左边开始顺时针8方向
 dirx={-1,-1, 0, 1,1,1, 0,-1} 
@@ -23,7 +24,7 @@ debug=""
 function _init()
 	startgame()
 	playerdata()
-	sword()
+	swordata()
 	makeobj(1,100,80,7,7,0,0,0,0)--wood
 	makeobj(2,64,64,8,8,0,0,0,0)--box
 	makeobj(3,32,80,8,8,0,0,0,0)--coin
@@ -59,4 +60,5 @@ end
 function printbug()
 	print(wy.state,20,2,7)
 	print(debug)
+	print(sword)
 end

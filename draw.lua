@@ -1,6 +1,8 @@
 function draw_game()
     shadow(wy)
-    att_weapon(wy)
+	att_weapon(wy)
+	
+    
     --角色(敌人/npc)精灵显示
     for c in all (enemies) do
         spr(c.spr, c.x, c.y)
@@ -20,9 +22,8 @@ function draw_game()
     --检测碰撞线显示
 end
 function att_weapon(_sb)--显示攻击武器
-    --攻击时候的武器绘制
-    if _sb.state == _sb.allstate.attack then
-        local swordspr
+    local swordspr
+    if sword.isappear then	
         if not _sb.sprflip and _sb.dire==0 then
             swordspr=25 --翻转武器精灵
         elseif _sb.sprflip and _sb.dire==0 then
@@ -31,7 +32,7 @@ function att_weapon(_sb)--显示攻击武器
             swordspr=sword.sprs[_sb.dire]
         end
         spr(swordspr, sword.x, sword.y)
-    end 
+	end
 end
 function shadow(_sb)
     local x1,x2
