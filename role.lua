@@ -3,6 +3,8 @@ function makerole()--角色的创建模板
 	role.allstate={}
 	role.x=0
 	role.y=0
+	role.w=0
+	role.h=0
 	role.spd={spx=0,spy=0} --加速度
 	role.speed=0
 	role.dire=0 
@@ -56,6 +58,8 @@ function playerdata()
 end
 function swordata()
     sword=makerole()--武器
+	sword.w=7
+	sword.h=7 --精灵大小
 	sword.sprs={27,23,26,24,25,40,28,39}--匹配角色1-8方向
 	sword.isappear=false --出现
 end

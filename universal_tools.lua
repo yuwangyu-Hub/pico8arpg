@@ -272,7 +272,14 @@ function check_p_hurt(_sb)--检测玩家受伤
 	return _ishurt
 end
 function check_en_hurt()
-	--if 
+	local _ishurt
+	if sword.isappear then
+		for e in all(enemies) do
+			--e.hurtdire=checkdir(e,sword)
+			_ishurt = coll_boxcheck(sword.x,sword.y,sword.w,sword.h,e.x,e.y,e.w,e.h)
+		end
+	end
+	return _ishurt
 end
 function hurtmove(_sb)--依照方向执行受伤
 	local m_spd=1

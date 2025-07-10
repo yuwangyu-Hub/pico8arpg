@@ -43,8 +43,11 @@ function update_game()
 		wy.iscoll=false
 	end
 	
-	if check_p_hurt(wy) then
+	if check_p_hurt(wy) then --检测玩家受伤
 		wy.state=wy.allstate.hurt
+	end
+	if check_en_hurt() then--检测敌人受伤
+		debug="en_hurt"
 	end
 
 end
