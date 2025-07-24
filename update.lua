@@ -1,12 +1,12 @@
 function update_game()
-	wyfsm(wy)--主角的行为
+	updatePlayerState(wy)--主角的行为: 更新玩家状态
 	--chase(snake,wy)
 	spr_flip(wy)
 	--wy.y+=1
 	
-	near_o=cdis(obj,wy)
+	near_o=findNearestObject(obj, wy)
 	colldire=checkdir(near_o,wy)
-	if ck_sthcoll(near_o,wy,0,0,0,0) then--检测物体与主角之间碰撞
+	if ck_sthcoll(near_o, wy, 0, 0, 0, 0) then--检测物体(最近的)与主角之间碰撞
 		if wy.state=="roll" then --翻滚状态碰撞
 
 		elseif wy.state=="hurt" then --受伤状态碰撞

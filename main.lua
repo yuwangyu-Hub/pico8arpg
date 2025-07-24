@@ -23,12 +23,12 @@ iscollFlip=false --是否碰撞翻转
 debug=""
 function _init()
 	startgame()
-	playerdata()
-	swordata()
+	wy = initializePlayer()  -- 初始化玩家
+	sword = initializeSword()  -- 初始化武器
 	makeobj(1,100,80,7,7,0,0,0,0)--wood
 	makeobj(2,64,64,8,8,0,0,0,0)--box
 	makeobj(3,32,80,8,8,0,0,0,0)--coin
-	en_snake_data()
+	createSnakeEnemy()  -- 创建蛇形敌人
 end
 
 coll_date={
@@ -59,6 +59,5 @@ function startgame()
 end
 function printbug()
 	print(wy.state,20,2,7)
-	print(debug)
-	print(sword)
+	print(wy.dire)
 end
