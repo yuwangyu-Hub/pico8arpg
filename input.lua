@@ -1,14 +1,14 @@
 function input_direct_sys()
-	local btnv=btn()&0b1111 --遮罩剔除掉X\O的输入
-	wy.dire = input_dire[btnv+1] --获取方向
-	
-	if btnp()&0b110000 ==16 then --攻击为真
+	local btnv_mask=btn()&0b1111 --遮罩剔除掉X\O的输入
+	wy.dire = input_dire[btnv_mask+1] --获取方向
+
+	if btnp()&0b110000==16 then --攻击为真(遮罩剔除掉方向输入只查看xo输入)
 		wy.isattack=true
 	end
-	if btnp()&0b110000==32 then --翻滚为真
+	if btnp()&0b110000==32 then
 		wy.isroll=true
 	end
-	if btnp()&0b110000==48 then --xo一起按下
+	if btnp()&0b110000==48 then
 		debug="inv"
 	end
 end

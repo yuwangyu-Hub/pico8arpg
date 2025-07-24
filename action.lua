@@ -1,132 +1,181 @@
-function wyfsm(sb)--状态机
+function updatePlayerState(player)--状态机: 更新玩家状态
 	--检测方向
-	if sb.state!= sb.allstate.roll and sb.state!= sb.allstate.attack then
-		input_direct_sys(sb)
+	if player.state!= player.allstate.roll and player.state!= player.allstate.attack then
+		input_direct_sys(player)
 	end
 	--角色移动加成（翻滚或移动或推）
-	if (sb.dire>0 or sb.state==sb.allstate.roll) and sb.state!=sb.allstate.attack then
-		sb.x,sb.y=sb.x+sb.spd.spx,sb.y+sb.spd.spy
+	if (player.dire>0 or player.state==player.allstate.roll) and player.state!=player.allstate.attack then
+		player.x,player.y=player.x+player.spd.spx,player.y+player.spd.spy
 	end
 	local switchstate={
 		idle = function()
-            if sb.dire!=0 and not sb.isroll then
-				sb.state=sb.allstate.move
+            if player.dire!=0 and not player.isroll then
+				player.state=player.allstate.move
             end
-			if sb.isattack then
+			if player.isattack then
 				sword.isappear=true
-                attack_swordpos(sb)
-				sb.state=sb.allstate.attack
+                attack_swordpos(player)
+				player.state=player.allstate.attack
 			end
-			if sb.isroll then
-				sb.state=sb.allstate.roll
+			if player.isroll then
+				player.state=player.allstate.roll
 			end
 			--动画
-			sb.frame=sb.sprs.idle
+			player.frame=player.sprs.idle
 		end,
 		move = function()
-			--sb.speed = nomalize(sb,.7,1)
+			local x1,y1=0,0
+			local x2,y2=0,0
+			if player.dire==1 then
+				x1=0
+				y1=0
+				x2=0
+				y2=0
+			elseif player.dire==3 then
+
+			elseif player.dire==5 then
+
+			elseif player.dire==7 then
+
+			end
+		
+			--player.speed = nomalize(player,.7,1)
+			if check_wall_iswalk(player) then --
+				move(player)
+				move_anim(player)
+			else
+				--推墙
+				player.spd.spx=0
+				player.spd.spy=0
+				pull_anim(player) --都使用推的动画
+			end
+			--[[
+			near_o=findNearestObject(obj, player)
+			local colldire=checkdir(near_o,player)
+			debug=colldire
 			local direnum=(colldire+1)/2
-			if checkcoll_edge(near_o,wy,colldire) then --如果在边缘
-				if  coll_date[direnum][6]==1 then --检测x方向
-						if abs(near_o.x-(wy.x+wy.w))<=3 and wy.dire==coll_date[direnum][1] then
-							wy.spd.spx=-wy.speed
-							wy.spd.spy=0
-						elseif abs((near_o.x+near_o.w)-wy.x)<=3 and wy.dire==coll_date[direnum][1] then
-							wy.spd.spx=wy.speed
-							wy.spd.spy=0
+			if ck_sthcoll(near_o, player, 0, 0, 0, 0) then --检测物体(最近的)与主角之间碰撞
+				if colldire==1 or colldire==3 or colldire==5 or colldire==7 then--物体在角色的正方向（1357）
+					local direnum=(colldire+1)/2
+					if checkcoll_edge(near_o,wy,colldire) then --如果在边缘
+						if  coll_date[direnum][6]==1 then --检测x方向
+							if abs(near_o.x-(player.x+player.w))<=3 and player.dire==coll_date[direnum][1] then
+								player.spd.spx=-player.speed
+								player.spd.spy=0
+							elseif abs((near_o.x+near_o.w)-player.x)<=3 and player.dire==coll_date[direnum][1] then
+								player.spd.spx=player.speed
+								player.spd.spy=0
+							end
+						elseif coll_date[direnum][7]==1 then--检测y方向
+								if abs(near_o.y-(player.y+player.h))<=3 and player.dire==coll_date[direnum][1] then
+										player.spd.spx=0
+										player.spd.spy= -player.speed
+								elseif abs((near_o.y+near_o.h)-player.y)<=3 and player.dire==coll_date[direnum][1] then
+										player.spd.spx=0
+										player.spd.spy=player.speed
+								end
 						end
-				elseif coll_date[direnum][7]==1 then--检测y方向
-						if abs(near_o.y-(wy.y+wy.h))<=3 and wy.dire==coll_date[direnum][1] then
-							wy.spd.spx=0
-							wy.spd.spy= -wy.speed
-						elseif abs((near_o.y+near_o.h)-wy.y)<=3 and wy.dire==coll_date[direnum][1] then
-							wy.spd.spx=0
-							wy.spd.spy=wy.speed
+					else --不在边缘
+						if wy.dire==coll_date[direnum][1] then --当前移动方向=物体所在对象方向
+							wy.state=wy.allstate.push
+						elseif wy.dire==coll_date[direnum][2] or wy.dire==coll_date[direnum][3] then
+							wy.spd.spx=dirx[wy.dire]*wy.speed*coll_date[direnum][6]
+							wy.spd.spy=diry[wy.dire]*wy.speed*coll_date[direnum][7]
+							pull_anim(wy)
+						else
+							wy.state=wy.allstate.idle
 						end
+						
+					end
 				end
 			else
-				move(sb)
+				move(player)
 			end
+			]]
 			
 			
-			move_anim(sb)
 			
-			if sb.dire==0 then
-				sb.move_t=0
-				sb.state=sb.allstate.idle
+			
+			---------切换
+			if player.dire==0 then
+				player.move_t=0
+				player.state=player.allstate.idle
 			end
-			if sb.isattack then
+			if player.isattack then
 				sword.isappear=true
-                attack_swordpos(sb)
-				sb.state=sb.allstate.attack
+                attack_swordpos(player)
+				player.state=player.allstate.attack
 			end
-			if sb.isroll then
-				sb.state=sb.allstate.roll
+			if player.isroll then
+				player.state=player.allstate.roll
 			end
 		end,
 		attack=function()
-			if sb.dire==1 or sb.dire ==5 or sb.dire==0 then
-				sb.frame=sb.sprs.attack[1]
-			elseif sb.dire==2 or sb.dire== 3 or sb.dire==4 then
-				sb.frame=sb.sprs.attack[3]
-			else
-				sb.frame=sb.sprs.attack[2]
+			local get_attack_frame = function(dire) --内部封装了一个函数
+				if dire==1 or dire==5 or dire==0 then return 1
+				elseif dire==2 or dire==3 or dire==4 then return 3
+				else return 2 end
 			end
-			sb.att_t+=.2
-			if sb.att_t>2 then
-				sb.isattack=false
+			player.frame=player.sprs.attack[get_attack_frame(player.dire)]
+			player.att_t+=.2
+			if player.att_t>2 then
+				player.isattack=false
 				sword.isappear=false
-				sb.att_t=0
-				sb.state=sb.allstate.idle
+				player.att_t=0
+				player.state=player.allstate.idle
 			end
 		end,
 		roll=function()
 			--*翻滚撞墙弹回
-			sb.rollspeed=3
-            --sb.rollspeed=nomalize(sb,2.1213,3)
-			roll(sb)
+			player.rollspeed=3
+            --player.rollspeed=nomalize(player,2.1213,3)
+			roll(player)
 			--动画相关
-			sb.roll_t+=0.5
-			sb.frame=sb.sprs.roll[ceil(sb.roll_t%#sb.sprs.roll)]
-			if sb.roll_t>=5 then
-				sb.spd.spx=0
-				sb.spd.spy=0
-				sb.isroll=false
-				sb.roll_t=0
-				sb.state=sb.allstate.idle
+			player.roll_t+=0.5
+			player.frame=player.sprs.roll[ceil(player.roll_t%#player.sprs.roll)]
+			if player.roll_t>=5 then
+				player.spd.spx=0
+				player.spd.spy=0
+				player.isroll=false
+				player.roll_t=0
+				player.state=player.allstate.idle
 			end
 		end,
 		push=function()
-			--local colldire=checkdir(near_o,wy)--检测方向
-			--move_and_push(near_o,sb,colldire)
-			if near_o.type=="fixed" then
-				if wy.dire ==1 then
-					wy.spd.spx=0
-					wy.spd.spy=diry[wy.dire]*wy.speed*1
-				elseif wy.dire ==3 then
-					wy.spd.spx=dirx[wy.dire]*wy.speed*1
-					wy.spd.spy=0
-				elseif wy.dire ==5 then
-					wy.spd.spx=0
-					wy.spd.spy=diry[wy.dire]*wy.speed*1
-				elseif wy.dire ==7 then
-					wy.spd.spx=dirx[wy.dire]*wy.speed*1
-					wy.spd.spy=0
+			--local colldire=checkdir(near_o,player)--检测方向
+			--move_and_push(near_o,player,colldire)
+			--检测推的物体的类型
+			if near_o.type=="move" then--推动
+				if player.dire ==1 then
+					player.spd.spx=0
+					player.spd.spy=diry[player.dire]*player.speed*1
+				elseif player.dire ==3 then
+					player.spd.spx=dirx[player.dire]*player.speed*1
+					player.spd.spy=0
+				elseif player.dire ==5 then
+					player.spd.spx=0
+					player.spd.spy=diry[player.dire]*player.speed*1
+				elseif player.dire ==7 then
+					player.spd.spx=dirx[player.dire]*player.speed*1
+					player.spd.spy=0
 				end
-			elseif near_o.type=="move" then
-				pushsth(near_o,wy)
+			elseif near_o.type=="collect" then--收集
+				pushsth(near_o,player)
 			end
-			pull_anim(wy)
+			pull_anim(player) --都使用推的动画
+			if player.dire==0 then
+				player.state=player.allstate.idle
+			end
 		end,
 		hurt=function()
-			hurtmove(sb)
-			hurt_anim(sb)
-			sb.x,sb.y=sb.x+sb.spd.spx,sb.y+sb.spd.spy
+			hurtmove(player)
+			hurt_anim(player)
+			player.x,player.y=player.x+player.spd.spx,player.y+player.spd.spy
 		end,
 		death=function()
 		end
 	}
-	sb.lastdire=sb.dire--记录上一次的方向
-	switchstate[sb.state]()
+	player.lastdire=player.dire--记录上一次的方向
+	switchstate[player.state]()
 end
 

@@ -1,6 +1,8 @@
 function draw_game()
-    shadow(wy)
-	att_weapon(wy)
+    map() --地图
+    --
+    
+	drawWeapon(wy)
 	
     
     --角色(敌人/npc)精灵显示
@@ -14,6 +16,7 @@ function draw_game()
         rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end
     --主角
+    shadow(wy)
     spr(wy.frame, wy.x, wy.y, 1, 1, wy.sprflip)
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
 
@@ -21,17 +24,19 @@ function draw_game()
     ui_show()
     --检测碰撞线显示
 end
-function att_weapon(_sb)--显示攻击武器
-    local swordspr
+-- 绘制攻击武器
+-- @param player 玩家对象
+function drawWeapon(player)
+    local swordSpr
     if sword.isappear then	
-        if not _sb.sprflip and _sb.dire==0 then
-            swordspr=25 --翻转武器精灵
-        elseif _sb.sprflip and _sb.dire==0 then
-            swordspr=27 --翻转武器精灵
+        if not player.sprflip and player.dire == 0 then
+            swordSpr = 25 -- 翻转武器精灵
+        elseif player.sprflip and player.dire == 0 then
+            swordSpr = 27 -- 翻转武器精灵
         else
-            swordspr=sword.sprs[_sb.dire]
+            swordSpr = sword.sprs[player.dire]
         end
-        spr(swordspr, sword.x, sword.y)
+        spr(swordSpr, sword.x, sword.y)
 	end
 end
 function shadow(_sb)
@@ -76,12 +81,14 @@ function move_anim(_sb)
 	_sb.move_t+=.2
 	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
 end
-function pull_anim(_sb)
-    if(wy.dire!=0) then
-        if wy.dire%2==1 then
-            _sb.frame=_sb.sprs.push[(wy.dire+1)/2]
+-- 更新推动动画
+-- @param player 玩家对象
+function pull_anim(player)
+    if player.dire ~= 0 then
+        if player.dire % 2 == 1 then
+            player.frame = player.sprs.push[(player.dire + 1) / 2]
         else
-            _sb.frame=_sb.sprs.push[(wy.dire)/2]
+            player.frame = player.sprs.push[player.dire / 2]
         end
     end
 end

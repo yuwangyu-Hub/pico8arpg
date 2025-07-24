@@ -1,4 +1,4 @@
---通用工具lib
+--工具lib
 function doshake()--镜头抖动
 	local shakex=rnd(shake)-(shake/2)
 	local shakey=rnd(shake)-(shake/2)
@@ -21,6 +21,7 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
+--[[
 --画面检测：128X128
 --对象、左、右、上、下
 function checkwall(sb,lx,rx,uy,dy)
@@ -30,7 +31,6 @@ function checkwall(sb,lx,rx,uy,dy)
 	if sb.y>dy then sb.y=dy end
 	return sb
 end
---[[
 function creat_ck_line(_sb,cx,cy,cw,ch)--显示检测的四边
 	local collx,colly,collw,collh=_sb.x+cx,_sb.y+cy,_sb.w+cw,_sb.h+ch
 	----ck:check，coll:collision
@@ -66,12 +66,26 @@ function ck_sthcoll(_o,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
 		w=_sb.w+cw,
 		h=_sb.h+ch
 	}
-	if coll_boxcheck(p.x,p.y,p.w,p.h,_o.x,_o.y,_o.w,_o.h)then
+	return coll_boxcheck(p.x,p.y,p.w,p.h,_o.x,_o.y,_o.w,_o.h)
+end
+--碰撞盒检测
+--物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
+function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh) 
+	local px1=_px
+	local py1=_py
+	local px2=_px+_pw
+	local py2=_py+_ph
+	local bx1=_bx
+	local by1=_by
+	local bx2=_bx+_bw
+	local by2=_by+_bh
+	if px2>=bx1 and px1<=bx2 and py2>=by1 and py1<=by2 then
 		return true
 	else
 		return false
 	end
 end
+
 --检测被检测对象在检测对象的哪个方向
 function checkdir(obj,sb)
 	local ox1,oy1=obj.x,obj.y
@@ -100,33 +114,22 @@ function checkdir(obj,sb)
 		return 0
 	end
 end
---碰撞盒检测
---物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
-function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh) 
-	local px1=_px
-	local py1=_py
-	local px2=_px+_pw
-	local py2=_py+_ph
-	local bx1=_bx
-	local by1=_by
-	local bx2=_bx+_bw
-	local by2=_by+_bh
-	if px2>=bx1 and px1<=bx2 and py2>=by1 and py1<=by2 then
-		return true
-	else
-		return false
-	end
-end
-function cdis(_Group,_sb)--check_distance检测集合内的最近距离
-	local mdis =128--最大距离
-	local mdis_o
-	for o in all(_Group) do
-		if sqrt(abs(o.x-_sb.x)+abs(o.y-_sb.y)) < mdis then
-			mdis=sqrt(abs(o.x-_sb.x)+abs(o.y-_sb.y))
-			mdis_o =  o
+
+-- 查找集合中距离主体最近的对象
+-- @param objectGroup 对象集合
+-- @param subject 主体对象
+-- @return 最近的对象
+function findNearestObject(objectGroup, subject)
+	local minDistance = 128  -- 初始最大距离
+	local nearestObject --最近的对象
+	for object in all(objectGroup) do
+		local distance = sqrt(abs(object.x - subject.x) + abs(object.y - subject.y))
+		if distance < minDistance then
+			minDistance = distance
+			nearestObject = object
 		end
 	end
-	return mdis_o
+	return nearestObject
 end
 --当靠近物体碰撞时，不同的条件触发不同的效果
 function move_and_push(_obj,_sb,_colldire) --_colldire:物体在主角的方向
@@ -177,7 +180,6 @@ function move_and_push(_obj,_sb,_colldire) --_colldire:物体在主角的方向
 		check_Diagonal(_colldire,_sb)
 	end
 end
-
 function check_Diagonal(_colldire,_sb)--检测对角线
 	local coll_dire={2,4,6,8}
 	for i=1,#coll_dire do
@@ -191,7 +193,7 @@ function check_Diagonal(_colldire,_sb)--检测对角线
 		end
 	end
 end
-function checkcoll_edge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，小于等于3的像素位置
+function checkcoll_edge(_obj,_sb,_colldire)--检测是否在物体碰撞两侧边缘，小于等于3的像素位置
 	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
 	local objcenter_x,objcenter_y=_obj.x+_obj.w/2,_obj.y+_obj.h/2
 	if _colldire==1 or _colldire==5 then
@@ -206,7 +208,6 @@ function checkcoll_edge(_obj,_sb,_colldire)--检测是否在碰撞斜边缘，�
 		return false
 	end
 end
-
 function pushsth(_obj,_sb) --推物体
 	local pushspd=1
 	if _sb.dire%2==1 then
@@ -299,7 +300,6 @@ function hurt2idle(_sb)--受伤结束-idle
 	end
 end
 
-
 function nomalize(sb,speed1,speed2)--归一化
 	local respeed=0
 	if sb.dire==2 or  sb.dire==4 or sb.dire==6 or sb.dire==8 then
@@ -309,5 +309,33 @@ function nomalize(sb,speed1,speed2)--归一化
 	end
 	return respeed
 end
+
+--检测地图上绘制的敌人，将其转换为敌人对象
+function check_map_sth()
+	for i=0,15 do--行
+		for j=0,15 do--列
+			local en_mount=mget(i,j)
+			if en_mount==50 then --蛇
+				createsnakenemy(i,j)  -- 创建蛇形敌人
+				mset(i,j,0)
+			elseif en_mount==81 then
+				makeobj(2,i*8,j*8,8,8,0,0,0,0)--box
+				mset(i,j,0)
+			end
+		end
+	end
+end
+
+function check_wall_iswalk(_x,_y)
+	local x=_x
+	local y=_y
+	if fget(mget(x,y),0)  then --是否在上面
+		return false --在，不可走
+	else
+		return true --不在，可以走
+	end
+end
+
+
 --输入系统检测1:像素级别
 --输入系统检测2:固定距离
