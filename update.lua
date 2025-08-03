@@ -1,6 +1,6 @@
 function update_game()
+	--coll_dire,edge=check_wall_iswalk(wy)
 	check_map_sth()
-	debug = check_wall_iswalk(wy)
 	updatePlayerState(wy)--主角的行为: 更新玩家状态
 	--chase(snake,wy)
 	spr_flip(wy)
@@ -9,7 +9,7 @@ function update_game()
 		wy.state=wy.allstate.hurt
 	end
 	if check_en_hurt() then--检测敌人受伤
-		debug="en_hurt"
+		--debug="en_hurt"
 	end
 
 end

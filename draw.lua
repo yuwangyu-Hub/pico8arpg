@@ -1,6 +1,4 @@
 function draw_game()
-    map() --地图
-    --
     
 	drawWeapon(wy)
 	
@@ -19,7 +17,25 @@ function draw_game()
     shadow(wy)
     spr(wy.frame, wy.x, wy.y, 1, 1, wy.sprflip)
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
-
+    --地图
+    map() 
+    --[[
+        pset(l_px1,l_py1,11)
+        pset(l_px2,l_py2,11)
+        pset(d_px1,d_py1,11)
+        pset(d_px2,d_py2,11)
+        pset(r_px1,r_py1,11)
+        pset(r_px2,r_py2,11)
+        pset(u_px1,u_py1,11)
+        pset(u_px2,u_py2,11)
+    pset(w_collx1,w_colly1,11)
+    pset(w_collx2,w_colly2,11)
+    pset(w_collx3,w_colly3,11)
+    pset(w_collx4,w_colly4,11)
+    pset(w_collx5,w_colly5,11)
+    pset(w_collx6,w_colly6,11)
+    pset(w_collx7,w_colly7,11)
+    pset(w_collx8,w_colly8,11)]]
     --UI显示
     ui_show()
     --检测碰撞线显示

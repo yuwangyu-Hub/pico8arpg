@@ -25,22 +25,53 @@ debug1=""
 debug2=""
 debug3=""
 
---碰撞信息
-coll_date={
-		{1,2,8,3,7,0,1},
-		{3,2,4,1,5,1,0},
-		{5,4,6,3,7,0,1},
-		{7,8,6,1,3,1,0}}--与碰撞相同的方向、四个其他方向、x、y
+--[[
+	l_px1=0 l_py1=0 l_px2=0 l_py2=0 d_px1=0 d_py1=0 d_px2=0 d_py2=0 
+	r_px1=0 r_py1=0 r_px2=0 r_py2=0 u_px1=0 u_py1=0 u_px2=0 u_py2=0
+w_collx1=0 w_colly1=0 w_collx2=0 w_colly2=0 w_collx3=0 w_colly3=0 w_collx4=0 w_colly4=0 
+w_collx5=0 w_colly5=0 w_collx6=0 w_colly6=0 w_collx7=0 w_colly7=0 w_collx8=0 w_colly8=0]]
+
 function _init()
 	startgame()
 	wy = initializeplayer()  -- 初始化玩家
 	sword = initializesword()  -- 初始化武器
-	--makeobj(1,100,80,7,7,0,0,0,0)--wood
-	--makeobj(2,64,64,8,8,0,0,0,0)--box
-	--makeobj(3,32,80,8,8,0,0,0,0)--coin
 end
 function _update() 
 	_upd()
+	--[[
+	l_px1=wy.x-1
+	l_py1=wy.y+3
+	l_px2=wy.x-1
+	l_py2=wy.y+4
+	d_px1=wy.x+4
+	d_py1=wy.y+8
+	d_px2=wy.x+3
+	d_py2=wy.y+8
+	r_px1=wy.x+8
+	r_py1=wy.y+3
+	r_px2=wy.x+8
+	r_py2=wy.y+4
+	u_px1=wy.x+4
+	u_py1=wy.y-1
+	u_px2=wy.x+3
+	u_py2=wy.y-1
+	
+	w_collx1=wy.x-1
+	w_colly1=wy.y
+	w_collx2=wy.x-1
+	w_colly2=wy.y+7
+	w_collx3=wy.x
+	w_colly3=wy.y+8
+	w_collx4=wy.x+7
+	w_colly4=wy.y+8
+	w_collx5=wy.x+8
+	w_colly5=wy.y+7
+	w_collx6=wy.x+8
+	w_colly6=wy.y
+	w_collx7=wy.x+7
+	w_colly7=wy.y-1
+	w_collx8=wy.x
+	w_colly8=wy.y-1]]
 end
 function _draw()
 	cls(2)
@@ -62,5 +93,4 @@ function printbug()
 	print(wy.state,20,2,7)
 	print(wy.dire)
 	print(debug)
-	print(wy.spd.x)
 end
