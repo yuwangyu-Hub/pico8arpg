@@ -12,33 +12,34 @@ function updatePlayerState(player)--状态机: 更新玩家状态
             if player.dire!=0 and not player.isroll then
 				player.state=player.allstate.move
             end
-			if player.isattack then
+			if player.isattack then --攻击
 				sword.isappear=true
                 attack_swordpos(player)
 				player.state=player.allstate.attack
 			end
-			if player.isroll then
+			if player.isroll then --翻滚
 				player.state=player.allstate.roll
 			end
 			--动画
 			player.frame=player.sprs.idle
 		end,
 		move = function()
-			--与墙体的碰撞
-			wallcoll_move(player)
 			--与可交互物体的碰撞（收集/推动）
 			near_o=findNearestObject(obj, player)--检测最近的物体
 			local colldire=checkdir(near_o,player)--物品在主角的朝向
 			
 			debug=colldire
-			if ck_sthcoll(near_o, player, 0, 0, 0, 0) then --检测物体(最近的)与主角之间碰撞
+			local iscoll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
+			if iscoll then --检测物体(最近的)与主角之间碰撞
 				if near_o.type=="move" then
 					move_and_push(near_o,player,colldire)
 				elseif near_o.type=="collect" then
 					--收集
 				end
+			else
+				--与墙体的碰撞
+				wallcoll_move(player)
 			end
-			
 			---------切换
 			if player.dire==0 then
 				player.move_t=0

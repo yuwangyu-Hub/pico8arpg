@@ -20,6 +20,7 @@ obj={}--物体：分为两种，可推动的物体和不可推动的物体
 near_o=nil--最近物品
 cb_line={}--碰撞盒
 iscollFlip=false --是否碰撞翻转
+ispush=false
 debug=""
 debug1=""
 debug2=""
@@ -91,6 +92,13 @@ function startgame()
 end
 function printbug()
 	print(wy.state,20,2,7)
-	print(wy.dire)
-	print(debug)
+	print("spdx:"..wy.spd.spx)
+	print("spdy:"..wy.spd.spy)
+	print("dire:"..wy.dire)
+	print("debug:"..debug)
+	print("debug1:"..debug1)
+	print("ispush:"..tostring(ispush))
+
+
+
 end

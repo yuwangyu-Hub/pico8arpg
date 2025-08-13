@@ -1,5 +1,5 @@
 function draw_game()
-    
+    shadow(wy)--主角影子
 	drawWeapon(wy)
 	
     
@@ -14,7 +14,7 @@ function draw_game()
         rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end
     --主角
-    shadow(wy)
+    
     spr(wy.frame, wy.x, wy.y, 1, 1, wy.sprflip)
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     --地图
