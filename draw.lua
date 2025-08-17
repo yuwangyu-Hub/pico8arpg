@@ -1,8 +1,6 @@
 function draw_game()
-    shadow(wy)--主角影子
-	drawWeapon(wy)
-	
-    
+    --shadow(wy)--主角影子
+	draweapon(wy)
     --角色(敌人/npc)精灵显示
     for c in all (enemies) do
         spr(c.spr, c.x, c.y)
@@ -14,35 +12,17 @@ function draw_game()
         rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end
     --主角
-    
-    spr(wy.frame, wy.x, wy.y, 1, 1, wy.sprflip)
+    draw_p(wy,wy.spr_cx,wy.spr_cy)
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     --地图
     map() 
-    --[[
-        pset(l_px1,l_py1,11)
-        pset(l_px2,l_py2,11)
-        pset(d_px1,d_py1,11)
-        pset(d_px2,d_py2,11)
-        pset(r_px1,r_py1,11)
-        pset(r_px2,r_py2,11)
-        pset(u_px1,u_py1,11)
-        pset(u_px2,u_py2,11)
-    pset(w_collx1,w_colly1,11)
-    pset(w_collx2,w_colly2,11)
-    pset(w_collx3,w_colly3,11)
-    pset(w_collx4,w_colly4,11)
-    pset(w_collx5,w_colly5,11)
-    pset(w_collx6,w_colly6,11)
-    pset(w_collx7,w_colly7,11)
-    pset(w_collx8,w_colly8,11)]]
     --UI显示
     ui_show()
     --检测碰撞线显示
 end
 -- 绘制攻击武器
 -- @param player 玩家对象
-function drawWeapon(player)
+function draweapon(player)
     local swordSpr
     if sword.isappear then	
         if not player.sprflip and player.dire == 0 then

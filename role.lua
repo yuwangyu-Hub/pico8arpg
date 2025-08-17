@@ -41,7 +41,11 @@ function initializeplayer()
 	player.y = 60
 	player.w = 7
 	player.h = 7 -- 精灵大小
+	player.spr_cx=0--精灵和真正坐标位置的差值
+	player.spr_cy=0
 	player.speed = 1
+	player.ishurt=false
+	player.wudi_t=0 --无敌时间
 	player.iscoll = false -- 是否碰撞
 	player.isroll = false -- 是否翻滚
 	player.rollspeed = 3 -- 翻滚速度
@@ -74,9 +78,11 @@ function initializesword()
 	sword.isappear = false -- 是否显示
 	return sword
 end
+--*角色：敌人和npc
 --敌人分为三种：普通A、普通B、Boss
 --普通A：随机移动
---普通B：先随机移动，后发现攻击
+--普通B：先随机移动，后发现追击
+--普通C：无视墙壁的攻击（飞行类）
 --Boss：多种攻击手段
 -- 创建蛇形敌人数据
 function createsnakenemy(_x,_y)
