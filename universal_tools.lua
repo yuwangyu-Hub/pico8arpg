@@ -418,6 +418,10 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 							end
 							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 						-------------------2468---------------------------
+						else
+							xie_2468move(_colldire,_sb,iswallcoll)
+						end
+						--[[
 						elseif _sb.dire==2 then
 							if iswallcoll==2 then
 								_sb.spd.spx=0
@@ -474,7 +478,8 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 								_sb.spd.spx=-1
 								_sb.spd.spy=1
 							end
-						end
+						
+						end]]
 					elseif _colldire==4  then--物体在右上角
 						---------------------1357----------------
 						if _sb.dire==1 then
@@ -506,6 +511,10 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 							end
 							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 						-----------------------2468---------------
+						else
+							xie_2468move(_colldire,_sb,iswallcoll)
+						end
+						--[[
 						elseif _sb.dire==2 then
 							if iswallcoll==2 then
 								_sb.spd.spx=0
@@ -562,7 +571,8 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 								_sb.spd.spx=-1
 								_sb.spd.spy=1
 							end
-						end
+						
+						end]]
 					elseif _colldire==6  then--物体在右下角
 						-------------------1357-------------------------
 						if _sb.dire==1 then
@@ -594,6 +604,10 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 							end
 							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 						-----------------2468-----------------
+						else
+							xie_2468move(_colldire,_sb,iswallcoll)
+						end
+						--[[
 						elseif _sb.dire==2 then
 							if iswallcoll==2 then
 								_sb.spd.spx=0
@@ -650,7 +664,8 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 								_sb.spd.spx=-1
 								_sb.spd.spy=1
 							end
-						end
+						
+						end]]
 					elseif _colldire==8 then --物体在左下角
 						------------------------1357----------------
 						if _sb.dire==1 then 
@@ -682,6 +697,10 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 							end
 							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
 						------------------------2468-----------------
+						else
+							xie_2468move(_colldire,_sb,iswallcoll)
+						end
+						--[[
 						elseif _sb.dire==2 then     --2斜角度
 							if iswallcoll==2 then
 								_sb.spd.spx=0
@@ -739,15 +758,52 @@ function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
 								_sb.spd.spx=0
 								_sb.spd.spy=0
 							end
-						end
+						
+						end]]
 					end
 				end
 			end	
 		end
 	end
 end
-function xie_2468move()
 
+function xie_2468move(_colldire,_sb,iswallcoll)
+	if _sb.dire==2 then --2
+		wallsum_move(_sb,_colldire,iswallcoll)
+	elseif _sb.dire==4 then
+		wallsum_move(_sb,_colldire,iswallcoll)
+	elseif _sb.dire==6 then
+		wallsum_move(_sb,_colldire,iswallcoll)
+	elseif _sb.dire==8 then
+		wallsum_move(_sb,_colldire,iswallcoll)
+	end
+end
+function wallsum_move(_sb,_colldire,iswallcoll) --对角线斜方向移动的具体实现（针对不同的墙壁方向）
+	local xy_data={
+		{2,3,4,1,8,0,5,6,7},--2\34\18\0567\
+		{4,2,3,5,6,0,1,7,8},--4\23\56\0178\
+		{6,7,8,4,5,0,1,2,3},--6\78\45\0123\
+		{8,6,7,1,2,0,3,4,5},--8\67\12\0345\
+	}
+	local cum=_sb.dire/2--将方向值（2468）转换为表的索引值
+	if iswallcoll==xy_data[cum][1] then --2
+		_sb.spd.spx=0
+		_sb.spd.spy=0
+	elseif iswallcoll==xy_data[cum][2] or iswallcoll==xy_data[cum][3] then --3\4
+		_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+		_sb.spd.spy=0
+	elseif iswallcoll==xy_data[cum][4] or iswallcoll==xy_data[cum][5] then --1\8
+		_sb.spd.spx=0
+		_sb.spd.spy=diry[_sb.dire]*_sb.speed
+	else --0\5\6\7
+		if  _sb.dire==_colldire then --
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+			_sb.spd.spy=diry[_sb.dire]*_sb.speed
+		end
+	end
 end
 function checkcoll_edge(_obj,_sb,_colldire)--检测是否在物体碰撞两侧边缘，小于等于3的像素位置
 	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
