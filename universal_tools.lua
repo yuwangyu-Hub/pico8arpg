@@ -101,26 +101,399 @@ function findNearestObject(objectGroup, subject)
 	end
 	return nearestObject
 end
---当靠近物体碰撞时，不同的条件触发不同的效果
 
---添加当同时碰到墙壁时的对应
---添加当同时碰到墙壁时的对应
-function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主角的方向
+function dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
 	local d_date={
 	--与碰撞相同的方向、四个其他方向、是或否、是或否
-		{1,2,8,3,7,0,1},
+		{1,8,2,3,7,0,1},
 		{3,2,4,1,5,1,0},
 		{5,4,6,3,7,0,1},
-		{7,8,6,1,3,1,0}}
+		{7,6,8,1,3,1,0}}
+	local direnum=(_colldire+1)/2--朝向针对碰撞信息组的值，符合索引
+	--移动方向和物体所在方向一致
+	if checkcoll_edge(_obj,_sb,_colldire) then --如果在边缘
+			--*需要考虑到墙壁的碰撞
+		if  d_date[direnum][6]==1 then --dire：3/7（在物体上下两端朝上或者下移动）
+			if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==d_date[direnum][1] then
+						--左侧上下移动
+				if iswallcoll ==1 or iswallcoll==3 or iswallcoll==7 then--如果滑动时候贴墙停止
+					_sb.spd.spx=0
+				else
+					_sb.spd.spx=-_sb.speed
+				end
+					_sb.spd.spy=0	
+			elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==d_date[direnum][1] then
+						--右侧上下移动
+				if iswallcoll==5 or iswallcoll==3 or iswallcoll==7 then --墙壁在右侧、在上、在下
+					_sb.spd.spx=0
+				else
+					_sb.spd.spx=_sb.speed
+				end
+				_sb.spd.spy=0
+			end
+		elseif d_date[direnum][7]==1 then--dire：1/5（在物体左右两端朝左或者右移动）
+			if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==d_date[direnum][1] then
+						--上侧左右移动
+				if iswallcoll==3 or iswallcoll==1 or iswallcoll==5 then
+					_sb.spd.spy=0
+				else
+					_sb.spd.spy= -_sb.speed
+				end
+				_sb.spd.spx=0
+			elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==d_date[direnum][1] then
+						--下侧左右移动
+				if iswallcoll ==7 or iswallcoll==1 or iswallcoll==5 then
+					_sb.spd.spy=0
+				else
+					_sb.spd.spy=_sb.speed
+				end
+				_sb.spd.spx=0
+			end
+		end
+	else--不在边缘（可推）
+		if _sb.dire==iswallcoll then--当推动方向和撞墙方向一致：角色在推的时候露出一部分(马脚)撞墙了
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else
+			pushsth(_obj,_sb,iswallcoll)
+			pull_anim(_sb,_colldire)
+		end
+	end
+end
+--当靠近物体碰撞时，不同的条件触发不同的效果
+function move_and_push(_obj,_sb,_colldire,iswallcoll) --_colldire:物体在主角的方向
+	if _colldire ==1  then ----物体在左边---
+		--iswallcoll!=2\8
+		if _sb.dire==1 then --移动方向与物体朝向一致
+			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
+		elseif _sb.dire==8 or _sb.dire==7 then --贴物体斜角度:因为有物体遮挡，所以与另一侧正角度移动方式保持一致
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==6 or iswallcoll==7 or iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else--0\1\2\3\4\5
+				_sb.spd.spx=0
+				_sb.spd.spy=1
+			end
+		elseif _sb.dire==2 or _sb.dire==3 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==2 or iswallcoll==3 or iswallcoll==4 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\1\5\6\7\8
+				_sb.spd.spx=0
+				_sb.spd.spy=-1
+			end
+		elseif _sb.dire==5 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==4 or iswallcoll==5 or iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+		else --0\1\2\3\7\8
+			_sb.spd.spx=1
+			_sb.spd.spy=0
+		end
+		elseif _sb.dire==4 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==4 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==2 or iswallcoll==3 then
+				_sb.spd.spx=1
+				_sb.spd.spy=0
+			elseif iswallcoll==5 or iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=-1
+			else --0\1\7\8
+				_sb.spd.spx=1
+				_sb.spd.spy=-1
+			end
+		elseif _sb.dire==6 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==4 or iswallcoll==5 then
+				_sb.spd.spx=0
+				_sb.spd.spy=1
+			elseif iswallcoll==7 or iswallcoll==8 then
+				_sb.spd.spx=1
+				_sb.spd.spy=0
+			else--0\1\2\3\
+				_sb.spd.spx=1
+				_sb.spd.spy=1
+			end
+		end
+	elseif  _colldire==3 then -----物体在上边-----------------------------------
+		--iswallcoll!=2\4
+		if _sb.dire==3 then --移动方向与物体朝向一致
+			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
+		elseif _sb.dire==2 or _sb.dire==1 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+		move_anim(_sb)--移动动画
+		if iswallcoll==1 or iswallcoll==2 or iswallcoll==8 then
+			_sb.spd.spx=0
+			_sb.spd.spy=0
+		else --0\3\4\5\6\7
+			_sb.spd.spx=-1
+			_sb.spd.spy=0
+		end
+		elseif _sb.dire==4 or _sb.dire==5 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==4 or iswallcoll==5 or iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\1\2\3\7\8
+				_sb.spd.spx=1
+				_sb.spd.spy=0
+			end
+		elseif _sb.dire==7 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==6 or iswallcoll==7 or iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+		else --0\1\2\3\4\5
+			_sb.spd.spx=0
+			_sb.spd.spy=1
+		end
+		elseif _sb.dire==6 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==4 or iswallcoll==5 then
+				_sb.spd.spx=0
+				_sb.spd.spy=1
+			elseif iswallcoll==7 or iswallcoll==8 then
+				_sb.spd.spx=1
+				_sb.spd.spy=0
+			else --0\1\2\3
+				_sb.spd.spx=1
+				_sb.spd.spy=1
+			end
+		elseif _sb.dire==8 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==1 or iswallcoll==2 then
+				_sb.spd.spx=0
+				_sb.spd.spy=1
+			elseif iswallcoll==6 or iswallcoll==7 then
+				_sb.spd.spx=-1
+				_sb.spd.spy=0
+			else --0\3\4\5
+				_sb.spd.spx=-1
+				_sb.spd.spy=1
+			end
+		end
+	elseif  _colldire==5 then ------物体在右边-------------
+		--iswallcoll!=4\6
+		if _sb.dire==5 then--移动方向与物体朝向一致
+			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
+		elseif _sb.dire==4 or _sb.dire==3 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==2 or iswallcoll==3 or iswallcoll==4 then 
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\1\5\6\7\8
+				_sb.spd.spx=0
+				_sb.spd.spy=-1
+			end
+		elseif _sb.dire==6 or _sb.dire==7 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==6 or iswallcoll==7 or iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\1\2\3\4\5
+				_sb.spd.spx=0
+				_sb.spd.spy=1
+			end
+		elseif _sb.dire==1 then 
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==1 or iswallcoll==2 or iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\3\4\5\6\7
+				_sb.spd.spx=-1
+				_sb.spd.spy=0
+			end
+		elseif _sb.dire==2 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==2 then 
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+		elseif iswallcoll==1 or iswallcoll==8 then
+			_sb.spd.spx=0
+			_sb.spd.spy=-1
+		elseif iswallcoll==3 or iswallcoll==4 then
+			_sb.spd.spx=-1
+			_sb.spd.spy=0
+		else --0\5\6\7
+			_sb.spd.spx=-1
+			_sb.spd.spy=-1
+		end
+		elseif _sb.dire==8 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==1 or iswallcoll==2 then
+				_sb.spd.spx=0
+				_sb.spd.spy=1
+			elseif iswallcoll==6 or iswallcoll==7 then
+				_sb.spd.spx=-1
+				_sb.spd.spy=0
+			else --0\3\4\5
+				_sb.spd.spx=-1
+				_sb.spd.spy=1
+			end
+		end
+	elseif  _colldire==7 then --------物体在下边---------------------------
+		--iswallcoll!=6\8
+		if _sb.dire==7 then--移动方向与物体朝向一致
+			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
+		elseif _sb.dire==6 or _sb.dire==5 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==4 or iswallcoll==5 or iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else--0\1\2\3\7\8W
+				_sb.spd.spx=1
+				_sb.spd.spy=0
+			end
+		elseif _sb.dire==8 or _sb.dire==1 then --贴物体斜角度
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==1 or iswallcoll==2 or iswallcoll==8 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\3\4\5\6\7
+				_sb.spd.spx=-1
+				_sb.spd.spy=0
+			end
+		elseif _sb.dire==3 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==2 or iswallcoll==3 or iswallcoll==4 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			else --0\1\5\6\7\8
+				_sb.spd.spx=0
+				_sb.spd.spy=-1
+			end
+		elseif _sb.dire==2 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==2 then 
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==1 or iswallcoll==8  then
+				_sb.spd.spx=0
+				_sb.spd.spy=-1
+			elseif iswallcoll==3 or iswallcoll==4 then
+				_sb.spd.spx=-1
+				_sb.spd.spy=0
+			else --0\5\6\7
+				_sb.spd.spx=-1
+				_sb.spd.spy=-1
+			end
+		elseif _sb.dire==4 then
+			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
+			_sb.spr_cx=0
+			_sb.spr_cy=0
+			move_anim(_sb)--移动动画
+			if iswallcoll==4 then
+				_sb.spd.spx=0
+				_sb.spd.spy=0
+			elseif iswallcoll==2 or iswallcoll==3 then 
+				_sb.spd.spx=1
+				_sb.spd.spy=0
+			elseif iswallcoll==5 or iswallcoll==6 then
+				_sb.spd.spx=0
+				_sb.spd.spy=-1
+			else --0\1\7\8
+				_sb.spd.spx=1
+				_sb.spd.spy=-1
+			end
+		end
+	
+else --2468
+	if _sb.dire!=0 then --必须要有
+		check_Diagonal(_colldire,_sb,iswallcoll)
+		move_anim(_sb)
+	end
+end
+	--[[
+	local d_date={
+	--与碰撞相同的方向、四个其他方向、是或否、是或否
+		{1,8,2,3,7,0,1},
+		{3,2,4,1,5,1,0},
+		{5,4,6,3,7,0,1},
+		{7,6,8,1,3,1,0}}
+		local direnum=(_colldire+1)/2--朝向针对碰撞信息组的值，符合索引
 	if _colldire==1 or _colldire==3 or _colldire==5 or _colldire==7 then--物体相较于角色的朝向
 		--1\2\3\4
-		local direnum=(_colldire+1)/2--朝向针对碰撞信息组的值，符合索引
-		if _sb.dire==d_date[direnum][1] then --当前移动方向 
+		if _sb.dire==d_date[direnum][1] then --移动方向与碰撞方向一致
 			if checkcoll_edge(_obj,_sb,_colldire) then --如果在边缘
+				--*需要考虑到墙壁的碰撞
 				if  d_date[direnum][6]==1 then --dire：3/7（在物体上下两端朝上或者下移动）
 					if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==d_date[direnum][1] then
 						--左侧上下移动
-						if p_iswallcoll ==1 or p_iswallcoll==3 or p_iswallcoll==7 then--如果滑动时候贴墙停止
+						if iswallcoll ==1 or iswallcoll==3 or iswallcoll==7 then--如果滑动时候贴墙停止
 							_sb.spd.spx=0
 						else
 							_sb.spd.spx=-_sb.speed
@@ -128,7 +501,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 						_sb.spd.spy=0	
 					elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==d_date[direnum][1] then
 						--右侧上下移动
-						if p_iswallcoll==5 or p_iswallcoll==3 or p_iswallcoll==7 then --墙壁在右侧、在上、在下
+						if iswallcoll==5 or iswallcoll==3 or iswallcoll==7 then --墙壁在右侧、在上、在下
 							_sb.spd.spx=0
 						else
 							_sb.spd.spx=_sb.speed
@@ -138,7 +511,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 				elseif d_date[direnum][7]==1 then--dire：1/5（在物体左右两端朝左或者右移动）
 					if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==d_date[direnum][1] then
 						--上侧左右移动
-						if p_iswallcoll==3 or p_iswallcoll==1 or p_iswallcoll==5 then
+						if iswallcoll==3 or iswallcoll==1 or iswallcoll==5 then
 							_sb.spd.spy=0
 						else
 							_sb.spd.spy= -_sb.speed
@@ -146,7 +519,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 						_sb.spd.spx=0
 					elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==d_date[direnum][1] then
 						--下侧左右移动
-						if p_iswallcoll ==7 or p_iswallcoll==1 or p_iswallcoll==5 then
+						if iswallcoll ==7 or iswallcoll==1 or iswallcoll==5 then
 							_sb.spd.spy=0
 						else
 							_sb.spd.spy=_sb.speed
@@ -155,17 +528,18 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 					end
 				end
 			else--不在边缘（可推）
-				if _sb.dire==p_iswallcoll then--当推动方向和撞墙方向一致：角色在推的时候露出一部分撞墙了
+				if _sb.dire==iswallcoll then--当推动方向和撞墙方向一致：角色在推的时候露出一部分(马脚)撞墙了
 					_sb.spd.spx=0
 					_sb.spd.spy=0
 				else
-					pushsth(_obj,_sb,p_iswallcoll)
+					pushsth(_obj,_sb,iswallcoll)
 					pull_anim(_sb,_colldire)
 				end
 			end
 		elseif _sb.dire==d_date[direnum][2] or _sb.dire==d_date[direnum][3] then --对应的斜方向
 			--重置精灵偏移（推动需要）
-			if p_iswallcoll==0 then
+			if iswallcoll==0 then
+				--重置精灵偏移
 				_sb.spr_cx=0
 				_sb.spr_cy=0
 				move_anim(_sb)
@@ -176,7 +550,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 				_sb.spd.spy=0	
 			end
 		else--其他方向：存在沿着物体(o)边缘无视墙体判断穿越的情况
-			if p_iswallcoll==1 then--左墙
+			if iswallcoll==1 then--左墙
 				if _sb.dire==1  or _sb.dire==2 or _sb.dire==8 then--如果移动方向与墙方向相同
 					_sb.spd.spx=0
 					_sb.spd.spy=0	
@@ -184,7 +558,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 					move_anim(_sb)
 					move(_sb)
 				end
-			elseif p_iswallcoll==3 then--上墙
+			elseif iswallcoll==3 then--上墙
 				if _sb.dire==3  or _sb.dire==2 or _sb.dire==4 then
 					_sb.spd.spx=0
 					_sb.spd.spy=0	
@@ -192,7 +566,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 					move_anim(_sb)
 					move(_sb)
 				end
-			elseif p_iswallcoll==5 then--右墙
+			elseif iswallcoll==5 then--右墙
 				if _sb.dire==5  or _sb.dire==6 or _sb.dire==4 then
 					_sb.spd.spx=0
 					_sb.spd.spy=0	
@@ -200,7 +574,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 					move_anim(_sb)
 					move(_sb)
 				end
-			elseif p_iswallcoll==7 then--下墙
+			elseif iswallcoll==7 then--下墙
 				if _sb.dire==7  or _sb.dire==6 or _sb.dire==8 then
 					_sb.spd.spx=0
 					_sb.spd.spy=0	
@@ -209,7 +583,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 					move(_sb)
 				end
 			------------------在墙角---------------------------
-			elseif p_iswallcoll==2 then--左+上墙
+			elseif iswallcoll==2 then--左+上墙
 				if _colldire==5 then
 					if _sb.dire==7 then
 						move_anim(_sb)
@@ -227,7 +601,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 						_sb.spd.spy=0	
 					end
 				end
-			elseif p_iswallcoll==4 then--右+上墙
+			elseif iswallcoll==4 then--右+上墙
 				if _colldire==1 then
 					if _sb.dire==7 then
 						move_anim(_sb)
@@ -245,7 +619,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 						_sb.spd.spy=0	
 					end
 				end
-			elseif p_iswallcoll==6 then--右+下墙
+			elseif iswallcoll==6 then--右+下墙
 				--判断箱子在哪个位置
 				if _colldire==1 then
 					if _sb.dire==3 then
@@ -264,7 +638,7 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 						_sb.spd.spy=0	
 					end
 				end
-			elseif p_iswallcoll==8 then--左+下墙
+			elseif iswallcoll==8 then--左+下墙
 				if _colldire==5 then
 					if _sb.dire==3 then
 						move_anim(_sb)
@@ -289,9 +663,10 @@ function move_and_push(_obj,_sb,_colldire,p_iswallcoll) --_colldire:物体在主
 		end
 	else --2468完全对角线
 		if _sb.dire!=0 then --必须要有
-			check_Diagonal(_colldire,_sb,p_iswallcoll)
+			check_Diagonal(_colldire,_sb,iswallcoll)
+			move_anim(_sb)
 		end
-	end
+	end]]
 end
 --[[备份
 function move_and_push(_obj,_sb,_colldire) --_colldire:物体在主角的方向
@@ -346,445 +721,34 @@ function move_and_push(_obj,_sb,_colldire) --_colldire:物体在主角的方向
 	
 end]]
 function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
-	local coll_dire={2,4,6,8}
-	for i=1,#coll_dire do
-		if coll_dire[i]==_colldire then
-			if coll_dire[i]==_sb.dire then --物体方向和移动方向一致，正对角线碰撞
-				if _sb.dire==2 then---------------2
-					if iswallcoll==5 then
-						_sb.spd.spx=0
-						_sb.spd.spy=_sb.speed
-					elseif iswallcoll==7 then
-						_sb.spd.spx=_sb.speed
-						_sb.spd.spy=0
-					end
-				elseif _sb.dire==4 then-----------4
-					if iswallcoll==1 then
-						_sb.spd.spx=0
-						_sb.spd.spy=_sb.speed
-					elseif iswallcoll==7 then
-						_sb.spd.spx=-_sb.speed
-						_sb.spd.spy=0
-					end
-				elseif _sb.dire==6 then-----------6
-					if iswallcoll==5 then
-						_sb.spd.spx=-_sb.speed
-						_sb.spd.spy=0
-					elseif iswallcoll==7 then
-						_sb.spd.spx=0
-						_sb.spd.spy=-_sb.speed
-					end
-				elseif _sb.dire==8 then------------8
-					if iswallcoll==1 then
-						_sb.spd.spx=0
-						_sb.spd.spy=_sb.speed
-					elseif iswallcoll==7 then
-						_sb.spd.spx=-_sb.speed
-						_sb.spd.spy=0
-					end
-				end
-			else --物体方向和移动方向不一致，虽然物体在对角方向，但是移动不是
-				if iswallcoll==0 then--不靠墙
-					move(_sb)
-				else --靠墙
-					if _colldire==2  then--物体在左上角
-						----------------1357----------------------
-						if _sb.dire==1 then
-							if iswallcoll==1 then
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==3 then
-							if iswallcoll==3 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						elseif _sb.dire==5 then
-							if iswallcoll==5 or iswallcoll==6 then
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==7 then
-							if iswallcoll==7 or iswallcoll==6 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						-------------------2468---------------------------
-						else
-							xie_2468move(_colldire,_sb,iswallcoll)
-						end
-						--[[
-						elseif _sb.dire==2 then
-							if iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							elseif iswallcoll==3 or iswallcoll==4 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else--0\5\6\7
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							end
-						elseif _sb.dire==4 then
-							if iswallcoll==4 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==2 or iswallcoll==3 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							elseif iswallcoll==5 or iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							else --0\1\7\8
-								_sb.spd.spx=1
-								_sb.spd.spy=-1
-							end
-						elseif _sb.dire==6 then
-							if iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==4 or iswallcoll==5 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==7 or iswallcoll==8 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							else --0\1\2\3
-								_sb.spd.spx=1
-								_sb.spd.spy=1
-							end
-						elseif _sb.dire==8 then  --8
-							if iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==6 or iswallcoll==7 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else --0\3\4\5
-								_sb.spd.spx=-1
-								_sb.spd.spy=1
-							end
-						
-						end]]
-					elseif _colldire==4  then--物体在右上角
-						---------------------1357----------------
-						if _sb.dire==1 then
-							if iswallcoll==1 or iswallcoll==8 then
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==3 then
-							if iswallcoll==3 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						elseif _sb.dire==5 then
-							if iswallcoll==5 then
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==7 then
-							if iswallcoll==7 or iswallcoll==8 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						-----------------------2468---------------
-						else
-							xie_2468move(_colldire,_sb,iswallcoll)
-						end
-						--[[
-						elseif _sb.dire==2 then
-							if iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							elseif iswallcoll==3 or iswallcoll==4 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else--5\6\7\0
-								_sb.spd.spx=-1
-								_sb.spd.spy=-1
-							end
-						elseif _sb.dire==4 then
-							if iswallcoll==4 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==2 or iswallcoll==3 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							elseif iswallcoll==5 or iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							else--0\1\7\8
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							end
-						elseif _sb.dire==6 then
-							if iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==4 or iswallcoll==5 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==7 or iswallcoll==8 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							else--0\1\2\3
-								_sb.spd.spx=1
-								_sb.spd.spy=1
-							end
-						elseif _sb.dire==8 then   --8
-							if iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==6 or iswallcoll==7 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else--0\3\4\5
-								_sb.spd.spx=-1
-								_sb.spd.spy=1
-							end
-						
-						end]]
-					elseif _colldire==6  then--物体在右下角
-						-------------------1357-------------------------
-						if _sb.dire==1 then
-							if iswallcoll==1 or iswallcoll==2 then
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==3 then
-							if iswallcoll==3 or iswallcoll==2 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						elseif _sb.dire==5 then
-							if iswallcoll==5 then
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==7 then
-							if iswallcoll==7 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						-----------------2468-----------------
-						else
-							xie_2468move(_colldire,_sb,iswallcoll)
-						end
-						--[[
-						elseif _sb.dire==2 then
-							if iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							elseif iswallcoll==3 or iswallcoll==4 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else --0\5\6\7
-								_sb.spd.spx=-1
-								_sb.spd.spy=-1
-							end
-						elseif _sb.dire==4 then
-							if iswallcoll==4 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==2 or iswallcoll==3 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							elseif iswallcoll==5 or iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							else --0\1\7\8
-								_sb.spd.spx=1
-								_sb.spd.spy=-1
-							end
-						elseif _sb.dire==6 then
-							if iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==4 or iswallcoll==5 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==7 or iswallcoll==8 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							else --0\1\2\3
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							end
-						elseif _sb.dire==8 then
-							if iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==6 or iswallcoll==7 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else --0\3\4\5
-								_sb.spd.spx=-1
-								_sb.spd.spy=1
-							end
-						
-						end]]
-					elseif _colldire==8 then --物体在左下角
-						------------------------1357----------------
-						if _sb.dire==1 then 
-							if iswallcoll==1 then --如果墙在左侧，当着角色移动
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed--无墙则可以移动
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==3 then
-							if iswallcoll==3 or iswallcoll==4 then--墙在上侧竖直挡着，或者右上对角挡着
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						elseif _sb.dire==5 then --向右侧移动
-							if iswallcoll==5 or iswallcoll==4 then--墙在右侧竖直挡着，或者右上对角挡着
-								_sb.spd.spx=0
-							else
-								_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spy=diry[_sb.dire]*_sb.speed
-						elseif _sb.dire==7 then
-							if iswallcoll==7 then
-								_sb.spd.spy=0
-							else
-								_sb.spd.spy=diry[_sb.dire]*_sb.speed
-							end
-							_sb.spd.spx=dirx[_sb.dire]*_sb.speed
-						------------------------2468-----------------
-						else
-							xie_2468move(_colldire,_sb,iswallcoll)
-						end
-						--[[
-						elseif _sb.dire==2 then     --2斜角度
-							if iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							
-							elseif iswallcoll==3 or iswallcoll==4 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else--5\6\7\0
-								_sb.spd.spx=-1
-								_sb.spd.spy=-1
-							end
-						elseif _sb.dire==4 then
-							if iswallcoll==4 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==2 or iswallcoll==3 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							elseif iswallcoll==5 or iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=-1
-							else --0\1\7\8
-								_sb.spd.spx=1
-								_sb.spd.spy=-1
-							end
-						elseif _sb.dire==6 then
-							if iswallcoll==6 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==4 or iswallcoll==5 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==7 or iswallcoll==8 then
-								_sb.spd.spx=1
-								_sb.spd.spy=0
-							else--0\1\2\3 
-								_sb.spd.spx=1
-								_sb.spd.spy=1
-							end
-						elseif _sb.dire==8 then
-							if iswallcoll==8 then
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							elseif iswallcoll==1 or iswallcoll==2 then
-								_sb.spd.spx=0
-								_sb.spd.spy=1
-							elseif iswallcoll==6 or iswallcoll==7 then
-								_sb.spd.spx=-1
-								_sb.spd.spy=0
-							else--0\3\4\5
-								_sb.spd.spx=0
-								_sb.spd.spy=0
-							end
-						
-						end]]
-					end
-				end
-			end	
-		end
+	if _sb.dire==2 or _sb.dire==4 or _sb.dire==6 or _sb.dire==8 then---------------2
+		diagonal2468_move(_sb,_colldire,iswallcoll)
+	else--1357
+		diagonal1357_move(_sb,iswallcoll)
 	end
 end
+function diagonal1357_move(_sb,iswallcoll)
+	local data={
+		{1,2,8},--0\3\4\5\6\7
+		{2,3,4},--0\1\5\6\7\8
+		{4,5,6},--0\1\2\3\7\8
+		{6,7,8}}--0\1\2\3\4\5
+	local index=(_sb.dire+1)/2
+	if iswallcoll==data[index][1] or iswallcoll==data[index][2] or iswallcoll==data[index][3] then
+		_sb.spd.spx=0
+		_sb.spd.spy=0
+	else 
+		_sb.spd.spx=dirx[_sb.dire]*_sb.speed
+		_sb.spd.spy=diry[_sb.dire]*_sb.speed
+	end
+end
+function diagonal2468_move(_sb,_colldire,iswallcoll) --对角线斜方向移动的具体实现（针对不同的墙壁方向）
 
-function xie_2468move(_colldire,_sb,iswallcoll)
-	if _sb.dire==2 then --2
-		wallsum_move(_sb,_colldire,iswallcoll)
-	elseif _sb.dire==4 then
-		wallsum_move(_sb,_colldire,iswallcoll)
-	elseif _sb.dire==6 then
-		wallsum_move(_sb,_colldire,iswallcoll)
-	elseif _sb.dire==8 then
-		wallsum_move(_sb,_colldire,iswallcoll)
-	end
-end
-function wallsum_move(_sb,_colldire,iswallcoll) --对角线斜方向移动的具体实现（针对不同的墙壁方向）
 	local xy_data={
-		{2,3,4,1,8,0,5,6,7},--2\34\18\0567\
+		{2,3,4,1,8,0,5,6,7},--2\34\18\0567\：墙在不同的位置
 		{4,2,3,5,6,0,1,7,8},--4\23\56\0178\
 		{6,7,8,4,5,0,1,2,3},--6\78\45\0123\
-		{8,6,7,1,2,0,3,4,5},--8\67\12\0345\
-	}
+		{8,6,7,1,2,0,3,4,5}}--8\67\12\0345\
 	local cum=_sb.dire/2--将方向值（2468）转换为表的索引值
 	if iswallcoll==xy_data[cum][1] then --2
 		_sb.spd.spx=0
@@ -796,7 +760,7 @@ function wallsum_move(_sb,_colldire,iswallcoll) --对角线斜方向移动的具
 		_sb.spd.spx=0
 		_sb.spd.spy=diry[_sb.dire]*_sb.speed
 	else --0\5\6\7
-		if  _sb.dire==_colldire then --
+		if  _sb.dire==_colldire then
 			_sb.spd.spx=0
 			_sb.spd.spy=0
 		else

@@ -50,7 +50,7 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 			local is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
 			local is_e_coll=ck_sthcoll(near_e, player, 0, 0, 0, 0)
 			local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
-		
+			debug1=is_wall_coll_dire
 			if is_o_coll then ---------------与物体(最近的箱子)与主角之间碰撞--------------
 				debug="o_coll"
 				--确保物体和获取的金币分开，避免金币影响物体的推动
