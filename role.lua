@@ -46,14 +46,11 @@ function initializeplayer()
 	player.speed = 1
 	player.ishurt=false
 	player.wudi_t=0 --无敌时间
-	player.iscoll = false -- 是否碰撞
 	player.isroll = false -- 是否翻滚
 	player.rollspeed = 3 -- 翻滚速度
 	player.roll_t = 0 -- 翻滚计时器
 	player.isattack = false -- 是否攻击
 	player.att_t = 0 -- 攻击计时器
-	player.push_type = "" -- 推动类型
-	
 	-- 精灵帧定义
 	player.sprs = {
 		idle = 2, --  idle状态精灵
@@ -64,12 +61,10 @@ function initializeplayer()
 		hurt = 11, -- 受伤状态精灵
 		get = 12 -- 获取物品状态精灵（只一次）
 	}
-	
 	player.frame = player.sprs.idle -- 初始动画帧
 	return player
 end
--- 初始化武器数据
--- @return 武器对象
+-- 初始化武器数据 武器对象
 function initializesword()
 	local sword = makerole()
 	sword.w = 7
@@ -87,7 +82,6 @@ end
 -- 创建蛇形敌人数据
 function createsnakenemy(_x,_y)
 	local snake = makerole()
-	
 	-- 敌人状态常量
 	snake.allstate = {
 		ran_move = "ran_move",
@@ -106,20 +100,3 @@ function createsnakenemy(_x,_y)
 	add(enemies, snake)
 	return snake
 end
---[[
---追逐
-function chase(sb1,sb2)
-	if sb1.x < sb2.x then
-		sb1.x+=sb1.speed
-	end
-	if sb1.x > sb2.x then
-		sb1.x-=sb1.speed
-	end
-	if sb1.y < sb2.y then
-		sb1.y+=sb1.speed
-	end
-	if sb1.y > sb2.y then
-		sb1.y-=sb1.speed
-	end
-end
---]]

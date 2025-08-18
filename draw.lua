@@ -1,12 +1,10 @@
 function draw_game()
-    --shadow(wy)--主角影子
 	draweapon(wy)
     --角色(敌人/npc)精灵显示
     for c in all (enemies) do
         spr(c.spr, c.x, c.y)
         rect(c.x,c.y,c.x+c.w,c.y+c.h,12)
     end
-
     for o in all (obj) do--物体显示
         spr(o.spr, o.sprx, o.spry)
         rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
@@ -14,39 +12,24 @@ function draw_game()
     --主角
     draw_p(wy,wy.spr_cx,wy.spr_cy)
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
-    --地图
-    map() 
-    --UI显示
-    ui_show()
-    --检测碰撞线显示
+   
+    map()--地图
+    
+    ui_show()--UI显示
 end
--- 绘制攻击武器
--- @param player 玩家对象
+-- 绘制攻击武器 player玩家对象
 function draweapon(player)
-    local swordSpr
+    local swordspr
     if sword.isappear then	
         if not player.sprflip and player.dire == 0 then
-            swordSpr = 25 -- 翻转武器精灵
+            swordspr = 25 -- 翻转武器精灵
         elseif player.sprflip and player.dire == 0 then
-            swordSpr = 27 -- 翻转武器精灵
+            swordspr = 27 -- 翻转武器精灵
         else
-            swordSpr = sword.sprs[player.dire]
+            swordspr = sword.sprs[player.dire]
         end
-        spr(swordSpr, sword.x, sword.y)
+        spr(swordspr, sword.x, sword.y)
 	end
-end
-function shadow(_sb)
-    local x1,x2
-    local y1,y2,col=_sb.y+6,_sb.y+_sb.h+1,13
-    --主角影子
-    if _sb.sprflip then
-        x1=_sb.x
-        x2=_sb.x+_sb.w-1
-    else
-        x1=_sb.x+1
-        x2=_sb.x+_sb.w
-    end
-    ovalfill(x1,y1,x2,y2,col)--脚底影子
 end
 function draw_mamenu()--主菜单
     local cor1,cor2=7,7--color
@@ -69,16 +52,16 @@ function draw_Inventory_menu()
     --地图的显示
 end
 function draw_gover()
+
 end
 function draw_win()
-end
 
+end
 function move_anim(_sb)
 	_sb.move_t+=.2
 	_sb.frame=_sb.sprs.move[ceil(_sb.move_t%#_sb.sprs.move)]
 end
--- 更新推动动画
--- @param player 玩家对象
+--推动动画 player玩家对象
 function pull_anim(player)
     if player.dire ~= 0 then
         if player.dire % 2 == 1 then

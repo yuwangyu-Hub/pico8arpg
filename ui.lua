@@ -2,25 +2,24 @@
 function ui_show()
     rectfill(0,104,127,127,13)--底框
     rect(0,104,127,127,10)--底框
-    showheat()
-    showheart()
-    showeapon()
+    head()
+    health()
+    ui_weap()
 end 
-function showheat()--头像图标
+function head()--头像图标
     --头像（*可拓展，播放表情）
     spr(16,4,108,2,2)
 end
-function showheart()--血量
-    local count=3
+function health()--血量
+    --local count=3
     spr(36,20,108)
     spr(36,28,108)
     spr(36,20,116)
     spr(36,28,116)
-    for i=0,count do
-        
-    end
+    --for i=0,count do
+    --end
 end
-function showeapon()--武器/道具
+function ui_weap()--武器/道具
     local x1,y1=92,115
     local x2,y2=114,115
     circfill(x1,y1+1,8,1)

@@ -14,9 +14,7 @@ enemies={}--敌人
 character={} --NPC
 item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
-near_o=nil--最近物品
 cb_line={}--碰撞盒
-iscollFlip=false --是否碰撞翻转
 debug=""
 debug1=""
 function _init()
@@ -35,18 +33,16 @@ end
 function startgame()
 	_upd=update_mamenu
 	_drw=draw_mamenu
-	mainmenu_cursor={--menu光标
-		count=1,x=64,y=90,spr=112}
+	mainmenu_cursor={count=1,x=64,y=90,spr=112}--menu光标
 	blinkt=0
 end
 function printbug()
-	print(wy.state,60,2,7)
+	--print(wy.state,60,2,7)
 	--print("x:"..wy.x)
 	--print("y:"..wy.y)
 	--print("spdx:"..wy.spd.spx)
 	--print("spdy:"..wy.spd.spy)
 	--print("dire:"..wy.dire)
 	--print("debug:"..debug)
-	print("debug1:"..debug1)
-	
+	--print("debug1:"..debug1)
 end
