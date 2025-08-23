@@ -9,7 +9,7 @@ function makerole()--角色的创建模板
 	role.speed=0
 	role.dire=0  --方向
 	role.lastdire=0 --最后方向
-	role.hurtdire=0
+	role.hurtdire=0 --受伤方向
 	role.hurtmt=0 --受伤后的移动时间
 	role.state=role.allstate[1]
 	role.move_t=0
@@ -76,7 +76,8 @@ end
 --*角色：敌人和npc
 --敌人分为三种：普通A、普通B、Boss
 --普通A：随机移动
---普通B：先随机移动，后发现追击
+--A：根据血量不同，分为1血和2血和3血的
+--普通B：先随机移动，后发现追击？
 --普通C：无视墙壁的攻击（飞行类）
 --Boss：多种攻击手段
 -- 创建蛇形敌人数据

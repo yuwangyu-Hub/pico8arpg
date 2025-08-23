@@ -1,4 +1,5 @@
 function draw_game()
+    map()--地图
 	draweapon(wy)
     --角色(敌人/npc)精灵显示
     for c in all (enemies) do
@@ -12,8 +13,25 @@ function draw_game()
     --主角
     draw_p(wy,wy.spr_cx,wy.spr_cy)
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
-   
-    map()--地图
+    --[[检测翻滚正角度的点
+    pset(wy.x-3,wy.y,8)
+    pset(wy.x-3,wy.y+7,8)
+    pset(wy.x,wy.y+10,8)
+    pset(wy.x+7,wy.y+10,8)
+	pset(wy.x+10,wy.y+7,8)
+	pset(wy.x+10,wy.y,8)
+	pset(wy.x+7,wy.y-3,8)
+	pset(wy.x,wy.y-3,8)
+    --检测翻滚斜角度的点
+    pset(wy.x+3,wy.y-3,11)    --2
+    pset(wy.x-3,wy.y+3,11)
+    pset(wy.x+4,wy.y-3,12)    --4
+    pset(wy.x+10,wy.y+3,12)
+    pset(wy.x+10,wy.y+4,13)    --6
+    pset(wy.x+4,wy.y+10,13)
+    pset(wy.x+3,wy.y+10,14)    --8
+    pset(wy.x-3,wy.y+4,14)]]
+    
     
     ui_show()--UI显示
 end

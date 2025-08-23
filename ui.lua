@@ -1,7 +1,7 @@
 --UI栏
 function ui_show()
-    rectfill(0,104,127,127,13)--底框
-    rect(0,104,127,127,10)--底框
+    rectfill(0,96,127,127,13)--底
+    rect(0,96,127,127,10)--底框
     head()
     health()
     ui_weap()
@@ -26,8 +26,8 @@ function ui_weap()--武器/道具
     circfill(x1,y1,8,6)
     circfill(x2,y2+1,8,1)
     circfill(x2,y2,8,6)
-    spr(130,x1-8,y1-8,2,2)
-    spr(128,x2-8,y2-8,2,2)
+    spr(196,x1-8,y1-8,2,2)
+    spr(194,x2-8,y2-8,2,2)
     spr(43,x1+2,y1+2)
     spr(44,x2+2,y2+2)
 end

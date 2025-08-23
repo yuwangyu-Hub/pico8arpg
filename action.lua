@@ -9,11 +9,9 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 	end
 	local switchstate={
 		idle = function()
-			player.spd.spx=0
-			player.spd.spy=0
-			--重置精灵偏移（推动需要）
-			player.spr_cx=0
-			player.spr_cy=0
+			player.isroll=false
+			setspd_0(player)
+			
             if player.dire!=0 and not player.isroll then
 				player.state=player.allstate.move
             end
@@ -22,9 +20,9 @@ function updatePlayerState(player)--状态机: 更新玩家状态
                 attack_swordpos(player)
 				player.state=player.allstate.attack
 			end
-			if player.isroll then --翻滚
-				player.state=player.allstate.roll
-			end
+			--if player.isroll then --翻滚
+				--player.state=player.allstate.roll
+			--end
 			--动画
 			player.frame=player.sprs.idle
 		end,
@@ -39,7 +37,7 @@ function updatePlayerState(player)--状态机: 更新玩家状态
                 attack_swordpos(player)
 				player.state=player.allstate.attack
 			end
-			if player.isroll then
+			if player.isroll and player.dire!=0 then
 				player.state=player.allstate.roll
 			end
 			--与可交互物体的碰撞（收集/推动）
@@ -50,14 +48,15 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 			local is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
 			local is_e_coll=ck_sthcoll(near_e, player, 0, 0, 0, 0)
 			local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
+			--debug1=is_wall_coll_dire
 			if is_o_coll then ---------------与物体(最近的箱子)与主角之间碰撞--------------
 				--确保物体和获取的金币分开，避免金币影响物体的推动
-				if near_o.type=="move" then
-					move_and_push(near_o,player,colldire_o,is_wall_coll_dire)
-				elseif near_o.type=="collect" then
-					--收集
+				if near_o.type=="move" then--推动
+					
+				elseif near_o.type=="collect" then--收集
+					
 				end
-			elseif is_wall_coll_dire!=0 and not is_o_coll then --与墙体的碰撞---------------------------
+			elseif is_wall_coll_dire!=0 and not is_e_coll then --与墙体的碰撞---------------------------
 				wallcoll_move(player,is_wall_coll_dire,oneside)
 			elseif is_e_coll then----------------与敌人（最近的）碰撞
 				encoll_move(player,colldire_e)
@@ -65,7 +64,6 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 				move(player)
 				move_anim(player)
 			end
-			
 		end,
 		attack=function()
 			local att_frame = function(dire) --内部封装了一个函数
@@ -87,14 +85,15 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 			end
 		end,
 		roll=function()
-			--*翻滚撞墙弹回
+			local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
+			--debug=is_wall_coll_dire
 			player.rollspeed=3
-            --player.rollspeed=nomalize(player,2.1213,3)
-			roll(player)
+            player.rollspeed=nomalize(player,2.1213,3)
+			roll(player,is_wall_coll_dire)
 			--动画相关
 			player.roll_t+=0.5
 			player.frame=player.sprs.roll[ceil(player.roll_t%#player.sprs.roll)]
-			if player.roll_t>=5 then
+			if player.roll_t>=5  then
 				player.spd.spx=0
 				player.spd.spy=0
 				player.isroll=false

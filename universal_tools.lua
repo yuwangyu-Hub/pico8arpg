@@ -1,4 +1,3 @@
---工具lib
 function doshake()--镜头抖动
 	local shakex=rnd(shake)-(shake/2)
 	local shakey=rnd(shake)-(shake/2)
@@ -10,8 +9,7 @@ function doshake()--镜头抖动
 		if(shake<1)shake=0
 	end
 end
---闪烁工具，返回闪烁的颜色动画
-function blink()
+function blink()--闪烁工具，返回闪烁的颜色动画
 	local blink_anim={5,5,5,5,5,5,5,5,6,6,7,7,6,6,5,5}
     --blinkt:闪烁计时器，在主函数中创建并且更细
 	return blink_anim[blinkt%#blink_anim] 
@@ -84,7 +82,6 @@ function checkdir(obj,sb)
 		return 0
 	end
 end
-
 -- 查找集合中距离主体最近的对象
 -- @param objectGroup 对象集合
 -- @param subject 主体对象
@@ -100,390 +97,6 @@ function findNearestObject(objectGroup, subject)
 		end
 	end
 	return nearestObject
-end
---移动方向与物体朝向一致：在中间推，在边缘滑
-function dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
-	local d_date={
-	--与碰撞相同的方向、四个其他方向、是或否、是或否
-		{1,8,2,3,7,0,1},
-		{3,2,4,1,5,1,0},
-		{5,4,6,3,7,0,1},
-		{7,6,8,1,3,1,0}}
-	local direnum=(_colldire+1)/2--朝向针对碰撞信息组的值，符合索引
-	--移动方向和物体所在方向一致
-	if checkcoll_edge(_obj,_sb,_colldire) then --如果在边缘
-		--*需要考虑到墙壁的碰撞
-		if  d_date[direnum][6]==1 then --dire：3/7（在物体上下两端朝上或者下移动）
-			if abs(_obj.x-(_sb.x+_sb.w))<=3 and _sb.dire==d_date[direnum][1] then
-						--左侧上下移动
-				if iswallcoll ==1 or iswallcoll==3 or iswallcoll==7 then--如果滑动时候贴墙停止
-					_sb.spd.spx=0
-				else
-					_sb.spd.spx=-_sb.speed
-				end
-					_sb.spd.spy=0	
-			elseif abs((_obj.x+_obj.w)-_sb.x)<=3 and _sb.dire==d_date[direnum][1] then
-						--右侧上下移动
-				if iswallcoll==5 or iswallcoll==3 or iswallcoll==7 then --墙壁在右侧、在上、在下
-					_sb.spd.spx=0
-				else
-					_sb.spd.spx=_sb.speed
-				end
-				_sb.spd.spy=0
-			end
-		elseif d_date[direnum][7]==1 then--dire：1/5（在物体左右两端朝左或者右移动）
-			if abs(_obj.y-(_sb.y+_sb.h))<=3 and _sb.dire==d_date[direnum][1] then
-						--上侧左右移动
-				if iswallcoll==3 or iswallcoll==1 or iswallcoll==5 then
-					_sb.spd.spy=0
-				else
-					_sb.spd.spy= -_sb.speed
-				end
-				_sb.spd.spx=0
-			elseif abs((_obj.y+_obj.h)-_sb.y)<=3 and _sb.dire==d_date[direnum][1] then
-						--下侧左右移动
-				if iswallcoll ==7 or iswallcoll==1 or iswallcoll==5 then
-					_sb.spd.spy=0
-				else
-					_sb.spd.spy=_sb.speed
-				end
-				_sb.spd.spx=0
-			end
-		end
-	else--不在边缘（可推）
-		if _sb.dire==iswallcoll then--当推动方向和撞墙方向一致：角色在推的时候露出一部分(马脚)撞墙了
-			setspd_0(_sb)
-		else
-			pushsth(_obj,_sb,iswallcoll)
-			pull_anim(_sb,_colldire)
-		end
-	end
-end
---当靠近物体碰撞时，不同的条件触发不同的效果
-function move_and_push(_obj,_sb,_colldire,iswallcoll) --_colldire:物体在主角的方向
-	if _colldire ==1  then ----物体在左边---
-		move_anim(_sb)--移动动画
-		--iswallcoll!=2\8
-		if _sb.dire==1 then --移动方向与物体朝向一致
-			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
-		elseif _sb.dire==8 or _sb.dire==7 then --贴物体斜角度:因为有物体遮挡，所以与另一侧正角度移动方式保持一致
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==6 or iswallcoll==7 or iswallcoll==8 then
-				setspd_0(_sb)
-			else--0\1\2\3\4\5
-				_sb.spd.spx=0
-				_sb.spd.spy=1
-			end
-		elseif _sb.dire==2 or _sb.dire==3 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==2 or iswallcoll==3 or iswallcoll==4 then
-				setspd_0(_sb)
-			else --0\1\5\6\7\8
-				_sb.spd.spx=0
-				_sb.spd.spy=-1
-			end
-		elseif _sb.dire==5 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==4 or iswallcoll==5 or iswallcoll==6 then
-				setspd_0(_sb)
-			else --0\1\2\3\7\8
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==4 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==4 then
-				setspd_0(_sb)
-			elseif iswallcoll==2 or iswallcoll==3 then
-				setspd_xdire(_sb)
-			elseif iswallcoll==5 or iswallcoll==6 then
-				setspd_ydire(_sb)
-			else --0\1\7\8
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==6 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==6 then
-				setspd_0(_sb)
-			elseif iswallcoll==7 or iswallcoll==8 then
-				setspd_xdire(_sb)
-			elseif iswallcoll==4 or iswallcoll==5 then
-				setspd_ydire(_sb)
-			else--0\1\2\3\
-				setspd_xydire(_sb)
-			end
-		end
-	elseif  _colldire==3 then -----物体在上边-----------------------------------
-		move_anim(_sb)--移动动画
-		--iswallcoll!=2\4
-		if _sb.dire==3 then --移动方向与物体朝向一致
-			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
-		elseif _sb.dire==2 or _sb.dire==1 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==1 or iswallcoll==2 or iswallcoll==8 then
-				setspd_0(_sb)
-			else --0\3\4\5\6\7
-				_sb.spd.spx=-1
-				_sb.spd.spy=0
-			end
-		elseif _sb.dire==4 or _sb.dire==5 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==4 or iswallcoll==5 or iswallcoll==6 then
-				setspd_0(_sb)
-			else --0\1\2\3\7\8
-				_sb.spd.spx=1
-				_sb.spd.spy=0
-			end
-		elseif _sb.dire==7 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==6 or iswallcoll==7 or iswallcoll==8 then
-				setspd_0(_sb)
-			else --0\1\2\3\4\5
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==6 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==6 then
-				setspd_0(_sb)
-			elseif iswallcoll==4 or iswallcoll==5 then
-				setspd_ydire(_sb)
-			elseif iswallcoll==7 or iswallcoll==8 then
-				setspd_xdire(_sb)
-			else --0\1\2\3
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==8 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==8 then
-				setspd_0(_sb)
-			elseif iswallcoll==1 or iswallcoll==2 then
-				setspd_ydire(_sb)
-			elseif iswallcoll==6 or iswallcoll==7 then
-				setspd_xdire(_sb)
-			else --0\3\4\5
-				setspd_xydire(_sb)
-			end
-		end
-	elseif  _colldire==5 then ------物体在右边-------------
-		move_anim(_sb)--移动动画
-		--iswallcoll!=4\6
-		if _sb.dire==5 then--移动方向与物体朝向一致
-			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
-		elseif _sb.dire==4 or _sb.dire==3 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==2 or iswallcoll==3 or iswallcoll==4 then 
-				setspd_0(_sb)
-			else --0\1\5\6\7\8
-				_sb.spd.spx=0
-				_sb.spd.spy=-1
-			end
-		elseif _sb.dire==6 or _sb.dire==7 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==6 or iswallcoll==7 or iswallcoll==8 then
-				setspd_0(_sb)
-			else --0\1\2\3\4\5
-				_sb.spd.spx=0
-				_sb.spd.spy=1
-			end
-		elseif _sb.dire==1 then 
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==1 or iswallcoll==2 or iswallcoll==8 then
-				setspd_0(_sb)
-			else --0\3\4\5\6\7
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==2 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==2 then 
-				setspd_0(_sb)
-			elseif iswallcoll==1 or iswallcoll==8 then
-				setspd_ydire(_sb)
-			elseif iswallcoll==3 or iswallcoll==4 then
-				setspd_xdire(_sb)
-			else --0\5\6\7
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==8 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==8 then
-				setspd_0(_sb)
-			elseif iswallcoll==1 or iswallcoll==2 then
-				setspd_ydire(_sb)
-			elseif iswallcoll==6 or iswallcoll==7 then
-				setspd_xdire(_sb)
-			else --0\3\4\5
-				setspd_xydire(_sb)
-			end
-		end
-	elseif  _colldire==7 then --------物体在下边---------------------------
-		move_anim(_sb)--移动动画
-		--iswallcoll!=6\8
-		if _sb.dire==7 then--移动方向与物体朝向一致
-			dire_o_colldire(_obj,_sb,_colldire,iswallcoll)
-		elseif _sb.dire==6 or _sb.dire==5 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==4 or iswallcoll==5 or iswallcoll==6 then
-				setspd_0(_sb)
-			else--0\1\2\3\7\8  
-				_sb.spd.spx=1
-				_sb.spd.spy=0
-			end
-		elseif _sb.dire==8 or _sb.dire==1 then --贴物体斜角度
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==1 or iswallcoll==2 or iswallcoll==8 then
-				setspd_0(_sb)
-			else --0\3\4\5\6\7
-				_sb.spd.spx=-1
-				_sb.spd.spy=0
-			end
-		elseif _sb.dire==3 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==2 or iswallcoll==3 or iswallcoll==4 then
-				setspd_0(_sb)
-			else --0\1\5\6\7\8
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==2 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==2 then 
-				setspd_0(_sb)
-			elseif iswallcoll==1 or iswallcoll==8  then
-				setspd_ydire(_sb)
-			elseif iswallcoll==3 or iswallcoll==4 then
-				setspd_xdire(_sb)
-			else --0\5\6\7
-				setspd_xydire(_sb)
-			end
-		elseif _sb.dire==4 then
-			--重置精灵偏移:因为推的动作能直接按住切换到斜向移动，如果不重置，会偏离
-			resetspr(_sb)
-			if iswallcoll==4 then
-				setspd_0(_sb)
-			elseif iswallcoll==2 or iswallcoll==3 then 
-				setspd_xdire(_sb)
-			elseif iswallcoll==5 or iswallcoll==6 then
-				setspd_ydire(_sb)
-			else --0\1\7\8
-				setspd_xydire(_sb)
-			end
-		end
-	else --2468
-		if _sb.dire!=0 then --必须要有
-			check_Diagonal(_colldire,_sb,iswallcoll)
-			move_anim(_sb)
-		end
-	end
-end
-
-function check_Diagonal(_colldire,_sb,iswallcoll)--检测对角线
-	if _sb.dire==2 or _sb.dire==4 or _sb.dire==6 or _sb.dire==8 then---------------2
-		diagonal2468_move(_sb,_colldire,iswallcoll)
-	else--1357
-		diagonal1357_move(_sb,iswallcoll)
-	end
-end
-function diagonal1357_move(_sb,iswallcoll)
-	local data={
-		{1,2,8},--0\3\4\5\6\7
-		{2,3,4},--0\1\5\6\7\8
-		{4,5,6},--0\1\2\3\7\8
-		{6,7,8}}--0\1\2\3\4\5
-	local index=(_sb.dire+1)/2
-	if iswallcoll==data[index][1] or iswallcoll==data[index][2] or iswallcoll==data[index][3] then
-		setspd_0(_sb)
-	else 
-		setspd_xydire(_sb)
-	end
-end
-function diagonal2468_move(_sb,_colldire,iswallcoll) --对角线斜方向移动的具体实现（针对不同的墙壁方向）
-
-	local xy_data={
-		{2,3,4,1,8,0,5,6,7},--2\34\18\0567\：墙在不同的位置
-		{4,2,3,5,6,0,1,7,8},--4\23\56\0178\
-		{6,7,8,4,5,0,1,2,3},--6\78\45\0123\
-		{8,6,7,1,2,0,3,4,5}}--8\67\12\0345\
-	local cum=_sb.dire/2--将方向值（2468）转换为表的索引值
-	if iswallcoll==xy_data[cum][1] then --2
-		setspd_0(_sb)
-	elseif iswallcoll==xy_data[cum][2] or iswallcoll==xy_data[cum][3] then --3\4
-		setspd_xdire(_sb)
-	elseif iswallcoll==xy_data[cum][4] or iswallcoll==xy_data[cum][5] then --1\8
-		setspd_ydire(_sb)
-	else --0\5\6\7
-		if  _sb.dire==_colldire then
-			setspd_0(_sb)
-		else
-			setspd_xydire(_sb)
-		end
-	end
-end
-function checkcoll_edge(_obj,_sb,_colldire)--检测是否在物体碰撞两侧边缘，小于等于3的像素位置
-	local sbcenter_x,sbcenter_y=_sb.x+_sb.w/2,_sb.y+_sb.h/2
-	local objcenter_x,objcenter_y=_obj.sprx+_obj.sprw/2,_obj.spry+_obj.sprh/2
-	if _colldire==1 or _colldire==5 then
-		if abs(_obj.spry-(_sb.y+_sb.h))<=3 or abs((_obj.spry+_obj.sprh)-_sb.y)<=3 then
-			return true
-		end
-	elseif _colldire==3 or _colldire==7 then
-		if abs(_obj.sprx-(_sb.x+_sb.w))<=3 or abs((_obj.sprx+_obj.sprw)-_sb.x)<=3 then
-			return true
-		end
-	else
-		return false
-	end
-end
-function pushsth(_obj,_sb)--推物体
-	--贴墙壁后，停止移动
-	local iscollwall,_ = check_wall_iswalk(_obj) --物体靠墙值（1-8，0不靠墙）
-	--需要说明：当主角靠近物体，刚要推这时候物体就会移动一个像素，所以在显示上会看上去有一个空隙
-	if _sb.dire==1 and iscollwall!=1 and iscollwall!=2 and iscollwall!=8 then
-		--正方向移动，且物体不靠墙，才可以推动
-		_obj.x=_obj.x-1
-		_obj.sprx=_obj.sprx-1		
-	elseif _sb.dire==3 and iscollwall!=3 and iscollwall!=2 and iscollwall!=4 then
-		_obj.y=_obj.y-1
-		_obj.spry=_obj.spry-1		
-	elseif _sb.dire==5 and iscollwall!=5 and iscollwall!=4 and iscollwall!=6 then
-		_obj.x=_obj.x+1
-		_obj.sprx=_obj.sprx+1		
-	elseif _sb.dire==7 and iscollwall!=7 and iscollwall!=6 and iscollwall!=8 then
-		_obj.y=_obj.y+1
-		_obj.spry=_obj.spry+1		
-	else--靠墙停止推动，主角停止移动
-		setspd_0(_sb)
-	end
-	--进行精灵偏移，消除一个像素的空隙
-	if _sb.dire==1 then
-		_sb.spr_cx=-1
-	elseif _sb.dire==3 then
-		_sb.spr_cy=-1
-	elseif _sb.dire==5 then
-		_sb.spr_cx=1
-	elseif _sb.dire==7 then
-		_sb.spr_cy=1
-	end
-end
-function resetspr(_sb)--重置精灵偏移
-	_sb.spr_cx=0
-	_sb.spr_cy=0
 end
 function spr_flip(_sb)--精灵反转
 	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
@@ -511,34 +124,143 @@ function setspd_0(sb)--速度设置为0
 	sb.spd.spx=0
 	sb.spd.spy=0
 end
-function setspd_xydire(sb)
-	sb.spd.spx=dirx[sb.dire]*sb.speed
-	sb.spd.spy=diry[sb.dire]*sb.speed
+function setspd_xydire(sb,spd)
+	local uspd=sb.speed
+	if spd then
+		uspd=spd
+	end
+	sb.spd.spx=dirx[sb.dire]*uspd
+	sb.spd.spy=diry[sb.dire]*uspd
 end
-function setspd_xdire(sb)
-	sb.spd.spx=dirx[sb.dire]*sb.speed
+function setspd_xdire(sb,spd)
+	local uspd=sb.speed
+	if spd then
+		uspd=spd
+	end
+	sb.spd.spx=dirx[sb.dire]*uspd
 	sb.spd.spy=0
 end
-function setspd_ydire(sb)
+function setspd_ydire(sb,spd)
+	local uspd=sb.speed
+	if spd then
+		uspd=spd
+	end
 	sb.spd.spx=0
-	sb.spd.spy=diry[sb.dire]*sb.speed
+	sb.spd.spy=diry[sb.dire]*uspd
 end
 function move(_sb)
-	_sb.spd.spx,_sb.spd.spy=0,0
+	setspd_0(_sb)
 	if _sb.dire!=0 then
 		setspd_xydire(_sb)
 	end
 end
-function roll(_sb)
-	if _sb.dire!=0 then
-		_sb.spd.spx=dirx[_sb.dire]*_sb.rollspeed
-		_sb.spd.spy=diry[_sb.dire]*_sb.rollspeed
-	else
-		if _sb.sprflip then
-			_sb.spd.spx=-_sb.rollspeed
+function check_roll_closewall(_sb)--检测翻滚是否即将靠近墙(3像素的预判距离)
+	local zpoints={ --翻滚正角度的点
+		{x=flr((_sb.x-3)/8),y=flr((_sb.y)/8)},--1
+		{x=flr((_sb.x-3)/8),y=flr((_sb.y+7)/8)},
+		{x=flr((_sb.x+7)/8),y=flr((_sb.y-3)/8)},--3
+		{x=flr((_sb.x)/8),y=flr((_sb.y-3)/8)},
+		{x=flr((_sb.x+10)/8),y=flr((_sb.y+7)/8)},--5
+		{x=flr((_sb.x+10)/8),y=flr((_sb.y)/8)},
+		{x=flr((_sb.x)/8),y=flr((_sb.y+10)/8)},--7
+		{x=flr((_sb.x+7)/8),y=flr((_sb.y+10)/8)},
+	}
+	local xpoints={ --翻滚斜角度的点
+		{x=flr((_sb.x+3)/8),y=flr((_sb.y-3)/8)},--2
+		{x=flr((_sb.x-3)/8),y=flr((_sb.y+3)/8)},
+		{x=flr((_sb.x+4)/8),y=flr((_sb.y-3)/8)},--4
+   		{x=flr((_sb.x+10)/8),y=flr((_sb.y+3)/8)},
+    	{x=flr((_sb.x+10)/8),y=flr((_sb.y+4)/8)},--6
+    	{x=flr((_sb.x+4)/8),y=flr((_sb.y+10)/8)},
+    	{x=flr((_sb.x+3)/8),y=flr((_sb.y+10)/8)},--8
+    	{x=flr((_sb.x-3)/8),y=flr((_sb.y+4)/8)},
+	}
+	if _sb.dire%2==1 then--_sb.dire==1\_sb.dire==3\_sb.dire==5\_sb.dire==7
+		if(fget(mget(zpoints[_sb.dire].x,zpoints[_sb.dire].y),0)) or (fget(mget(zpoints[_sb.dire+1].x,zpoints[_sb.dire+1].y),0)) then
+			return true
 		else
-			_sb.spd.spx=_sb.rollspeed
+			return false
 		end
+	
+	else --_sb.dire==2\_sb.dire==4\_sb.dire==6\_sb.dire==8
+		if(fget(mget(xpoints[_sb.dire-1].x,xpoints[_sb.dire-1].y),0)) or (fget(mget(xpoints[_sb.dire].x,xpoints[_sb.dire].y),0)) then
+			return true
+		else
+			return false
+		end
+	end
+end
+function check_roll_near_wall(_sb,iwcd,rspd)--检测翻滚是否贴墙
+	local _rollspd=_sb.rollspeed
+	local xymove=""--xy轴移动方向,贴墙斜角度也可翻滚，只是速度较低:1
+	if check_roll_closewall(_sb) then
+		_rollspd=1--速度为1
+	end
+	if _sb.dire==1 then
+		if iwcd==8 or iwcd==1 or iwcd==2 then
+			_rollspd= 0--速度为0
+			xymove="no"
+		end
+	elseif _sb.dire==2 then
+		if iwcd==2 then
+			_rollspd= 0--速度为0
+			xymove="no"
+		elseif iwcd==1 then
+			_rollspd=1
+			xymove="y"
+		elseif iwcd==3 then
+			_rollspd=1
+			xymove="x"
+		end
+	elseif _sb.dire==4 then
+		if iwcd==4 then
+			_rollspd= 0--速度为0
+			xymove="no"
+		elseif iwcd==3 then
+			_rollspd=1
+			xymove="x"
+		elseif iwcd==5 then
+			_rollspd=1
+			xymove="y"
+		end
+	elseif _sb.dire==6 then
+		if iwcd==6 then
+			_rollspd= 0--速度为0
+			xymove="no"
+		elseif iwcd==5 then
+			_rollspd=1
+			xymove="y"
+		elseif iwcd==7 then
+			_rollspd=1
+			xymove="x"
+		end
+	elseif _sb.dire==8 then
+		if iwcd==8 then
+			_rollspd= 0--速度为0
+			xymove="no"
+		elseif iwcd==1 then
+			_rollspd=1
+			xymove="y"
+		elseif iwcd==7 then
+			_rollspd=1
+			xymove="x"
+		end
+	else--357
+		if iwcd==_sb.dire-1 or iwcd==_sb.dire or iwcd==_sb.dire+1 then
+			_rollspd= 0--速度为0
+			xymove="no"
+		end
+	end
+	return _rollspd,xymove	
+end
+function roll(_sb,iwcd)--is_wall_coll_dire
+	local _rollspd,xymove=check_roll_near_wall(_sb,iwcd)
+	if xymove=="x" then
+		setspd_xdire(_sb,_rollspd)
+	elseif xymove=="y" then
+		setspd_ydire(_sb,_rollspd)
+	else
+		setspd_xydire(_sb,_rollspd)--设置速度
 	end
 end
 function check_p_hurt(_sb)--玩家受伤
@@ -562,7 +284,6 @@ end
 function hurtmove(_sb)--依照方向执行受伤
 	local m_spd=1
 	local iscollwall,_ = check_wall_iswalk(_sb)
-	
 	_sb.hurtmt+=0.1
 	--反方向加权
 	local xsum=dirx[_sb.hurtdire]*-1 
@@ -618,6 +339,10 @@ function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁�
 	local x6,y6=flr((v.x+8)/8),flr((v.y)/8)
 	local x7,y7=flr((v.x+7)/8),flr((v.y-1)/8)
 	local x8,y8=flr((v.x)/8),flr((v.y-1)/8)
+	local x02,y02=flr((v.x-1)/8),flr((v.y-1)/8) --左上角
+	local x04,y04=flr((v.x+8)/8),flr((v.y-1)/8) --右上角
+	local x06,y06=flr((v.x+8)/8),flr((v.y+8)/8) --右下角
+	local x08,y08=flr((v.x-1)/8),flr((v.y+8)/8) --左下角
 	if (fget(mget(x1,y1),0) or fget(mget(x2,y2),0)) and not( fget(mget(x7,y7),0) or  fget(mget(x8,y8),0)) and not (fget(mget(x3,y3),0) or fget(mget(x4,y4),0)) then --是否靠墙1
 		if fget(mget(x1,y1),0) and not fget(mget(x2,y2),0) then
 			return 1,"down" --因为左上角检测点检测到了，而左下角没检测到，所以在下面
@@ -659,247 +384,217 @@ function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁�
 	elseif (fget(mget(x3,y3),0) or fget(mget(x4,y4),0)) and (fget(mget(x1,y1),0) or fget(mget(x2,y2),0)) then --是否靠墙8
 		return 8,"no"
 	else  ----不靠墙
-		return 0,"no"
+		--对角检测
+		if fget(mget(x02,y02),0) then
+			return -1,"left_up"
+		elseif fget(mget(x04,y04),0) then
+			return -1,"right_up"
+		elseif fget(mget(x06,y06),0) then
+			return -1,"right_down"
+		elseif fget(mget(x08,y08),0) then
+			return -1,"left_down"
+		else
+			return 0,"no"
+		end
 	end
 end
-function wallside(coll_dire)--是否站在墙的边缘
-	local l_px1,l_py1=flr((wy.x-1)/8),flr((wy.y+3)/8)
-	local l_px2,l_py2=flr((wy.x-1)/8),flr((wy.y+4)/8)
-	local d_px1,d_py1=flr((wy.x+4)/8),flr((wy.y+8)/8)
-	local d_px2,d_py2=flr((wy.x+3)/8),flr((wy.y+8)/8)
-	local r_px1,r_py1=flr((wy.x+8)/8),flr((wy.y+3)/8)
-	local r_px2,r_py2=flr((wy.x+8)/8),flr((wy.y+4)/8)
-	local u_px1,u_py1=flr((wy.x+4)/8),flr((wy.y-1)/8)
-	local u_px2,u_py2=flr((wy.x+3)/8),flr((wy.y-1)/8)
+function wallside(coll_dire)--是否站在墙角边缘(用于滑动)
+	--[[local l_px1,l_py1=flr((wy.x-1)/8),flr((wy.y+3)/8)
+		local l_px2,l_py2=flr((wy.x-1)/8),flr((wy.y+4)/8)
+		local d_px1,d_py1=flr((wy.x+4)/8),flr((wy.y+8)/8)
+		local d_px2,d_py2=flr((wy.x+3)/8),flr((wy.y+8)/8)
+		local r_px1,r_py1=flr((wy.x+8)/8),flr((wy.y+3)/8)
+		local r_px2,r_py2=flr((wy.x+8)/8),flr((wy.y+4)/8)
+		local u_px1,u_py1=flr((wy.x+4)/8),flr((wy.y-1)/8)
+		local u_px2,u_py2=flr((wy.x+3)/8),flr((wy.y-1)/8)]]
+	local data={
+		{flr((wy.x-1)/8),flr((wy.y+3)/8),flr((wy.x-1)/8),flr((wy.y+4)/8)},
+		{flr((wy.x+4)/8),flr((wy.y-1)/8),flr((wy.x+3)/8),flr((wy.y-1)/8)},
+		{flr((wy.x+8)/8),flr((wy.y+3)/8),flr((wy.x+8)/8),flr((wy.y+4)/8)},
+		{flr((wy.x+4)/8),flr((wy.y+8)/8),flr((wy.x+3)/8),flr((wy.y+8)/8)},
+	}
+	local index=(coll_dire+1)/2
+	return checkwallside(data[index][1],data[index][2],data[index][3],data[index][4])
+	--[[
 	if coll_dire==1 then --左
-		if (not fget(mget(l_px1,l_py1),0)) and (not fget(mget(l_px2,l_py2),0)) then
-			return true--edge
-		else
-			return false--wall
-		end
+		return checkwallside(l_px1,l_py1,l_px2,l_py2)
 	elseif coll_dire==3 then --上
-		if (not fget(mget(u_px1,u_py1),0)) and (not fget(mget(u_px2,u_py2),0)) then
-			return true--edge
-		else
-			return false--wall
-		end
+		return checkwallside(u_px1,u_py1,u_px2,u_py2)
 	elseif coll_dire==5 then --右
-		if (not fget(mget(r_px1,r_py1),0)) and (not fget(mget(r_px2,r_py2),0)) then
-			return true--edge
-		else
-			return false--wall
-		end
+		return checkwallside(r_px1,r_py1,r_px2,r_py2)
 	elseif coll_dire==7 then --下
-		if (not fget(mget(d_px1,d_py1),0)) and (not fget(mget(d_px2,d_py2),0)) then
-			return true--edge
-		else
-			return false--wall
-		end
+		return checkwallside(d_px1,d_py1,d_px2,d_py2)
+	end]]
+end
+function checkwallside(x1,y1,x2,y2)
+	if (not fget(mget(x1,y1),0)) and (not fget(mget(x2,y2),0)) then
+		return true--edge
+	else
+		return false--wall
 	end
 end
 function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移动
 	if coll_dire==1 then
-		if player.dire==1 then
-			if wallside(coll_dire) then --如果在边缘
-				--如果在上
-				if oneside=="up" then
-					player.spd.spx=0
-					player.spd.spy=-player.speed
-				elseif oneside=="down" then
-					player.spd.spx=0
-					player.spd.spy=player.speed
-				end
-				--如果在下
-			else --不在边缘
-				player.spd.spx=0
-				player.spd.spy=0
-			end
-		elseif player.dire==2 or player.dire==8 then
-			player.spd.spx=0
-			player.spd.spy=diry[player.dire]*player.speed
-		else--
-			move(player)
-		end
-		move_anim(player)
+		z1357wmove(coll_dire,player,oneside)
 	elseif coll_dire==3 then
-		if player.dire==3 then
-			if wallside(coll_dire) then
-				if oneside=="left" then
-					player.spd.spx=-player.speed
-					player.spd.spy=0
-				elseif oneside=="right" then
-					player.spd.spx=player.speed
-					player.spd.spy=0
-				end
-			else
-				player.spd.spx=0
-				player.spd.spy=0
-			end
-		elseif player.dire==2 or player.dire==4 then
-			player.spd.spx=dirx[player.dire]*player.speed
-			player.spd.spy=0
-		else
-			move(player)
-		end
-		move_anim(player)
+		z1357wmove(coll_dire,player,oneside)
 	elseif coll_dire==5 then
-		if player.dire==5 then
-			if wallside(coll_dire) then
-				if oneside=="up" then
-					player.spd.spx=0
-					player.spd.spy=-player.speed
-				elseif oneside=="down" then
-					player.spd.spx=0
-					player.spd.spy=player.speed
-				end
-			else
-				player.spd.spx=0
-				player.spd.spy=0
-			end
-		elseif player.dire==4 or player.dire==6 then
-			player.spd.spx=0
-			player.spd.spy=diry[player.dire]*player.speed
-		else
-			move(player)
-		end
-		move_anim(player)
+		z1357wmove(coll_dire,player,oneside)
 	elseif coll_dire==7 then
-		if player.dire==7 then
-			if wallside(coll_dire) then
-				if oneside=="left" then
-					player.spd.spx=-player.speed
-					player.spd.spy=0
-				elseif oneside=="right" then
-					player.spd.spx=player.speed
-					player.spd.spy=0
-				end
-			else
-				player.spd.spx=0
-				player.spd.spy=0
-			end
-		elseif player.dire==6 or player.dire==8 then
-			player.spd.spx=dirx[player.dire]*player.speed
-			player.spd.spy=0
-		else
-			move(player)
-		end
-		move_anim(player)
+		z1357wmove(coll_dire,player,oneside)
 	-------------------------------斜4角度----------------------------
-	elseif coll_dire==2 then
-		if player.dire==1 or player.dire==2 or player.dire==3 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==4 then --在角落其他斜角度移动，也要考虑不能穿墙
-			player.spd.spx=dirx[player.dire]*player.speed
-			player.spd.spy=0
-		elseif player.dire==8 then
-			player.spd.spx=0
-			player.spd.spy=diry[player.dire]*player.speed
-		else
+	elseif coll_dire==-1 then --无常规碰撞
+		if oneside=="no" then
 			move(player)
+		else --左上、右上、左下、右下
+			edge_wmove(oneside,player)
 		end
-		move_anim(player)
-	elseif coll_dire==4 then
-		if player.dire==3 or player.dire==4 or player.dire==5 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==2 then
-			player.spd.spx=dirx[player.dire]*player.speed
-			player.spd.spy=0
-		elseif player.dire==6 then
-			player.spd.spx=0
-			player.spd.spy=diry[player.dire]*player.speed
-		else
+		--[[
+		if oneside=="left_up" then--是否对角碰撞
+			if player.dire==2 then
+				setspd_0(player)
+			else
+				if player.dire!=0 then
+					setspd_xydire(player)
+				end
+			end
+		elseif oneside=="right_up" then
+			if player.dire==4 then
+				setspd_0(player)
+			else
+				if player.dire!=0 then
+					setspd_xydire(player)
+				end
+			end
+		elseif oneside=="right_down" then
+			if player.dire==6 then
+				setspd_0(player)
+			else
+				if player.dire!=0 then
+					setspd_xydire(player)
+				end
+			end
+		elseif oneside=="left_down" then
+			if player.dire==8 then
+				setspd_0(player)
+			else
+				if player.dire!=0 then
+					setspd_xydire(player)
+				end
+			end
+		elseif oneside=="no" then
 			move(player)
-		end
-		move_anim(player)
-	elseif coll_dire==6 then
-		if player.dire==5 or player.dire==6 or player.dire==7 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==4 then --在角落其他斜角度移动，也要考虑不能穿墙
-			player.spd.spx=0
-			player.spd.spy=diry[player.dire]*player.speed
-		elseif player.dire==8 then
-			player.spd.spx=dirx[player.dire]*player.speed
-			player.spd.spy=0
-		else
-			move(player)
-		end
-		move_anim(player)
-	elseif coll_dire==8 then
-		if player.dire==7 or player.dire==8 or player.dire==1 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==2 then
-			player.spd.spx=0
-			player.spd.spy=diry[player.dire]*player.speed
-		elseif player.dire==6 then
-			player.spd.spx=dirx[player.dire]*player.speed
-			player.spd.spy=0
-		else
-			move(player)
-		end
-		move_anim(player)
+		end]]
+	else --2468
+		x2468wmove(coll_dire,player)
 	end
 end
-function encoll_move(player,colldire)--当玩家与角色（敌人或npc）碰撞
-	
+function z1357wmove(_dire,_sb,side)--正wall
+	local data={
+		{1,2,8,"up",0,-1,"down",0,1},
+		{3,2,4,"left",-1,0,"right",1,0},
+		{5,4,6,"up",0,-1,"down",0,1},
+		{7,6,8,"left",-1,0,"right",1,0}
+	}
+	local index=(_dire+1)/2
+	if _sb.dire==data[index][1] then
+		if wallside(_dire) then
+			if side==data[index][4] then
+				_sb.spd.spx=data[index][5]
+				_sb.spd.spy=data[index][6]
+			elseif side==data[index][7] then
+				_sb.spd.spx=data[index][8]
+				_sb.spd.spy=data[index][9]
+			end
+		else
+			setspd_0(_sb)
+		end
+
+	elseif _sb.dire==data[index][2] or _sb.dire==data[index][3] then
+		if _dire==1 or _dire==5 then
+			setspd_ydire(_sb)--*bug
+		else
+			setspd_xdire(_sb)--*bug
+		end
+		
+	else
+		move(_sb)
+	end
+	move_anim(_sb)
+end
+function x2468wmove(_dire,_sb)--斜wall
+	--墙：2468情况
+	local xie_data={
+		{1,2,3,4,8},
+		{3,4,5,2,6},
+		{5,6,7,8,4},
+		{7,8,1,6,2}}
+	local index=_dire/2
+	if _sb.dire==xie_data[index][1] or _sb.dire==xie_data[index][2] or _sb.dire==xie_data[index][3] then
+		setspd_0(_sb)
+	elseif _sb.dire==xie_data[index][4] then
+		setspd_xdire(_sb)
+	elseif _sb.dire==xie_data[index][5] then
+		setspd_ydire(_sb)
+	else--
+		move(_sb)
+	end
+	move_anim(_sb)
+end
+function edge_wmove(side,player)--斜墙边缘对角碰撞
+	data={{"left_up",2},{"right_up",4},{"right_down",6},{"left_down",8}}
+	for k in all(data) do
+		if side==k[1] then
+			if player.dire==k[2] then
+				setspd_0(player)
+			else
+				if player.dire!=0 then
+					setspd_xydire(player)
+				end
+			end
+		end
+	end
+end
+function encoll_roll(player,colldire)
+
+end
+function encoll_move(player,colldire)--当玩家与角色（敌人或npc）碰撞时的移动
 	if colldire==1 then --左
 		if player.dire==1  then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==2  then
-			player.spd.spx=0
-			player.spd.spy=-1
-		elseif  player.dire==8 then
-			player.spd.spx=0
-			player.spd.spy=1
+			setspd_0(player)
+		elseif player.dire==2 or player.dire==8 then
+			 setspd_ydire(player)
 		else--可离开
 			move(player)
 		end
 	elseif colldire==3  then --上
 		if player.dire==3 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==2 then 
-			player.spd.spx=-1
-			player.spd.spy=0
-		elseif player.dire==4 then 
-			player.spd.spx=0
-			player.spd.spy=1
+			setspd_0(player)
+		elseif player.dire==2 or player.dire==4 then 
+			setspd_xdire(player)
 		else
 			move(player)
 		end
 	elseif colldire==5 then --右
 		if player.dire==5 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==4 then
-			player.spd.spx=0
-			player.spd.spy=-1
-		elseif player.dire==6 then
-			player.spd.spx=0
-			player.spd.spy=1
+			setspd_0(player)
+		elseif player.dire==4 or player.dire==6 then
+			setspd_ydire(player)
 		else
 			move(player)
 		end
 	elseif colldire==7 then --下
 		if player.dire==7 then
-			player.spd.spx=0
-			player.spd.spy=0
-		elseif player.dire==6 then
-			player.spd.spx=1
-			player.spd.spy=0
-		elseif player.dire==8 then
-			player.spd.spx=-1
-			player.spd.spy=0
+			setspd_0(player)
+		elseif player.dire==6 or player.dire==8 then
+			setspd_xdire(player)
 		else
 			move(player)
 		end
 	else --敌人在2468对角线
-		player.spd.spx=0
-		player.spd.spy=0
+		setspd_0(player)
 		move(player)
 	end
 end
+
+

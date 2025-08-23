@@ -1,12 +1,17 @@
---战斗系统：敌人追逐、敌人攻击、敌人受伤、技能系统、boss战
+--战斗系统：敌人追逐、敌人攻击、敌人受伤弹开、技能系统、boss战
 --背包系统(武器系统\道具系统)
 --地图切换系统（不规则地图）
 --对话系统
 --UI系统
+--寻路算法（不确定）
+--敌人死亡掉落：金币、血量
+--割草掉落：金币、血量、
+
 --------------当前任务-------------------
---物体之间的碰撞（可能做）
---*bug修复：斜方向进入墙角会穿墙(具体看效果，可能修复)
---*bug修复：物体边缘滑动，当背对着靠墙也会停止
+--*贴墙斜角度翻滚：可设置为慢速翻滚（可添加）
+--*BUG翻滚遇敌受伤弹回
+--*受伤后弹回穿墙
+--
 input_dire={0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0 } --btn()0-15所对应的方向：从左边开始顺时针8方向
 dirx={-1,-1, 0, 1,1,1, 0,-1} 
 diry={ 0,-1,-1,-1,0,1, 1, 1} 
@@ -37,12 +42,14 @@ function startgame()
 	blinkt=0
 end
 function printbug()
-	--print(wy.state,60,2,7)
+	print(wy.hurtdire,60,2,7)
+	print(wy.state)
+	print(wy.dire)
 	--print("x:"..wy.x)
 	--print("y:"..wy.y)
 	--print("spdx:"..wy.spd.spx)
 	--print("spdy:"..wy.spd.spy)
 	--print("dire:"..wy.dire)
-	--print("debug:"..debug)
+	print("debug:"..debug)
 	--print("debug1:"..debug1)
 end

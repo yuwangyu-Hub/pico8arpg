@@ -10,9 +10,10 @@ function update_game()
 		wy.state=wy.allstate.hurt
 	end
 	if wy.ishurt then wy.wudi_t+=1 end
-	if wy.wudi_t>20 then wy.ishurt,wy.wudi_t=false,0 end
-	
-
+	if wy.wudi_t>20000 then 
+		wy.ishurt=false
+		wy.wudi_t=0 
+	end
 	if check_en_hurt() then--检测敌人受伤
 		--debug="en_hurt"
 	end
