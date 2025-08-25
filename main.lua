@@ -8,10 +8,10 @@
 --割草掉落：金币、血量、
 
 --------------当前任务-------------------
---*贴墙斜角度翻滚：可设置为慢速翻滚（可添加）
 --*BUG翻滚遇敌受伤弹回
 --*受伤后弹回穿墙
---
+--*敌人对主角的碰撞
+--*敌人之间的碰撞？
 input_dire={0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0 } --btn()0-15所对应的方向：从左边开始顺时针8方向
 dirx={-1,-1, 0, 1,1,1, 0,-1} 
 diry={ 0,-1,-1,-1,0,1, 1, 1} 
@@ -47,8 +47,8 @@ function printbug()
 	print(wy.dire)
 	--print("x:"..wy.x)
 	--print("y:"..wy.y)
-	--print("spdx:"..wy.spd.spx)
-	--print("spdy:"..wy.spd.spy)
+	print("spdx:"..wy.spd.spx)
+	print("spdy:"..wy.spd.spy)
 	--print("dire:"..wy.dire)
 	print("debug:"..debug)
 	--print("debug1:"..debug1)

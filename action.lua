@@ -20,9 +20,7 @@ function updatePlayerState(player)--状态机: 更新玩家状态
                 attack_swordpos(player)
 				player.state=player.allstate.attack
 			end
-			--if player.isroll then --翻滚
-				--player.state=player.allstate.roll
-			--end
+			
 			--动画
 			player.frame=player.sprs.idle
 		end,
@@ -66,6 +64,7 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 			end
 		end,
 		attack=function()
+			setspd_0(player)
 			local att_frame = function(dire) --内部封装了一个函数
 				if dire==1 or dire==5 or dire==0 then 
 					return 1
@@ -99,6 +98,8 @@ function updatePlayerState(player)--状态机: 更新玩家状态
 				player.isroll=false
 				player.roll_t=0
 				player.state=player.allstate.idle
+				player.x=flr(player.x)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
+				player.y=flr(player.y)
 			end
 		end,
 		hurt=function()
