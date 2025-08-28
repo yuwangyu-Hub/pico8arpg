@@ -7,11 +7,18 @@ function draw_game()
         rect(c.x,c.y,c.x+c.w,c.y+c.h,12)
     end
     for o in all (obj) do--物体显示
-        spr(o.spr, o.sprx, o.spry)
-        rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
+       spr(o.spr, o.sprx, o.spry)
+       rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
     end
     --主角
+    if wy.ishurt then--受伤闪烁
+        if wy.wudi_t%8<5 then
+            pal(10,8)pal(6,8)pal(15,14)pal(4,2)
+        end
+    end
     draw_p(wy,wy.spr_cx,wy.spr_cy)
+    pal()
+    
     rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
     ui_show()--UI显示
