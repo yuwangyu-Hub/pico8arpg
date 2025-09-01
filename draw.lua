@@ -16,25 +16,44 @@ function draw_game()
             pal(10,8)pal(6,8)pal(15,14)pal(4,2)
         end
     end
+    --朝向显示
+    if not sword.isappear then
+        actdireshow(wy)
+    end
+
     draw_p(wy,wy.spr_cx,wy.spr_cy)
     pal()
-    
-    rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
+    --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
     ui_show()--UI显示
 end
--- 绘制攻击武器 player玩家对象
-function draweapon(player)
-    local swordspr
-    if sword.isappear then	
-        if not player.sprflip and player.dire == 0 then
-            swordspr = 25 -- 翻转武器精灵
-        elseif player.sprflip and player.dire == 0 then
-            swordspr = 27 -- 翻转武器精灵
-        else
-            swordspr = sword.sprs[player.dire]
+function actdireshow(_sb)--朝向标识显示
+     --local data={{-2,3},{-2,-2},{3,-2},{8,-2},{8,3},{8,8},{3,8},{-2,8}}改为下方一系列复杂运算
+    local xsum=-2+(dirx[_sb.lastdire]+1)*5
+    local ysum=-2+(diry[_sb.lastdire]+1)*5
+    local w,h=2,2
+    if _sb.lastdire%2==0 then --2468
+        w,h=2,2
+    else
+        if _sb.lastdire==1 or _sb.lastdire==5 then
+            w,h=2,3
+        else --3\7
+            if _sb.sprflip then
+                xsum=-2+(dirx[_sb.lastdire]+1)*5-1
+            end
+            w,h=3,2
         end
-        spr(swordspr, sword.x, sword.y)
+    end
+    sspr(atdirex[_sb.lastdire],atdirey[_sb.lastdire],w,h,_sb.x+xsum,_sb.y+ysum) 
+end
+function draweapon(_sb)--根据朝向绘制武器攻击
+                --1, 2, 3, 4, 5, 6, 7, 8
+    local swordx=explodeval("16,26,16,24,16,24,20,26")
+    local swordy=explodeval("12,10,16,18, 8, 8,16,16")
+    local swordw=explodeval("7, 6, 4, 6, 7, 6, 4, 6")
+    local swordh=explodeval("4, 6, 7, 6, 4, 6, 7, 6")
+    if sword.isappear then	
+        sspr(swordx[_sb.lastdire],swordy[_sb.lastdire],swordw[_sb.lastdire],swordh[_sb.lastdire],sword.x,sword.y)
 	end
 end
 function draw_mamenu()--主菜单
@@ -79,4 +98,12 @@ function pull_anim(player)
 end
 function hurt_anim(_sb)
     _sb.frame=_sb.sprs.hurt
+end
+
+function spr_flip(_sb)--精灵反转
+	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
+		_sb.sprflip=true --如果是右上方向，精灵翻转
+	elseif _sb.dire==4 or _sb.dire==5 or _sb.dire==6 then
+		_sb.sprflip=false --其他方向不翻转
+	end
 end

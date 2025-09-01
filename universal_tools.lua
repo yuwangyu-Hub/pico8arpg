@@ -1,3 +1,27 @@
+----------压缩技巧-------------
+function explode(s)--字符串恢复为数组
+    local retval,lastpos={},1 
+    for i=1,#s do
+        if sub(s,i,i)=="," then
+            add(retval,sub(s, lastpos, i-1))
+            i+=1
+            lastpos=i
+        end
+    end
+    add(retval,sub(s,lastpos,#s))--添加最后一个
+    return retval--返回该字符串组
+end
+function explodeval(_arr)--
+    return toval(explode(_arr))
+end
+function toval(_arr)--将字符串转换为非字符串
+    local _retarr={}--重新保存为数组
+    for _i in all(_arr) do
+        add(_retarr,flr(_i+0))--字符串加数字会变成数字
+    end
+    return _retarr--返回数字组
+end
+---------------------------------------
 function doshake()--镜头抖动
 	local shakex,shakey=rnd(shake)-(shake/2),rnd(shake)-(shake/2)
 	camera(shakex,shakey)
@@ -9,7 +33,7 @@ function doshake()--镜头抖动
 	end
 end
 function blink()--闪烁工具，返回闪烁的颜色动画
-	local blink_anim={5,5,5,5,5,5,5,5,6,6,7,7,6,6,5,5}
+	local blink_anim=explodeval("5,5,5,5,5,5,5,5,6,6,7,7,6,6,5,5")
     --blinkt:闪烁计时器，在主函数中创建并且更新
 	return blink_anim[blinkt%#blink_anim] 
 end
@@ -17,6 +41,7 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
+
 function draw_p(player,cx,cy)--cx和cy代表差值
 	local x,y=player.x+cx,player.y+cy
 	spr(wy.frame, x, y, 1, 1, wy.sprflip)
@@ -72,38 +97,22 @@ end
 -- @param objectGroup 对象集合
 -- @param subject 主体对象
 -- @return 最近的对象
-function findNearestObject(objectGroup, subject)
-	local minDistance = 128  -- 初始最大距离
-	local nearestObject --最近的对象
-	for object in all(objectGroup) do
+function findnearest_object(objectgroup, subject)
+	local mindistance = 128  -- 初始最大距离
+	local nearestobject --最近的对象
+	for object in all(objectgroup) do
 		local distance = sqrt(abs(object.x - subject.x) + abs(object.y - subject.y))
-		if distance < minDistance then
-			minDistance = distance
-			nearestObject = object
+		if distance < mindistance then
+			mindistance = distance
+			nearestobject = object
 		end
 	end
-	return nearestObject
+	return nearestobject
 end
-function spr_flip(_sb)--精灵反转
-	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
-		_sb.sprflip=true --如果是右上方向，精灵翻转
-	elseif _sb.dire==4 or _sb.dire==5 or _sb.dire==6 then
-		_sb.sprflip=false --其他方向不翻转
-	end
-end
-function attack_swordpos(_sb)--处理update中的武器实时位置
-	if sword then
-		if _sb.dire!=0 then
-			sword.x = _sb.x+dirx[_sb.dire]*8
-			sword.y = _sb.y+diry[_sb.dire]*8
-		elseif _sb.dire==0 then
-			if _sb.sprflip then
-				sword.x = _sb.x-7
-			else
-				sword.x = _sb.x+7
-			end
-			sword.y = _sb.y
-		end
+function attack_swordpos(_sb,_wea)--处理update中的武器实时位置
+	if _wea then
+		_wea.x = _sb.x+_wea.sprx[_sb.lastdire]
+		_wea.y = _sb.y+_wea.spry[_sb.lastdire]
 	end
 end
 function setspd_0(sb)--速度设置为0
@@ -124,6 +133,10 @@ function setspd_ydire(sb,spd)
 	if spd then uspd=spd end
 	sb.spd.spx,sb.spd.spy=0,diry[sb.dire]*uspd
 end
+function setflrxy(_sb)
+	_sb.x=flr(_sb.x)
+	_sb.y=flr(_sb.y)
+end
 function move(_sb)
 	setspd_0(_sb)
 	if _sb.dire!=0 then setspd_xydire(_sb) end
@@ -132,7 +145,7 @@ end
 function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将靠近墙(value个像素的预判距离)
 	local near_e,colldire_e,is_e_coll
 	if #enemies!=0 then --敌人
-		near_e=findNearestObject(enemies, _sb)--检测最近的敌人
+		near_e=findnearest_object(enemies, _sb)--检测最近的敌人
 		colldire_e=checkdir(near_e,_sb)--敌人在主角的朝向
 		is_e_coll=ck_sthcoll(near_e, _sb, 0, 0, 0, 0)
 	end
@@ -164,7 +177,7 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 		elseif c_type=="en" then
 			if dire%2==1 then--sb.dire1\3\5\7
 				return coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,zpoints[dire].x,zpoints[dire].y) or coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,zpoints[dire+1].x,zpoints[dire+1].y)
-			else --sb.dire2468				
+			else --sb.dire2468 --*需要修改		
 				return coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,xpoints[dire-1].x,xpoints[dire-1].y) or coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,xpoints[dire].x,xpoints[dire].y)
 			end
 		end
@@ -176,13 +189,13 @@ function check_roll_near_wall(_sb,iwcd,rspd)--检测翻滚是否贴墙
 	if check_closewall_or_en(_sb,3,_sb.lastdire,"wall") then
 		_rollspd=1--速度为1
 	end
-	local data={
+	if _sb.dire==2 or _sb.dire==4 or _sb.dire==6 or _sb.dire==8 then
+		local data={
 		{3,"x",1,"y"},
 		{3,"x",5,"y"},
 		{7,"x",5,"y"},
 		{7,"x",1,"y"}}
-	local ind=_sb.dire/2
-	if _sb.dire==2 or _sb.dire==4 or _sb.dire==6 or _sb.dire==8 then
+		local ind=_sb.dire/2
 		if _sb.dire==iwcd then
 			_rollspd= 0--速度为0
 			xymove="no"
@@ -246,15 +259,32 @@ function check_p_hurt(_sb)--玩家受伤,最近的敌人
 		end
 	end
 end
-function check_en_hurt() --敌人受伤
-	local _ishurt
-	if sword.isappear then
+function check_en_hurt(_sword) --敌人受伤
+	if _sword.isappear then
 		for e in all(enemies) do
 			--e.hurtdire=checkdir(e,sword)
-			_ishurt = coll_boxcheck(sword.x,sword.y,sword.w,sword.h,e.x,e.y,e.w,e.h)
+			if ck_sthcoll(e,_sword,0,0,0,0) then
+				if checkdir(_sword,e)==1 then
+					e.hurtdire=5
+				elseif checkdir(_sword,e)==3 then
+					e.hurtdire=7
+				elseif checkdir(_sword,e)==5 then
+					e.hurtdire=1
+				elseif checkdir(_sword,e)==7 then
+					e.hurtdire=3
+				elseif checkdir(_sword,e)==2 then
+					e.hurtdire=6
+				elseif checkdir(_sword,e)==4 then
+					e.hurtdire=8
+				elseif checkdir(_sword,e)==6 then
+					e.hurtdire=2
+				elseif checkdir(_sword,e)==8 then
+					e.hurtdire=4
+				end
+				return true
+			end
 		end
 	end
-	return _ishurt
 end
 function hurtmove(_sb)--依照方向执行受伤
 	local m_spd=1 --受伤移动速度
@@ -278,13 +308,19 @@ function check_map_sth()
 	for i=0,15 do--行
 		for j=0,15 do--列
 			local en_mount=mget(i,j)
-			if en_mount==51 then --蛇
-				createsnakenemy(i,j)  -- 创建蛇形敌人
+			if en_mount==96 then --slime
+				createnemy_slime(i,j)
 				mset(i,j,0)
-			elseif en_mount==81 then --箱子
+			elseif en_mount==98 then --蛇
+				createnemy_snake(i,j)  -- 创建蛇形敌人
+				mset(i,j,0)
+			elseif en_mount==105 then --大眼怪
+				createnemy_bigeye(i,j)
+				mset(i,j,0)
+			elseif en_mount==113 then --箱子
 				makeobj(1,i*8,j*8,7,7,0,0,0,0)--box
 				mset(i,j,0)
-			elseif en_mount==82 then --金币
+			elseif en_mount== 114 then --金币
 				makeobj(2,i*8,j*8,7,7,0,0,0,0)--coin
 				mset(i,j,0)
 			end
@@ -486,5 +522,3 @@ function npc_cmove(player,colldire)
 		end
 	end
 end
-
-

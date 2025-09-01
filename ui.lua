@@ -26,8 +26,8 @@ function ui_weap()--武器/道具
     circfill(x1,y1,8,6)
     circfill(x2,y2+1,8,1)
     circfill(x2,y2,8,6)
-    spr(196,x1-8,y1-8,2,2)
-    spr(194,x2-8,y2-8,2,2)
+    sspr(88,34,6,13,x1-4,y1-6)
+    sspr(95,34,9,13,x2-4,y2-6)
     spr(43,x1+2,y1+2)
     spr(44,x2+2,y2+2)
 end
