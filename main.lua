@@ -8,8 +8,14 @@
 --割草掉落：金币、血量
 --获得增益道具后的边缘闪烁
 --------------当前任务-------------------
---*敌人受伤后退
+--*修复：受伤后才掉血:done
+--*敌人受伤后退:done
+--*敌人死亡后一定几率掉落血袋
 --*敌人之间的碰撞:通过移动算法（移动方向位置上无角色）实现敌人之间的碰撞。但是当被动的移动后（玩家的盾弹）可重叠
+--*敌人动画
+--*多敌人动画
+--*翻滚衔接攻击
+--*特效：移动粒子
 input_dire=explodeval("0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0")--btn()0-15所对应的方向：从左边开始顺时针8方向
 dirx=explodeval("-1,-1, 0, 1,1,1, 0,-1")
 diry=explodeval(" 0,-1,-1,-1,0,1, 1, 1")
@@ -17,16 +23,17 @@ diry=explodeval(" 0,-1,-1,-1,0,1, 1, 1")
 atdirex=explodeval("40,40,43,46,46,46,42,40")--sspr攻击图标的xy
 atdirey=explodeval("10, 8, 8, 8,11,14,14,14")--sspr攻击图标的xy
 enemies={}--敌人
+en_dspr=explodeval("85,86,87,88")--敌人死亡
 character={} --NPC
 item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
 cb_line={}--碰撞盒
 debug=""
-debug1=""
+debug1=0
+
+
 function _init()
 	startgame()
-	wy = initializeplayer()  -- 初始化玩家
-	sword = initializesword()  -- 初始化武器
 end
 function _update() 
 	_upd()
@@ -43,14 +50,14 @@ function startgame()
 	blinkt=0
 end
 function printbug()
-	print(wy.state,60,2,7)
-	print(wy.dire)
-	print(wy.lastdire)
-	print("x:"..wy.x)
-	print("y:"..wy.y)
+	--print(wy.state,60,2,7)
+	--print(#enemies)
+	
+	--print("x:"..wy.x)
+	--print("y:"..wy.y)
 	--print("spdx:"..wy.spd.spx)
 	--print("spdy:"..wy.spd.spy)
 	--print("dire:"..wy.dire)
-	print("debug:"..debug)
-	--print("debug1:"..debug1)
+	--print("debug:"..debug)
+	--print(debug1)
 end

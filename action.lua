@@ -15,7 +15,6 @@ function updatep_state(player)--状态机: 更新玩家状态
 		is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
 	end
 	local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
-		--debug=is_wall_coll_dire
 	local switchstate={
 		idle = function()
 			player.isroll=false
@@ -40,6 +39,8 @@ function updatep_state(player)--状态机: 更新玩家状态
 			else
 				player.lastdire=player.dire--记录上一次的方向
 				if player.isroll and not player.ishurt then
+					player.rollspeed=3
+            		player.rollspeed=nomalize(player,2.1213,3)
 					player.state=player.allstate.roll
 				end
 			end
@@ -52,7 +53,11 @@ function updatep_state(player)--状态机: 更新玩家状态
 			if is_o_coll then ---------------与物体(最近的箱子)与主角之间碰撞--------------
 				--确保物体和获取的金币分开，避免金币影响物体的推动
 				if near_o.type=="move" then--推动	
-				elseif near_o.type=="collect" then--收集	
+				elseif near_o.type=="get" then--获取
+					--如果当前血量大于血量，则当前血量等于血量	
+					if player.curhp>player.hp then
+						player.curhp=player.hp
+					end
 				end
 			elseif is_wall_coll_dire!=0 then --与墙体的碰撞---------------------------
 				wallcoll_move(player,is_wall_coll_dire,oneside)
@@ -87,55 +92,64 @@ function updatep_state(player)--状态机: 更新玩家状态
 		end,
 		roll=function()
 			local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
-			player.rollspeed=3
-            player.rollspeed=nomalize(player,2.1213,3)
 			roll(player,is_wall_coll_dire)
-
 			--动画相关
 			player.roll_t+=0.5
 			player.frame=player.sprs.roll[ceil(player.roll_t%#player.sprs.roll)]
-
-			--翻滚所需时间结束
-			if player.roll_t>=5  then
-				setspd_0(player)
-				player.isroll=false
-				player.roll_t=0
-				player.state=player.allstate.idle
-				setflrxy(player)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
-			end
 		end,
 		hurt=function()
 			player.hurtmt+=0.1
-			--无敌闪烁
-			hurtmove(player)
+			hurtmove(player,1)
 			if player.hurtmt>=0.7 then
 				player.hurtmt=0
-				player.state=player.allstate.idle
+				wy.curhp-=1
+				player.state=player.allstate.idle	
 			end
-			hurt_anim(player)
+
+			p_hurt_anim(player)
 			setflrxy(player)
-			player.x,player.y=player.x+player.spd.spx,player.y+player.spd.spy
+			if wy.curhp<=0 then--检测玩家死亡
+				_upd=update_gover
+				_drw=draw_gover
+			end
 		end,
 		death=function()
 		end
 	}
 	switchstate[player.state]()
 end
-function enstate_a(en) --大眼怪，静止不动
+function enstate_a(en)--静止不动，玩家触碰会掉血，攻击弹开死亡(爆炸)，一滴血
 	local switchstate={
-		stay=function()--静止不动
-			if check_en_hurt(sword) then
-				en.health-=1
+		stay=function()
+			--debug="stay"
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
 			end
-			if en.health<=0 then
-				en.state="death"
+			if en.hp<=0 then
+				en.state=en.allstate.death
 			end
 		end,
 		hurt=function()--受伤弹开
-			
+			en.hurtmt+=0.1
+			--debug="hurt"
+			hurtmove(en,2.5)
+			--受伤动画
+			if en.hurtmt>=0.5 then
+				en.hurtmt=0
+				en.state=en.allstate.stay
+				en.hp-=1
+			end
+			en.x,en.y=en.x+en.spd.spx,en.y+en.spd.spy
 		end,
 		death=function()--死亡爆炸
+			explode_anim(en)
+			if en.die_t>=4 then
+				del(enemies,en)
+			end
 			debug="death"
+			debug1=en.die_t
+			--先播放动画，然后删除
+			--del(enemies,en)
 		end,
 	}
 	switchstate[en.state]()

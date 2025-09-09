@@ -1,7 +1,7 @@
 --木桩，箱子
 o_name={"box","coin"}
 o_spr= {81,82}
-o_type={"move","collect"}
+o_type={"move","get"}
 function makeobj(mb,_sx,_sy,_sw,_sh,_xc,_yc,_wc,_hc)
     local ins={}--obj instance
     ins.sprx=_sx --绘制x点

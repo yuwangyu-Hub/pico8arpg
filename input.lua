@@ -23,7 +23,6 @@ function input_mamenu()--主菜单输入
     end
     if btn(5) then
         if mainmenu_cursor.count==1 then
-            startgame()
             _upd=update_game
             _drw=draw_game
         elseif mainmenu_cursor.count==2 then

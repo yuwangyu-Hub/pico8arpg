@@ -42,10 +42,7 @@ function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
 
-function draw_p(player,cx,cy)--cx和cy代表差值
-	local x,y=player.x+cx,player.y+cy
-	spr(wy.frame, x, y, 1, 1, wy.sprflip)
-end
+
 --物体与物体碰撞
 function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
 	local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
@@ -61,8 +58,8 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 	return px2>=bx1 and px1<=bx2 and py2>=by1 and py1<=by2
 end
 --点与物体碰撞
-function coll_pointcheck(_sx,_sy,_sw,_sh,_px,_py)
-	local sx,sy,sw,sh=_sx,_sy,_sw,_sh
+function c_pcheck(_e,_px,_py) --coll_pointcheck
+	local sx,sy,sw,sh=_e.x,_e.y,_e.w,_e.h
 	if _px>=sx and _px<=sx+sw and _py>=sy and _py<=sy+sh then
 		return true
 	else
@@ -143,22 +140,36 @@ function move(_sb)
 end
 --value(1-3)
 function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将靠近墙(value个像素的预判距离)
-	local near_e,colldire_e,is_e_coll
+	local _e,colldire_e,is_e_coll --e:最近的敌人
 	if #enemies!=0 then --敌人
-		near_e=findnearest_object(enemies, _sb)--检测最近的敌人
-		colldire_e=checkdir(near_e,_sb)--敌人在主角的朝向
-		is_e_coll=ck_sthcoll(near_e, _sb, 0, 0, 0, 0)
+		_e=findnearest_object(enemies, _sb)--检测最近的敌人
+		colldire_e=checkdir(_e,_sb)--敌人在主角的朝向
+		is_e_coll=ck_sthcoll(_e, _sb, 0, 0, 0, 0)
 	end
-	local zpoints={ --翻滚正角度的点
-		{x=_sb.x-value,y=_sb.y},--1
+	local zpoints={ --翻滚正角度的点(wall+en)
+		--1
+		{x=_sb.x-value,y=_sb.y},
+		--2
 		{x=_sb.x-value,y=_sb.y+7},
-		{x=_sb.x+7,y=_sb.y-value},--3
+		--3
+		{x=_sb.x+7,y=_sb.y-value},
+		--4
 		{x=_sb.x,y=_sb.y-value},
-		{x=_sb.x+7+value,y=_sb.y+7},--5
+		--5
+		{x=_sb.x+7+value,y=_sb.y+7},
+		--6
 		{x=_sb.x+7+value,y=_sb.y},
-		{x=_sb.x,y=_sb.y+7+value},--7
-		{x=_sb.x+7,y=_sb.y+7+value}}
-	local xpoints={ --翻滚斜角度的点
+		--7
+		{x=_sb.x,y=_sb.y+7+value},
+		--8
+		{x=_sb.x+7,y=_sb.y+7+value},
+		--9(重复1)
+		{x=_sb.x-value,y=_sb.y},
+		--10(重复2)
+		{x=_sb.x-value,y=_sb.y+7}
+	}
+		
+	local xpoints={ --翻滚斜角度的点(wall)
 		{x=_sb.x+value,y=_sb.y-value},
 		{x=_sb.x-value,y=_sb.y+value},--2
 		{x=_sb.x+7-value,y=_sb.y-value},
@@ -166,7 +177,14 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
     	{x=_sb.x+7+value,y=_sb.y+7-value},
     	{x=_sb.x+7-value,y=_sb.y+7+value},--6
     	{x=_sb.x+value,y=_sb.y+7+value},
-    	{x=_sb.x-value,y=_sb.y+7-value}}--8
+    	{x=_sb.x-value,y=_sb.y+7-value}--8
+	}
+	local en_xp={
+		{x=_sb.x-value,y=_sb.y-value},--（2）
+		{x=_sb.x+7+value,y=_sb.y-value},--（4）
+		{x=_sb.x+7+value,y=_sb.y+7+value},--（6）
+		{x=_sb.x-value,y=_sb.y+7+value},--（8）
+	}
 	if dire!=0 then
 		if c_type=="wall" then
 			if dire%2==1 then--sb.dire1\3\5\7
@@ -176,18 +194,30 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 			end
 		elseif c_type=="en" then
 			if dire%2==1 then--sb.dire1\3\5\7
-				return coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,zpoints[dire].x,zpoints[dire].y) or coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,zpoints[dire+1].x,zpoints[dire+1].y)
+				return c_pcheck(_e,zpoints[dire].x,zpoints[dire].y) or 
+				c_pcheck(_e,zpoints[dire+1].x,zpoints[dire+1].y)
 			else --sb.dire2468 --*需要修改		
-				return coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,xpoints[dire-1].x,xpoints[dire-1].y) or coll_pointcheck(near_e.x,near_e.y,near_e.w,near_e.h,xpoints[dire].x,xpoints[dire].y)
+				return c_pcheck(_e,zpoints[dire-1].x,zpoints[dire-1].y) or c_pcheck(_e,zpoints[dire].x,  zpoints[dire].y) or c_pcheck(_e,zpoints[dire+1].x,zpoints[dire+1].y) or c_pcheck(_e,zpoints[dire+2].x,zpoints[dire+2].y) or c_pcheck(_e,en_xp[dire/2].x,en_xp[dire/2].y)
 			end
 		end
 	end
 end
-function check_roll_near_wall(_sb,iwcd,rspd)--检测翻滚是否贴墙
-	local _rollspd=_sb.rollspeed
+function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
 	local xymove=""--xy轴移动方向,贴墙斜角度也可翻滚，只是速度较低:1
+	local _rollspd
+	if not _sb.isclosewall then
+		_rollspd=_sb.rollspeed
+	end
 	if check_closewall_or_en(_sb,3,_sb.lastdire,"wall") then
 		_rollspd=1--速度为1
+		_sb.isclosewall=true
+	end
+	
+	if #enemies>0 then
+		if check_closewall_or_en(_sb,3,_sb.lastdire,"en") then--如果靠近敌人
+			_rollspd=1
+			_sb.isclosewall=true
+		end
 	end
 	if _sb.dire==2 or _sb.dire==4 or _sb.dire==6 or _sb.dire==8 then
 		local data={
@@ -202,10 +232,13 @@ function check_roll_near_wall(_sb,iwcd,rspd)--检测翻滚是否贴墙
 		elseif iwcd==data[ind][1] then
 			_rollspd=1
 			xymove=data[ind][2]
+			_sb.isclosewall=true
 		elseif iwcd==data[ind][3] then
 			_rollspd=1
 			xymove=data[ind][4]
+			_sb.isclosewall=true
 		end
+		
 	else--1357
 		if _sb.dire==1 then
 			if iwcd==8 or iwcd==1 or iwcd==2 then
@@ -218,15 +251,13 @@ function check_roll_near_wall(_sb,iwcd,rspd)--检测翻滚是否贴墙
 				xymove="no"
 			end
 		end
+		--_sb.isclosewall=true
 	end
 	return _rollspd,xymove	
 end
 function roll(_sb,iwcd)--is_wall_coll_dire
 	local _rollspd,xymove=check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
-	if check_closewall_or_en(_sb,3,_sb.lastdire,"en") then--如果靠近敌人
-		debug=1
-		_rollspd=1
-	end
+	debug1=_rollspd
 	if xymove=="x" then
 		setspd_xdire(_sb,_rollspd)
 	elseif xymove=="y" then
@@ -234,60 +265,39 @@ function roll(_sb,iwcd)--is_wall_coll_dire
 	else
 		setspd_xydire(_sb,_rollspd)--设置速度
 	end
+	--翻滚所需时间结束
+	if _sb.roll_t>=5  then
+		setspd_0(_sb)
+		_sb.isroll=false
+		_sb.roll_t=0
+		_sb.isclosewall=false
+		_sb.state=_sb.allstate.idle
+		setflrxy(_sb)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
+	end
 end
 function check_p_hurt(_sb)--玩家受伤,最近的敌人
 	for e in all(enemies) do
 		if ck_sthcoll(_sb,e,0,0,0,0) then
-			if checkdir(e,_sb)==1 then
-				_sb.hurtdire=5
-			elseif checkdir(e,_sb)==3 then
-				_sb.hurtdire=7
-			elseif checkdir(e,_sb)==5 then
-				_sb.hurtdire=1
-			elseif checkdir(e,_sb)==7 then
-				_sb.hurtdire=3
-			elseif checkdir(e,_sb)==2 then
-				_sb.hurtdire=6
-			elseif checkdir(e,_sb)==4 then
-				_sb.hurtdire=8
-			elseif checkdir(e,_sb)==6 then
-				_sb.hurtdire=2
-			elseif checkdir(e,_sb)==8 then
-				_sb.hurtdire=4
+			if checkdir(_sb,e)!=0 then
+				_sb.hurtdire=checkdir(_sb,e)
 			end
 			return true
 		end
 	end
 end
-function check_en_hurt(_sword) --敌人受伤
+function check_en_hurt(_sword,_en,_p) --敌人受伤
 	if _sword.isappear then
-		for e in all(enemies) do
-			--e.hurtdire=checkdir(e,sword)
-			if ck_sthcoll(e,_sword,0,0,0,0) then
-				if checkdir(_sword,e)==1 then
-					e.hurtdire=5
-				elseif checkdir(_sword,e)==3 then
-					e.hurtdire=7
-				elseif checkdir(_sword,e)==5 then
-					e.hurtdire=1
-				elseif checkdir(_sword,e)==7 then
-					e.hurtdire=3
-				elseif checkdir(_sword,e)==2 then
-					e.hurtdire=6
-				elseif checkdir(_sword,e)==4 then
-					e.hurtdire=8
-				elseif checkdir(_sword,e)==6 then
-					e.hurtdire=2
-				elseif checkdir(_sword,e)==8 then
-					e.hurtdire=4
-				end
-				return true
+		if ck_sthcoll(_en,_sword,0,0,0,0) then
+			--debug="enhurt"
+			if checkdir(_en,_p)!=0 then
+				_en.hurtdire=checkdir(_en,_p)
 			end
+			return true
 		end
 	end
 end
-function hurtmove(_sb)--依照方向执行受伤
-	local m_spd=1 --受伤移动速度
+function hurtmove(_sb,speed)--依照方向执行受伤
+	local m_spd=speed --受伤移动速度
 	if check_closewall_or_en(_sb,2,_sb.hurtdire,"wall") then
 		m_spd=0--速度为1
 	end
@@ -302,30 +312,6 @@ function nomalize(sb,speed1,speed2)--归一化
 		respeed=speed2 --3
 	end
 	return respeed
-end
---检测地图上绘制的敌人/物品精灵，将其转换为对应的实例
-function check_map_sth()
-	for i=0,15 do--行
-		for j=0,15 do--列
-			local en_mount=mget(i,j)
-			if en_mount==96 then --slime
-				createnemy_slime(i,j)
-				mset(i,j,0)
-			elseif en_mount==98 then --蛇
-				createnemy_snake(i,j)  -- 创建蛇形敌人
-				mset(i,j,0)
-			elseif en_mount==105 then --大眼怪
-				createnemy_bigeye(i,j)
-				mset(i,j,0)
-			elseif en_mount==113 then --箱子
-				makeobj(1,i*8,j*8,7,7,0,0,0,0)--box
-				mset(i,j,0)
-			elseif en_mount== 114 then --金币
-				makeobj(2,i*8,j*8,7,7,0,0,0,0)--coin
-				mset(i,j,0)
-			end
-		end
-	end
 end
 function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
 	local x1,y1=flr((v.x-1)/8),flr((v.y)/8) --检测该点是否在图块上
