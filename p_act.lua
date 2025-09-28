@@ -6,7 +6,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 	end
 	--角色移动加成（翻滚或移动或推）
 	if player.dire>0 and player.state!=player.allstate.attack then
-		player.x,player.y=player.x+player.spd.spx,player.y+player.spd.spy
+		xypluspd(player)
 	end
 	local near_o,colldire_o,is_o_coll
 	if #obj!=0 then --物体不为空
@@ -63,7 +63,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 				wallcoll_move(player,is_wall_coll_dire,oneside)
 			else ---------------------------------普通移动----------------------------
 				move(player)
-				move_anim(player)
+    			player.move_t = anim_sys("more",player.sprs.move,player,player.move_t,.2,1)
 			end
 		end,
 		attack=function()
@@ -81,7 +81,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 					return 5
 				end
 			end
-			player.frame=player.sprs.attack[att_frame(player.lastdire)]
+			anim_sys("sig",player.sprs.attack[att_frame(player.lastdire)],player)
 			player.att_t+=.2
 			if player.att_t>2 then
 				player.isattack=false
@@ -95,7 +95,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 			roll(player,is_wall_coll_dire)
 			--动画相关
 			player.roll_t+=0.5
-			player.frame=player.sprs.roll[ceil(player.roll_t%#player.sprs.roll)]
+			anim_sys("more",player.sprs.roll,player,player.roll_t,.5,1)
 		end,
 		hurt=function()
 			player.hurtmt+=0.1
@@ -105,8 +105,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 				wy.curhp-=1
 				player.state=player.allstate.idle	
 			end
-
-			p_hurt_anim(player)
+			anim_sys("more",player.sprs.hurt,player,player.hurtmt,.1,5)
 			setflrxy(player)
 			if wy.curhp<=0 then--检测玩家死亡
 				_upd=update_gover
@@ -118,70 +117,6 @@ function updatep_state(player)--状态机: 更新玩家状态
 	}
 	switchstate[player.state]()
 end
-function enstate_a(en)--静止不动，玩家触碰会掉血，攻击弹开死亡(爆炸)，一滴血
-	local switchstate={
-		stay=function()
-			--debug="stay"
-			if check_en_hurt(sword,en,wy) then
-				en.state=en.allstate.hurt
-			end
-			if en.hp<=0 then
-				en.state=en.allstate.death
-			end
-		end,
-		hurt=function()--受伤弹开
-			en.hurtmt+=0.1
-			--debug="hurt"
-			hurtmove(en,2.5)
-			--受伤动画
-			if en.hurtmt>=0.5 then
-				en.hurtmt=0
-				en.state=en.allstate.stay
-				en.hp-=1
-			end
-			en.x,en.y=en.x+en.spd.spx,en.y+en.spd.spy
-		end,
-		death=function()--死亡爆炸
-			explode_anim(en)
-			if en.die_t>=4 then
-				del(enemies,en)
-			end
-			debug="death"
-			debug1=en.die_t
-			--先播放动画，然后删除
-			--del(enemies,en)
-		end,
-	}
-	switchstate[en.state]()
-end
 
-function enstate_b(en) 
-	local switchstate={
-		
-	}
-end
-function enstate_c(en) 
-	local switchstate={
-		
-	}
-end
-function enstate_d(en) 
-	local switchstate={
-		
-	}
-end
-function enstate_e(en) 
-	local switchstate={
-		
-	}
-end
-function enstate_f(en) 
-	local switchstate={
-		
-	}
-end
-function enstate_g(en) 
-	local switchstate={
-		
-	}
-end
+
+

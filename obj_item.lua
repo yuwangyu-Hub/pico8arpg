@@ -1,4 +1,5 @@
---木桩，箱子
+--盒子,金币,
+-- 1,  2
 o_name={"box","coin"}
 o_spr= {81,82}
 o_type={"move","get"}

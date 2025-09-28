@@ -1,4 +1,4 @@
-----------压缩技巧-------------
+---------------------压缩技巧----------------------
 function explode(s)--字符串恢复为数组
     local retval,lastpos={},1 
     for i=1,#s do
@@ -21,7 +21,7 @@ function toval(_arr)--将字符串转换为非字符串
     end
     return _retarr--返回数字组
 end
----------------------------------------
+---------------------压缩技巧----------------------
 function doshake()--镜头抖动
 	local shakex,shakey=rnd(shake)-(shake/2),rnd(shake)-(shake/2)
 	camera(shakex,shakey)
@@ -41,7 +41,6 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
-
 
 --物体与物体碰撞
 function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
@@ -116,7 +115,7 @@ function setspd_0(sb)--速度设置为0
 	sb.spd.spx,sb.spd.spy=0,0
 end
 function setspd_xydire(sb,spd)
-	local uspd=sb.speed
+	local uspd=sb.speed --如果没指定，就自身的spd
 	if spd then uspd=spd end
 	sb.spd.spx,sb.spd.spy=dirx[sb.dire]*uspd,diry[sb.dire]*uspd
 end
@@ -133,10 +132,24 @@ end
 function setflrxy(_sb)
 	_sb.x=flr(_sb.x)
 	_sb.y=flr(_sb.y)
+end 
+function xypluspd(_sb)--xy位置加上速度
+	_sb.x,_sb.y=_sb.x+_sb.spd.spx,_sb.y+_sb.spd.spy
 end
 function move(_sb)
 	setspd_0(_sb)
 	if _sb.dire!=0 then setspd_xydire(_sb) end
+end
+function rnd_move(_sb,mt)--四方向随机移动,movet
+	mt+=0.1
+	--移动
+	setspd_xydire(_sb)
+	--敌人后停止
+	local t=rnd({3,4,5,6}) --*bug
+	--一定距离后停止返回idle
+	if mt>=t then
+		_sb.state=_sb.allstate.idle
+	end
 end
 --value(1-3)
 function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将靠近墙(value个像素的预判距离)
@@ -147,28 +160,17 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 		is_e_coll=ck_sthcoll(_e, _sb, 0, 0, 0, 0)
 	end
 	local zpoints={ --翻滚正角度的点(wall+en)
-		--1
-		{x=_sb.x-value,y=_sb.y},
-		--2
-		{x=_sb.x-value,y=_sb.y+7},
-		--3
-		{x=_sb.x+7,y=_sb.y-value},
-		--4
-		{x=_sb.x,y=_sb.y-value},
-		--5
-		{x=_sb.x+7+value,y=_sb.y+7},
-		--6
-		{x=_sb.x+7+value,y=_sb.y},
-		--7
-		{x=_sb.x,y=_sb.y+7+value},
-		--8
-		{x=_sb.x+7,y=_sb.y+7+value},
-		--9(重复1)
-		{x=_sb.x-value,y=_sb.y},
-		--10(重复2)
-		{x=_sb.x-value,y=_sb.y+7}
+		{x=_sb.x-value,y=_sb.y},--1
+		{x=_sb.x-value,y=_sb.y+7},--2
+		{x=_sb.x+7,y=_sb.y-value},--3
+		{x=_sb.x,y=_sb.y-value},--4
+		{x=_sb.x+7+value,y=_sb.y+7},--5
+		{x=_sb.x+7+value,y=_sb.y},--6
+		{x=_sb.x,y=_sb.y+7+value},--7
+		{x=_sb.x+7,y=_sb.y+7+value},--8
+		{x=_sb.x-value,y=_sb.y},--9(重复1)
+		{x=_sb.x-value,y=_sb.y+7}--10(重复2)
 	}
-		
 	local xpoints={ --翻滚斜角度的点(wall)
 		{x=_sb.x+value,y=_sb.y-value},
 		{x=_sb.x-value,y=_sb.y+value},--2
@@ -257,7 +259,6 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
 end
 function roll(_sb,iwcd)--is_wall_coll_dire
 	local _rollspd,xymove=check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
-	debug1=_rollspd
 	if xymove=="x" then
 		setspd_xdire(_sb,_rollspd)
 	elseif xymove=="y" then
@@ -286,12 +287,13 @@ function check_p_hurt(_sb)--玩家受伤,最近的敌人
 	end
 end
 function check_en_hurt(_sword,_en,_p) --敌人受伤
-	if _sword.isappear then
+	if _sword.isappear and _en.state!=_en.allstate.hurt then
 		if ck_sthcoll(_en,_sword,0,0,0,0) then
 			--debug="enhurt"
 			if checkdir(_en,_p)!=0 then
 				_en.hurtdire=checkdir(_en,_p)
 			end
+			_en.state=_en.allstate.hurt
 			return true
 		end
 	end
@@ -303,6 +305,21 @@ function hurtmove(_sb,speed)--依照方向执行受伤
 	end
 	_sb.spd.spx=dirx[_sb.hurtdire]*m_spd
 	_sb.spd.spy=diry[_sb.hurtdire]*m_spd
+end
+function hurtdo(_sb,ht)
+	hurtmove(_sb,2.5)
+	--受伤动画
+	if ht>=0.5 then
+		_sb.state=_sb.allstate.idle
+		_sb.hp-=1
+	end
+end
+
+function death_do(_e,dt)
+	anim_sys("more",_e.sprs.death,_e,dt,.4,1)
+	if dt>=4 then
+		del(enemies,_e)
+	end
 end
 function nomalize(sb,speed1,speed2)--归一化
 	local respeed=0
@@ -395,6 +412,8 @@ end
 function checkwallside(x1,y1,x2,y2)
 	return not (fget(mget(x1,y1),0) and fget(mget(x2,y2),0))
 end
+
+
 function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移动
 	if coll_dire==1 then
 		z1357wmove(coll_dire,player,oneside)
@@ -444,9 +463,9 @@ function z1357wmove(_dire,_sb,side)--正wall
 	else
 		move(_sb)
 	end
-	move_anim(_sb)
+	_sb.move_t = anim_sys("more",_sb.sprs.move,_sb,_sb.move_t,.2,1)
 end
-function x2468wmove(_dire,_sb)--斜wall
+function x2468wmove(_dire,_sb,t)--斜wall
 	--墙：2468情况
 	local xie_data={
 		{1,2,3,4,8},
@@ -463,7 +482,7 @@ function x2468wmove(_dire,_sb)--斜wall
 	else--
 		move(_sb)
 	end
-	move_anim(_sb)
+	_sb.move_t = anim_sys("more",_sb.sprs.move,_sb,_sb.move_t,.2,1)
 end
 function edge_wmove(side,player)--斜墙边缘对角碰撞
 	data={{"left_up",2},{"right_up",4},{"right_down",6},{"left_down",8}}
@@ -508,3 +527,20 @@ function npc_cmove(player,colldire)
 		end
 	end
 end
+
+function check_hp(e)--检测敌人血量
+	if e.hp<=0 then
+		e.state=e.allstate.death
+	end
+end
+
+function check_p_dis(e,p)--检测玩家与敌人之间的距离
+	--当距离小于10时，返回true
+	return dist(e.x,e.y,p.x,p.y)<e.crange
+end
+
+function dist(x1,y1,x2,y2)--计算两点之间的距离
+	return sqrt((x1-x2)^2+(y1-y2)^2)
+end
+
+

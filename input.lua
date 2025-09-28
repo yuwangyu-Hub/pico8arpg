@@ -26,7 +26,7 @@ function input_mamenu()--主菜单输入
             _upd=update_game
             _drw=draw_game
         elseif mainmenu_cursor.count==2 then
-            --继续游戏
+            --游戏说明
         end
     end
 end

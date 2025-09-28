@@ -7,12 +7,11 @@ function makerole()--角色的创建模板
 	role.h=7
 	role.hp=0
 	role.spd={spx=0,spy=0} --加速度
-	role.speed=0
+	--role.speed=0
 	role.dire=0--方向
 	role.lastdire=5 --最后方向
 	role.hurtdire=0 --受伤方向
-	role.hurtmt=0 --受伤后的移动时间
-	role.move_t=0--用来绘制移动动画
+	 --受伤后的移动时间
 	role.sprs={}
 	role.frame=0
 	role.sprflip=false
@@ -42,7 +41,9 @@ function initializeplayer()
 	player.hp=8--当前满血
 	player.curhp=6--当前血量
 	player.speed =1
+	player.move_t=0--用来绘制移动动画
 	player.ishurt=false
+	player.hurtmt=0
 	player.wudi_t=0 --无敌时间
 	player.isroll = false -- 是否翻滚
 	player.rollspeed = 3 -- 翻滚速度
@@ -60,7 +61,7 @@ function initializeplayer()
 		attack = explodeval("8, 9,   10,  11,  12"), -- 攻击状态精灵序列
 		fall=explodeval("24,25,26"),
 		death=explodeval("27,28,29"),
-		hurt = 22, -- 受伤状态精灵
+		hurt = {22,40}, -- 受伤状态精灵
 		get = 23 -- 获取物品状态精灵（只一次）
 	}
 	player.frame = player.sprs.idle -- 初始动画帧
@@ -80,40 +81,44 @@ end
 --A：根据血量不同，分为1血和2血和3血的
 --普通B：先随机移动，后发现追击？
 --普通C：无视墙壁的攻击（飞行类）
-function createnemy_bigeye(_x,_y)--大眼怪
-	local beye = makerole()
-	beye.type="a"
-	beye.allstate = {
-		stay = "stay",
+function createnemy_urchin(_x,_y)--小海胆
+	local urchin = makerole()
+	urchin.name="urchin"
+	urchin.allstate = {
+		idle = "idle",
 		hurt="hurt",
 		death = "death"}
-	beye.state=beye.allstate.stay
-	beye.x = _x*8
-	beye.y = _y*8
-	beye.hp=1
-	beye.die_t=0
-	beye.sprs={
-		stay=105,
+	urchin.state=urchin.allstate.idle
+	urchin.x = _x*8
+	urchin.y = _y*8
+	urchin.hp=1
+	urchin.die_t=0
+	urchin.sprs={
+		idle=105,
+		hurt={105,121},
 		death=en_dspr
 		} -- 精灵编号
-	beye.frame=beye.sprs.stay
-	add(enemies,beye)
-	return beye
+	urchin.frame=urchin.sprs.idle
+	add(enemies,urchin)
+	return urchin
 end
 function createnemy_snake(_x,_y)--蛇
 	local snake = makerole()
-	snake.type="b"
+	snake.name="snake"
 	snake.allstate = {
-		ran_move = "ran_move",
+		idle="idle",
+		move = "move",
+		hurt="hurt",
 		death = "death"}
-	snake.state = snake.allstate.ran_move
+	snake.state = snake.allstate.idle
 	snake.x = _x*8
 	snake.y = _y*8
-	snake.hp=1
+	snake.hp=2
 	snake.speed = 0.5
-	snake.crange = 5 -- 检测范围
+	snake.lastdire=0
 	snake.sprs = {
 		move={98,99},
+		hurt={99,115},
 		death=en_dspr
 	} -- 精灵编号
 	snake.frame=snake.sprs.move[1]
@@ -122,34 +127,40 @@ function createnemy_snake(_x,_y)--蛇
 end
 function createnemy_slime(_x,_y)--史莱姆
 	local slime = makerole()
-	slime.type="d"
+	slime.name="slime"
 	slime.allstate = {
-		ran_move = "ran_move",
+		idle="idle",
+		charge="charge",--跳跃前的蓄力
+		jump = "jump",
+		hurt="hurt",
 		death = "death"}
-	slime.state=slime.allstate.ran_move
+	slime.state=slime.allstate.idle
 	slime.x = _x*8
 	slime.y = _y*8
-	--slime.w = 7
-	--slime.h = 7
 	slime.hp=1
 	slime.speed = 0.5
-	slime.crange = 5 -- 检测范围
-	slime.sprs= {96,97} -- 精灵编号
+	slime.crange = 20 -- 检测范围
+	slime.sprs= {
+		idle={96,117},
+		charge={97,113},--跳跃前的蓄力
+		jump=114,
+		hurt={96,112},
+		death=en_dspr
+		} -- 精灵编号
+	slime.frame=slime.sprs.idle[1]
 	add(enemies,slime)
 	return slime
 end
 
-function createnemy_bat(_x,_y)--蝙蝠
+function createnemy_bat(_x,_y)--小蝙蝠
 	local bat = makerole()
-	bat.type="f"
+	bat.name="bat"
 	bat.allstate = {
 		ran_move = "ran_move",
 		death = "death"}
 	bat.state=bat.allstate.ran_move
 	bat.x = _x*8
 	bat.y = _y*8
-	--bat.w = 7
-	--bat.h = 7
 	bat.hp=1
 	bat.speed = 0.5
 	bat.crange = 5 -- 检测范围
@@ -157,9 +168,9 @@ function createnemy_bat(_x,_y)--蝙蝠
 	add(enemies,bat)
 	return bat
 end
-function createnemy_spider(_x,_y)--蜘蛛
+function createnemy_spider(_x,_y)--小蜘蛛
 	local spider = makerole()
-	spider.type="b"
+	spider.name="spider"
 	spider.allstate = {
 		ran_move = "ran_move",
 		hurt="hurt",
@@ -167,8 +178,6 @@ function createnemy_spider(_x,_y)--蜘蛛
 	spider.state=spider.allstate.ran_move
 	spider.x = _x*8
 	spider.y = _y*8
-	--spider.w = 7
-	--spider.h = 7
 	spider.hp=1
 	spider.speed = 0.5
 	spider.crange = 5 -- 检测范围
@@ -178,7 +187,7 @@ function createnemy_spider(_x,_y)--蜘蛛
 end
 function createnemy_ghost(_x,_y)--幽灵
 	local ghost = makerole()
-	ghost.type="e"
+	ghost.name="ghost"
 	ghost.allstate = {
 		ran_move = "ran_move",
 		trace = "trace", -- 追踪
@@ -187,8 +196,6 @@ function createnemy_ghost(_x,_y)--幽灵
 	ghost.state=ghost.allstate.ran_move
 	ghost.x = _x*8
 	ghost.y = _y*8
-	--ghost.w = 7
-	--ghost.h = 7
 	ghost.hp=3
 	ghost.speed = 0.5
 	ghost.crange = 5 -- 检测范围
@@ -196,17 +203,15 @@ function createnemy_ghost(_x,_y)--幽灵
 	add(enemies,ghost)
 	return ghost
 end
-function createnemy_lizi(_x,_y) --栗子怪
+function createnemy_lizi(_x,_y) --丢栗怪
 	local lizi = makerole()
-	lizi.type="c-2"
+	lizi.name="lizi"
 	lizi.allstate = {
-		stay = "stay",
+		idle = "idle",
 		death = "death"}
-	lizi.state=lizi.allstate.stay
+	lizi.state=lizi.allstate.idle
 	lizi.x = _x*8
 	lizi.y = _y*8
-	--lizi.w = 7
-	--lizi.h = 7
 	lizi.hp=2
 	lizi.speed=1
 	lizi.crange=5 -- 检测范围
