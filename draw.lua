@@ -129,19 +129,15 @@ end
 function pull_anim(_sb)--玩家专有推动动画
     if _sb.dire != 0 then
         if _sb.dire % 2 == 1 then
-            _sb.frame = _sb.sprs.push[(_sb.dire + 1) / 2]
+           _sb.frame = _sb.sprs.push[(_sb.dire + 1) / 2]
         else
             _sb.frame = _sb.sprs.push[_sb.dire / 2]
         end
     end
 end
---动画系统：类型、动画帧/帧集、对象、时间
-function anim_sys(tpye,animframe,_sb,t,at,rate)--t:计时器，at:计时器加值，rate：动画速率
-    if tpye=="sig" then--单张
-        _sb.frame=animframe
-    elseif tpye=="more" then--多张
-        t+=at
-        _sb.frame=animframe[ceil(t*rate%#animframe)]
-        return t
-    end
+--多帧动画系统：动画帧/帧集、对象、时间
+function anim_sys(animframe,_sb,t,at,rate)--t:计时器，at:计时器加值，rate：动画速率
+    t+=at
+    _sb.frame=animframe[ceil(t*rate%#animframe)]
+    return t
 end

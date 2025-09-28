@@ -314,9 +314,8 @@ function hurtdo(_sb,ht)
 		_sb.hp-=1
 	end
 end
-
 function death_do(_e,dt)
-	anim_sys("more",_e.sprs.death,_e,dt,.4,1)
+	anim_sys(en_dspr,_e,dt,.4,1)
 	if dt>=4 then
 		del(enemies,_e)
 	end
@@ -463,7 +462,7 @@ function z1357wmove(_dire,_sb,side)--正wall
 	else
 		move(_sb)
 	end
-	_sb.move_t = anim_sys("more",_sb.sprs.move,_sb,_sb.move_t,.2,1)
+	_sb.move_t = anim_sys(_sb.sprs.move,_sb,_sb.move_t,.2,1)
 end
 function x2468wmove(_dire,_sb,t)--斜wall
 	--墙：2468情况
@@ -482,7 +481,7 @@ function x2468wmove(_dire,_sb,t)--斜wall
 	else--
 		move(_sb)
 	end
-	_sb.move_t = anim_sys("more",_sb.sprs.move,_sb,_sb.move_t,.2,1)
+	_sb.move_t = anim_sys(_sb.sprs.move,_sb,_sb.move_t,.2,1)
 end
 function edge_wmove(side,player)--斜墙边缘对角碰撞
 	data={{"left_up",2},{"right_up",4},{"right_down",6},{"left_down",8}}

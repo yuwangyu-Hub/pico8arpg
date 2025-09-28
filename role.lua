@@ -54,11 +54,11 @@ function initializeplayer()
 	-- 精灵帧定义
 	player.sprs = {
 		idle = 2, --  idle状态精灵
-		move = explodeval("1, 2, 3, 4"), -- 移动状态精灵序列
-		push = explodeval("13, 15, 13, 14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())
-		roll = explodeval("5, 6, 6, 7, 7, 5"), -- 翻滚状态精灵序列
+		move = explodeval("1,2,3,4"), -- 移动状态精灵序列
+		push = explodeval("13,15,13,14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())
+		roll = explodeval("5,6,6,7,7,5"), -- 翻滚状态精灵序列
 		       -- 3, 2/4, 1/5, 6/8, 7
-		attack = explodeval("8, 9,   10,  11,  12"), -- 攻击状态精灵序列
+		attack = explodeval("8,9,10,11,12"), -- 攻击状态精灵序列
 		fall=explodeval("24,25,26"),
 		death=explodeval("27,28,29"),
 		hurt = {22,40}, -- 受伤状态精灵
@@ -76,11 +76,7 @@ function initializesword()
 	return sword
 end
 --*角色：敌人和npc
---敌人分为三种：普通A、普通B、Boss
---普通A：随机移动
---A：根据血量不同，分为1血和2血和3血的
---普通B：先随机移动，后发现追击？
---普通C：无视墙壁的攻击（飞行类）
+
 function createnemy_urchin(_x,_y)--小海胆
 	local urchin = makerole()
 	urchin.name="urchin"
@@ -92,12 +88,10 @@ function createnemy_urchin(_x,_y)--小海胆
 	urchin.x = _x*8
 	urchin.y = _y*8
 	urchin.hp=1
-	urchin.die_t=0
 	urchin.sprs={
 		idle=105,
-		hurt={105,121},
-		death=en_dspr
-		} -- 精灵编号
+		hurt={105,121}
+		}
 	urchin.frame=urchin.sprs.idle
 	add(enemies,urchin)
 	return urchin
@@ -118,9 +112,8 @@ function createnemy_snake(_x,_y)--蛇
 	snake.lastdire=0
 	snake.sprs = {
 		move={98,99},
-		hurt={99,115},
-		death=en_dspr
-	} -- 精灵编号
+		hurt={99,115}
+	}
 	snake.frame=snake.sprs.move[1]
 	add(enemies,snake)
 	return snake
@@ -139,19 +132,17 @@ function createnemy_slime(_x,_y)--史莱姆
 	slime.y = _y*8
 	slime.hp=1
 	slime.speed = 0.5
-	slime.crange = 20 -- 检测范围
+	slime.crange = 20--检测范围
 	slime.sprs= {
 		idle={96,117},
 		charge={97,113},--跳跃前的蓄力
 		jump=114,
-		hurt={96,112},
-		death=en_dspr
-		} -- 精灵编号
+		hurt={96,112}}
 	slime.frame=slime.sprs.idle[1]
 	add(enemies,slime)
 	return slime
 end
-
+--[[
 function createnemy_bat(_x,_y)--小蝙蝠
 	local bat = makerole()
 	bat.name="bat"
@@ -168,6 +159,7 @@ function createnemy_bat(_x,_y)--小蝙蝠
 	add(enemies,bat)
 	return bat
 end
+
 function createnemy_spider(_x,_y)--小蜘蛛
 	local spider = makerole()
 	spider.name="spider"
@@ -220,4 +212,4 @@ function createnemy_lizi(_x,_y) --丢栗怪
 	return lizi
 end
 
---大海龟Boss：两阶段
+--大海龟Boss：两阶段]]

@@ -63,7 +63,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 				wallcoll_move(player,is_wall_coll_dire,oneside)
 			else ---------------------------------普通移动----------------------------
 				move(player)
-    			player.move_t = anim_sys("more",player.sprs.move,player,player.move_t,.2,1)
+    			player.move_t = anim_sys(player.sprs.move,player,player.move_t,.2,1)
 			end
 		end,
 		attack=function()
@@ -81,7 +81,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 					return 5
 				end
 			end
-			anim_sys("sig",player.sprs.attack[att_frame(player.lastdire)],player)
+			player.frame=player.sprs.attack[att_frame(player.lastdire)]
 			player.att_t+=.2
 			if player.att_t>2 then
 				player.isattack=false
@@ -95,7 +95,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 			roll(player,is_wall_coll_dire)
 			--动画相关
 			player.roll_t+=0.5
-			anim_sys("more",player.sprs.roll,player,player.roll_t,.5,1)
+			anim_sys(player.sprs.roll,player,player.roll_t,.5,1)
 		end,
 		hurt=function()
 			player.hurtmt+=0.1
@@ -105,7 +105,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 				wy.curhp-=1
 				player.state=player.allstate.idle	
 			end
-			anim_sys("more",player.sprs.hurt,player,player.hurtmt,.1,5)
+			anim_sys(player.sprs.hurt,player,player.hurtmt,.1,5)
 			setflrxy(player)
 			if wy.curhp<=0 then--检测玩家死亡
 				_upd=update_gover

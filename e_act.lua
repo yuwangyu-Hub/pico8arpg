@@ -1,6 +1,5 @@
 function create_enstate_urchin(en)--小海胆：静止不动，玩家触碰会掉血，攻击弹开死亡(爆炸)，一滴血
-	local hurtm_t=0
-	local die_t=0
+	local hurtm_t,die_t=0,0
 	return function(en)
 		local switchstate={
 			idle=function()
@@ -9,7 +8,7 @@ function create_enstate_urchin(en)--小海胆：静止不动，玩家触碰会�
 				check_hp(en)
 			end,
 			hurt=function()--受伤弹开
-                hurtm_t=anim_sys("more",en.sprs.hurt,en,hurtm_t,.1,10)
+                hurtm_t=anim_sys(en.sprs.hurt,en,hurtm_t,.1,10)
 				hurtdo(en,hurtm_t)
 				xypluspd(en)
 			end,
@@ -22,10 +21,7 @@ function create_enstate_urchin(en)--小海胆：静止不动，玩家触碰会�
 	end
 end
 function create_enstate_snake(en)--小蛇
-	local idle_t=0
-	local move_t=0
-	local hurtm_t=0
-	local die_t=0
+	local idle_t,move_t,hurtm_t,die_t=0,0,0,0
 	return function(en) --闭包
 		spr_flip(en)
 		local switchstate={
@@ -68,10 +64,10 @@ function create_enstate_snake(en)--小蛇
 				end
 				--move_t+=.2
 				xypluspd(en)
-				move_t = anim_sys("more",en.sprs.move,en,move_t,.2,1)
+				move_t = anim_sys(en.sprs.move,en,move_t,.2,1)
 			end,
 			hurt=function()
-                hurtm_t=anim_sys("more",en.sprs.hurt,en,hurtm_t,.1,10)
+                hurtm_t=anim_sys(en.sprs.hurt,en,hurtm_t,.1,10)
 				hurtdo(en,hurtm_t)
 				xypluspd(en)
 			end,
@@ -83,12 +79,8 @@ function create_enstate_snake(en)--小蛇
 		switchstate[en.state]()
 	end
 end
-
 function create_enstate_slime(en)--史莱姆
-	local charge_t=0
-	local idle_t=0
-	local hurtm_t=0
-	local die_t=0
+	local charge_t,idle_t,hurtm_t,die_t=0,0,0,0
 	local tx,ty
 	--跳跃相关变量，作为局部变量存储在闭包中
 	local jump_t = nil
@@ -102,7 +94,7 @@ function create_enstate_slime(en)--史莱姆
 				hurtm_t=0
 				charge_t=0
 				tx,ty=0,0
-				idle_t=anim_sys("more",en.sprs.idle,en,idle_t,.1,1)
+				idle_t=anim_sys(en.sprs.idle,en,idle_t,.1,1)
 				
 				--检测玩家位置靠近
 				if check_p_dis(en,wy) then
@@ -114,10 +106,7 @@ function create_enstate_slime(en)--史莱姆
 				check_hp(en)
 			end,
 			charge=function()
-				
-				debug="slime_charge"
-				
-				charge_t = anim_sys("more",en.sprs.charge,en,charge_t,.1,4)
+				charge_t = anim_sys(en.sprs.charge,en,charge_t,.1,4)
 				if charge_t>=2 then 
 					en.state=en.allstate.jump
 				end
@@ -130,8 +119,7 @@ function create_enstate_slime(en)--史莱姆
 				if jump_t == nil then
 					jump_t = 0
 					--记录初始位置和跳跃方向
-					jump_start_x = en.x
-					jump_start_y = en.y
+					jump_start_x,jump_start_y = en.x,en.y
 				end
 				--更新跳跃计时器
 				jump_t += 0.2
@@ -149,13 +137,12 @@ function create_enstate_slime(en)--史莱姆
 					--en.x = tx
 					--en.y = ty
 				end
-				
-				anim_sys("sig",en.sprs.jump,en)
+				en.frame=en.sprs.jump
 				check_en_hurt(sword,en,wy)
 				check_hp(en)
 			end,
 			hurt=function()
-				hurtm_t=anim_sys("more",en.sprs.hurt,en,hurtm_t,.1,10)
+				hurtm_t=anim_sys(en.sprs.hurt,en,hurtm_t,.1,10)
 				hurtdo(en,hurtm_t)
 				xypluspd(en)
 			end,
