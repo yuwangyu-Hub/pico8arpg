@@ -9,7 +9,7 @@
 
 ## 目录结构
 ```
-
+```
 0_art/#参考艺术资源
 0_LittleDemo/#实用小demo
 arpg.p8: pico-8文件
@@ -24,6 +24,7 @@ ui: 界面
 universal_tools: 通用函数库
 update: 具体回调
 README.md#项目说明文档
+```
 
 ```
 
