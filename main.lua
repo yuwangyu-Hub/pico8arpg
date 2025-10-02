@@ -7,6 +7,8 @@
 --割草掉落：金币、血量
 --获得增益道具后的边缘闪烁
 --------------当前任务-------------------
+--*debug:玩家受伤后不后退
+--*debug：玩家受伤后，移动方向bug
 --*史莱姆AI和动画
 --*敌人受伤后退，会穿越其他敌人的bug
 --*bug一次攻击只能伤害敌人一次
@@ -31,6 +33,10 @@ cb_line={}--碰撞盒
 debug=""
 debug1=""
 debug2=""
+debug3=""
+debug4=""
+debug5=""
+debug6=""
 
 
 function _init()
@@ -38,6 +44,7 @@ function _init()
 	enstate_slime = create_enstate_slime()
 	enstate_snake = create_enstate_snake()
 	enstate_urchin = create_enstate_urchin()
+	enstate_bat = create_enstate_bat()
 end
 function _update() 
 	_upd()
@@ -55,6 +62,10 @@ function startgame()
 end
 function printbug()
 	print(debug,10,10,5)
-	print(debug1)
-	print(debug2)
+	print(debug1,10,20,10)
+	print(debug2,10,30,10)
+	print(debug3,10,40,11)
+	print(debug4,10,50,11)
+	print(debug5,10,60,10)
+	print(debug6,10,70,10)
 end

@@ -9,6 +9,10 @@ function draw_game()
         for e in all (enemies) do
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12)
+            if e.crange then
+                --yuan
+                circ(e.x+e.w/2,e.y+e.h/2,e.crange,12)
+            end
         end
     end
     --[[if #obj>0 then--物体显示
@@ -24,7 +28,7 @@ function draw_game()
     if not sword.isappear then
         actdireshow(wy)
     end
-    --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
+    rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
     ui_show()--UI显示
 end
@@ -99,11 +103,12 @@ end
 function check_map_sth()
 	for i=0,15 do--行
 		for j=0,15 do--列
-            map_trans_en(i,j,105,createnemy_urchin)
-            map_trans_en(i,j,98,createnemy_snake)
-            map_trans_en(i,j,96,createnemy_slime)
-            map_trans_obj(i,j,113,1)
-            map_trans_obj(i,j,114,2)
+            map_trans_en(i,j,105,createnemy_urchin)--海胆
+            map_trans_en(i,j,98,createnemy_snake)--蛇
+            map_trans_en(i,j,96,createnemy_slime)--史莱姆
+            map_trans_en(i,j,101,createnemy_bat)--蝙蝠
+            --map_trans_obj(i,j,113,1)
+            --map_trans_obj(i,j,114,2)
 		end
 	end
 end

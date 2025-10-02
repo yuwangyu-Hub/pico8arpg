@@ -90,10 +90,11 @@ function create_enstate_slime(en)--史莱姆
 	return function(en)
 		local switchstate={
 			idle=function()
-				debug="slime_idle"
 				hurtm_t=0
 				charge_t=0
 				tx,ty=0,0
+				--因为slime的idle动画是循环播放的，所以这里需要判断是否需要播放idle动画
+				--所以需要有idle_t来记录idle动画的播放时间
 				idle_t=anim_sys(en.sprs.idle,en,idle_t,.1,1)
 				
 				--检测玩家位置靠近
@@ -133,16 +134,13 @@ function create_enstate_slime(en)--史莱姆
 				if jump_progress >= 1 then
 					jump_t = nil
 					en.state = en.allstate.idle
-					--确保精确到达目标位置
-					--en.x = tx
-					--en.y = ty
 				end
 				en.frame=en.sprs.jump
 				check_en_hurt(sword,en,wy)
 				check_hp(en)
 			end,
 			hurt=function()
-				hurtm_t=anim_sys(en.sprs.hurt,en,hurtm_t,.1,10)
+				hurtm_t=anim_sys(en.sprs.hurt,en,hurtm_t,.1,5)
 				hurtdo(en,hurtm_t)
 				xypluspd(en)
 			end,
@@ -154,10 +152,86 @@ function create_enstate_slime(en)--史莱姆
 		switchstate[en.state]()
 	end
 end
-function enstate_bat(en) 
-	local switchstate={
-		
-	}
+function create_enstate_bat(en) --小蝙蝠
+	local rest_t,fly_t, hurtm_t, die_t = 0, 0, 0, 0
+	local tx, ty=0,0
+	local angle = 0 -- 用于圆形飞行的角度
+	local radius = 0 -- 圆形飞行的半径
+	local fly_init = false -- 是否初始化了飞行参数
+	local fly_direction = 1 -- 飞行方向：1为顺时针，-1为逆时针
+	local bat_start_x, bat_start_y=0,0
+	--local cur_crange -- 当前检测范围
+	return function(en)
+		local switchstate={
+			idle=function()
+				hurtm_t=0
+				en.crange=30 -- 检测范围
+				fly_init = false --重置飞行初始化状态
+				if check_p_dis(en,wy) then
+					tx=wy.x
+					ty=wy.y
+					bat_start_x, bat_start_y = en.x, en.y-- 记录蝙蝠的初始位置（当发现玩家时的位置）
+					en.state=en.allstate.fly
+				end
+				en.frame=en.sprs.idle
+				check_en_hurt(sword, en, wy)
+				check_hp(en)
+			end,
+			fly=function()
+				--debug1="fly"
+				-- 初始化飞行参数
+				if not fly_init then
+					-- 计算初始半径（蝙蝠当时与玩家的距离）
+					radius = sqrt((bat_start_x - tx)^2 + (bat_start_y - ty)^2)
+					-- 计算初始角度（使用蝙蝠的初始位置）pico-8中:atan2(x,y)
+					angle = atan2(bat_start_x - tx,bat_start_y - ty)
+					-- 根据玩家相对于蝙蝠的位置决定飞行方向
+					-- 如果玩家在蝙蝠的左边，逆时针飞行（负方向）
+					-- 如果玩家在蝙蝠的右边，顺时针飞行（正方向）
+					if wy.x < en.x then
+						fly_direction = 1 -- 逆时针
+					else
+						fly_direction = -1 -- 顺时针
+					end
+					fly_init = true
+				end
+				-- 更新角度，实现旋转效果，结合bat.speed和飞行方向来控制
+				angle += 0.005 * en.speed * fly_direction
+				-- 计算圆形飞行的新位置
+				en.x = tx + radius * cos(angle)
+				en.y = ty + radius * sin(angle)
+				radius-=0.5 -- 控制飞行半径减小，使蝙蝠向玩家移动
+
+				if  radius<=2 then
+					en.state=en.allstate.rest
+				end
+				-- 循环播放飞行动画
+				fly_t = anim_sys(en.sprs.fly, en, fly_t, .2, 1)
+				check_en_hurt(sword, en, wy)
+				check_hp(en)
+			end,
+			rest=function()
+				rest_t+=.1
+				if rest_t>=1 then
+					en.state=en.allstate.idle
+					rest_t=0
+				end
+				en.frame=en.sprs.rest
+				check_en_hurt(sword, en, wy)
+				check_hp(en)
+			end,
+			hurt=function()
+				hurtm_t=anim_sys(en.sprs.hurt, en, hurtm_t, .1, 5)
+				hurtdo(en, hurtm_t)
+				xypluspd(en)
+			end,
+			death=function()
+				die_t+=.4
+				death_do(en, die_t)
+			end,
+		}
+		switchstate[en.state]()
+	end
 end
 function enstate_spider(en) 
 	local switchstate={

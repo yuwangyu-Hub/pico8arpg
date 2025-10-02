@@ -142,24 +142,31 @@ function createnemy_slime(_x,_y)--史莱姆
 	add(enemies,slime)
 	return slime
 end
---[[
 function createnemy_bat(_x,_y)--小蝙蝠
 	local bat = makerole()
 	bat.name="bat"
 	bat.allstate = {
-		ran_move = "ran_move",
+		idle="idle",
+		fly = "fly",
+		rest="rest",--休息
+		hurt="hurt",
 		death = "death"}
-	bat.state=bat.allstate.ran_move
+	bat.state=bat.allstate.idle
 	bat.x = _x*8
 	bat.y = _y*8
 	bat.hp=1
-	bat.speed = 0.5
-	bat.crange = 5 -- 检测范围
-	bat.sprs = {100,101} -- 精灵编号
+	bat.speed = 1
+	bat.crange = 30 -- 检测范围
+	bat.sprs = {
+		idle=101,
+		fly={100,101},
+		rest=101,--休息
+		hurt={100,116}
+	} -- 精灵编号
 	add(enemies,bat)
 	return bat
 end
-
+--[[
 function createnemy_spider(_x,_y)--小蜘蛛
 	local spider = makerole()
 	spider.name="spider"
