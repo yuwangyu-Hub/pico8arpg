@@ -42,8 +42,8 @@ function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
 
---物体与物体碰撞
-function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值
+--主角与物碰撞
+function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
 	local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
 	return coll_boxcheck(p.x-1,p.y-1,p.w+2,p.h+2,_sth.x,_sth.y,_sth.w,_sth.h)--将主角向外扩一个像素，来达到触碰即碰撞
 end
@@ -59,16 +59,12 @@ end
 --点与物体碰撞
 function c_pcheck(_e,_px,_py) --coll_pointcheck
 	local sx,sy,sw,sh=_e.x,_e.y,_e.w,_e.h
-	if _px>=sx and _px<=sx+sw and _py>=sy and _py<=sy+sh then
-		return true
-	else
-		return false
-	end
+	return _px>=sx and _px<=sx+sw and _py>=sy and _py<=sy+sh
 end
 --检测物体\角色在sb的哪个方向
-function checkdir(obj,sb)
-	local ox1,oy1,ox2,oy2=obj.x,obj.y,obj.x+obj.w,obj.y+obj.h
-	local sx1,sy1,sx2,sy2=sb.x,sb.y,sb.x+sb.w,sb.y+sb.h
+function checkdir(_ore,_sb)--obj or en
+	local ox1,oy1,ox2,oy2=_ore.x+2,_ore.y+2,_ore.x+_ore.w-4,_ore.y+_ore.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
+	local sx1,sy1,sx2,sy2=_sb.x+2,_sb.y+2,_sb.x+_sb.w-4,_sb.y+_sb.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
 	if sx1>ox2 and sy2>=oy1 and sy1<=oy2 then--物体在左边
 		return 1
 	elseif sx1>ox2 and sy1>oy2 then--物体在左上
@@ -129,7 +125,7 @@ function setspd_ydire(sb,spd)
 	if spd then uspd=spd end
 	sb.spd.spx,sb.spd.spy=0,diry[sb.dire]*uspd
 end
-function setflrxy(_sb)
+function setflrxy(_sb)--将 xy位置 四舍五入到最近的整数
 	_sb.x=flr(_sb.x)
 	_sb.y=flr(_sb.y)
 end 
@@ -157,7 +153,7 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 	if #enemies!=0 then --敌人
 		_e=findnearest_object(enemies, _sb)--检测最近的敌人
 		colldire_e=checkdir(_e,_sb)--敌人在主角的朝向
-		is_e_coll=ck_sthcoll(_e, _sb, 0, 0, 0, 0)
+		--is_e_coll=ck_sthcoll(_e, _sb, 0, 0, 0, 0) --是否撞上敌人
 	end
 	local zpoints={ --翻滚正角度的点(wall+en)
 		{x=_sb.x-value,y=_sb.y},--1
@@ -181,7 +177,7 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
     	{x=_sb.x+value,y=_sb.y+7+value},
     	{x=_sb.x-value,y=_sb.y+7-value}--8
 	}
-	local en_xp={
+	local en_xp={--
 		{x=_sb.x-value,y=_sb.y-value},--（2）
 		{x=_sb.x+7+value,y=_sb.y-value},--（4）
 		{x=_sb.x+7+value,y=_sb.y+7+value},--（6）
@@ -198,8 +194,12 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 			if dire%2==1 then--sb.dire1\3\5\7
 				return c_pcheck(_e,zpoints[dire].x,zpoints[dire].y) or 
 				c_pcheck(_e,zpoints[dire+1].x,zpoints[dire+1].y)
-			else --sb.dire2468 --*需要修改		
-				return c_pcheck(_e,zpoints[dire-1].x,zpoints[dire-1].y) or c_pcheck(_e,zpoints[dire].x,  zpoints[dire].y) or c_pcheck(_e,zpoints[dire+1].x,zpoints[dire+1].y) or c_pcheck(_e,zpoints[dire+2].x,zpoints[dire+2].y) or c_pcheck(_e,en_xp[dire/2].x,en_xp[dire/2].y)
+			else --sb.dire2468 --*需要优化	
+				return c_pcheck(_e,zpoints[dire-1].x,zpoints[dire-1].y) or 
+				c_pcheck(_e,zpoints[dire].x,  zpoints[dire].y) or 
+				c_pcheck(_e,zpoints[dire+1].x,zpoints[dire+1].y) or 
+				c_pcheck(_e,zpoints[dire+2].x,zpoints[dire+2].y) or 
+				c_pcheck(_e,en_xp[dire/2].x,en_xp[dire/2].y)
 			end
 		end
 	end
@@ -278,18 +278,28 @@ function roll(_sb,iwcd)--is_wall_coll_dire
 end
 function check_p_hurt(_sb)--玩家受伤,最近的敌人
 	for e in all(enemies) do
-		if ck_sthcoll(_sb,e,0,0,0,0) then
-			if checkdir(_sb,e)!=0 then
-				_sb.hurtdire=checkdir(_sb,e)
+		if e.name=="ghost" then
+			if e.state==e.allstate.fly then
+				if ck_sthcoll(_sb,e,0,0,0,0) then
+					if checkdir(_sb,e)!=0 then
+						_sb.hurtdire=checkdir(_sb,e)
+					end
+					return true
+				end
 			end
-			return true
+		else
+			if ck_sthcoll(_sb,e,0,0,0,0) then
+				if checkdir(_sb,e)!=0 then
+					_sb.hurtdire=checkdir(_sb,e)
+				end
+				return true
+			end
 		end
 	end
 end
 function check_en_hurt(_sword,_en,_p) --敌人受伤
 	if _sword.isappear and _en.state!=_en.allstate.hurt then
 		if ck_sthcoll(_en,_sword,0,0,0,0) then
-			--debug="enhurt"
 			if checkdir(_en,_p)!=0 then
 				_en.hurtdire=checkdir(_en,_p)
 			end
@@ -534,8 +544,7 @@ function check_hp(e)--检测敌人血量
 end
 
 function check_p_dis(e,p)--检测玩家与敌人之间的距离
-	--当距离小于10时，返回true
-	return dist(e.x,e.y,p.x,p.y)<e.crange
+	return dist(e.x+e.w/2,e.y+e.h/2,p.x+p.w/2,p.y+p.h/2)<e.crange
 end
 
 function dist(x1,y1,x2,y2)--计算两点之间的距离

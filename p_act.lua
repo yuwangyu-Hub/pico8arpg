@@ -4,10 +4,6 @@ function updatep_state(player)--状态机: 更新玩家状态
 	if player.state== player.allstate.idle or player.state== player.allstate.move then
 		input_direct_sys(player)
 	end
-	--角色移动加成（翻滚或移动或推）
-	if player.dire>0 and player.state!=player.allstate.attack then
-		xypluspd(player)
-	end
 	local near_o,colldire_o,is_o_coll
 	if #obj!=0 then --物体不为空
 		near_o=findnearest_object(obj, player)--检测最近的物体
@@ -65,6 +61,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 				move(player)
     			player.move_t = anim_sys(player.sprs.move,player,player.move_t,.2,1)
 			end
+			xypluspd(player)
 		end,
 		attack=function()
 			setspd_0(player)
@@ -96,17 +93,19 @@ function updatep_state(player)--状态机: 更新玩家状态
 			--动画相关
 			player.roll_t+=0.5
 			anim_sys(player.sprs.roll,player,player.roll_t,.5,1)
+			xypluspd(player)
 		end,
 		hurt=function()
 			player.hurtmt+=0.1
 			hurtmove(player,1)
-			if player.hurtmt>=0.7 then
+			if player.hurtmt>=1 then
 				player.hurtmt=0
 				wy.curhp-=1
 				player.state=player.allstate.idle	
 			end
 			anim_sys(player.sprs.hurt,player,player.hurtmt,.1,5)
 			setflrxy(player)
+			xypluspd(player)
 			if wy.curhp<=0 then--检测玩家死亡
 				_upd=update_gover
 				_drw=draw_gover

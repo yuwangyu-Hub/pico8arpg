@@ -1,3 +1,5 @@
+--*创建模版优化
+--[[
 function makerole()--角色的创建模板
 	local role={}
 	role.allstate={}
@@ -16,14 +18,52 @@ function makerole()--角色的创建模板
 	role.frame=0
 	role.sprflip=false
 	return role
+end]]
+function makerole(name,x,y,hp,speed,sprs,state)--角色的创建模板
+	local role={}
+	role.name=name
+	role.allstate=state
+	role.x=x
+	role.y=y
+	role.w=7
+	role.h=7
+	role.hp=hp
+	role.speed=speed
+	role.spd={spx=0,spy=0} --加速度
+	--role.speed=0
+	role.dire=0--方向
+	role.lastdire=5 --最后方向?
+	role.hurtdire=0 --受伤方向
+	 --受伤后的移动时间
+	role.sprs=sprs
+	role.frame=0
+	role.sprflip=false
+	role.idle_t=0
+	role.hurtm_t=0
+	role.die_t=0
+	role.move_t=0
+	
+
+	return role
 end
+
 -- 初始化玩家数据
 -- @return 玩家对象
 function initializeplayer()
-	local player = makerole()
-	-- 玩家状态常量
-	player.allstate = {
-		idle = "idle",--在状态机中，识别为字符串
+	local player = makerole("p",
+		70,70,8,1,
+		{idle = 2, --  idle状态精灵
+		move = explodeval("1,2,3,4"), -- 移动状态精灵序列
+		push = explodeval("13,15,13,14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())
+		roll = explodeval("5,6,6,7,7,5"), -- 翻滚状态精灵序列
+		       -- 3, 2/4, 1/5, 6/8, 7
+		attack = explodeval("8,9,10,11,12"), -- 攻击状态精灵序列
+		fall=explodeval("24,25,26"),
+		death=explodeval("27,28,29"),
+		hurt = {22,40}, -- 受伤状态精灵
+		get = 23 -- 获取物品状态精灵（只一次）
+		},
+		{idle = "idle",--在状态机中，识别为字符串
 		move = "move",
 		attack = "attack",
 		jump = "jump", -- 跳跃（需获取道具）
@@ -31,16 +71,12 @@ function initializeplayer()
 		roll = "roll",
 		push = "push",
 		hurt = "hurt",
-		death = "death"
-	}
+		death = "death"})
+	-- 玩家状态常量
 	player.state = player.allstate.idle
-	player.x = 88
-	player.y = 60
 	player.spr_cx=0--精灵和真正坐标位置的差值
 	player.spr_cy=0
-	player.hp=8--当前满血
 	player.curhp=6--当前血量
-	player.speed =1
 	player.move_t=0--用来绘制移动动画
 	player.ishurt=false
 	player.hurtmt=0
@@ -52,7 +88,7 @@ function initializeplayer()
 	player.isattack = false -- 是否攻击
 	player.att_t = 0 -- 攻击计时器
 	-- 精灵帧定义
-	player.sprs = {
+	--[[player.sprs = {
 		idle = 2, --  idle状态精灵
 		move = explodeval("1,2,3,4"), -- 移动状态精灵序列
 		push = explodeval("13,15,13,14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())
@@ -63,160 +99,161 @@ function initializeplayer()
 		death=explodeval("27,28,29"),
 		hurt = {22,40}, -- 受伤状态精灵
 		get = 23 -- 获取物品状态精灵（只一次）
-	}
+	}]]
 	player.frame = player.sprs.idle -- 初始动画帧
 	return player
 end
 -- 初始化武器数据 武器对象
 function initializesword()
-	local sword = makerole()
+	sword = {}
+	sword.x=0
+	sword.y=0
+	sword.w=7
+	sword.h=7
 	sword.sprx=explodeval("-7,-6,2,8,8,8,2,-6")	 --1 2 3 4 5 6 7 8
 	sword.spry=explodeval("2,-6,-7,-6,2,8,8,8")
 	sword.isappear = false -- 是否显示
 	return sword
 end
 --*角色：敌人和npc
-
 function createnemy_urchin(_x,_y)--小海胆
-	local urchin = makerole()
-	urchin.name="urchin"
-	urchin.allstate = {
-		idle = "idle",
-		hurt="hurt",
-		death = "death"}
-	urchin.state=urchin.allstate.idle
-	urchin.x = _x*8
-	urchin.y = _y*8
-	urchin.hp=1
-	urchin.sprs={
-		idle=105,
+	local urchin = makerole("urchin", 
+		_x*8,_y*8,1,0,
+		{idle=105,
 		hurt={105,121}
-		}
+		},
+		{idle = "idle",
+		hurt="hurt",
+		death = "death"})
+	urchin.state=urchin.allstate.idle
 	urchin.frame=urchin.sprs.idle
 	add(enemies,urchin)
 	return urchin
 end
 function createnemy_snake(_x,_y)--蛇
-	local snake = makerole()
-	snake.name="snake"
-	snake.allstate = {
-		idle="idle",
+	local snake = makerole("snake", 
+		_x*8,_y*8,2,0.5,
+		{idle=99,
+		move={98,99},
+		hurt={99,115}},
+		{idle = "idle",
 		move = "move",
 		hurt="hurt",
-		death = "death"}
-	snake.state = snake.allstate.idle
-	snake.x = _x*8
-	snake.y = _y*8
-	snake.hp=2
-	snake.speed = 0.5
-	snake.lastdire=0
-	snake.sprs = {
-		move={98,99},
-		hurt={99,115}
-	}
-	snake.frame=snake.sprs.move[1]
-	add(enemies,snake)
+		death = "death"})
+		snake.state = snake.allstate.idle
+		snake.frame=snake.sprs.idle
+		snake.lastdire=0
+		add(enemies,snake)
 	return snake
 end
+function createnemy_spider(_x,_y)--小蜘蛛
+	local spider = makerole("spider",
+		_x*8,_y*8,1,0.5,
+		{idle=103,
+		move={102,103},
+		hurt={103,104}},
+		{idle = "idle",
+		move = "move",
+		hurt="hurt",
+		death = "death"})
+		spider.state=spider.allstate.idle
+		spider.frame=spider.sprs.idle
+		add(enemies,spider)
+	return spider
+end
 function createnemy_slime(_x,_y)--史莱姆
-	local slime = makerole()
-	slime.name="slime"
-	slime.allstate = {
-		idle="idle",
+	local slime = makerole("slime", 
+		_x*8,_y*8,1,0.5,
+		{idle={96,117},
+		charge={97,113},--跳跃前的蓄力
+		jump=114,
+		hurt={96,112}},
+		{idle = "idle",
 		charge="charge",--跳跃前的蓄力
 		jump = "jump",
 		hurt="hurt",
-		death = "death"}
+		death = "death"})
+	slime.charge_t=0
+	slime.tx,slime.ty=0,0
+	slime.jump_t = nil
+	slime.jump_start_x=0
+	slime.jump_start_y=0 --跳跃初始位置
+	slime.jump_dir_x=0
+	slime.jump_dir_y=0--跳跃方向
+	slime.jump_dist=0--跳跃距离
 	slime.state=slime.allstate.idle
-	slime.x = _x*8
-	slime.y = _y*8
-	slime.hp=1
-	slime.speed = 0.5
-	slime.crange = 20--检测范围
-	slime.sprs= {
-		idle={96,117},
-		charge={97,113},--跳跃前的蓄力
-		jump=114,
-		hurt={96,112}}
 	slime.frame=slime.sprs.idle[1]
+	slime.crange = 20--检测范围
 	add(enemies,slime)
 	return slime
 end
 function createnemy_bat(_x,_y)--小蝙蝠
-	local bat = makerole()
-	bat.name="bat"
-	bat.allstate = {
-		idle="idle",
+	local bat = makerole("bat",
+		_x*8,_y*8,1,1,
+		{idle=101,
+		fly={100,101},
+		rest=101,
+		hurt={100,116}},
+		{idle = "idle",
+		fly = "fly",
+		rest="rest",
+		hurt="hurt",
+		death = "death"})
+
+	bat.crange = 25 -- 检测范围
+	bat.rest_t,bat.fly_t= 0,0
+	bat.tx, bat.ty=0,0
+	bat.angle,bat.radius=0,0 -- 用于圆形飞行的角度-- 圆形飞行的半径
+	bat.fly_init,bat.fly_direction = false, 1 --是否初始化了飞行参数--飞行方向：1为顺时针，-1为逆时针
+	bat.bat_start_x, bat.bat_start_y=0,0
+
+	bat.state=bat.allstate.idle
+	bat.frame=bat.sprs.idle
+	add(enemies,bat)
+	return bat
+end
+function createnemy_ghost(_x,_y)--幽灵
+	local ghost = makerole("ghost",
+		_x*8,_y*8,1,0.3, --缩小幽灵在不出现时的体积，避免玩家触碰
+		{disapr=126,--空白
+		apr={126,122,123},--出现
+		fly={123,124},
+		hurt={123,125}},
+		{disapr = "disapr",--消失/隐藏
+		apr="apr",--出现
 		fly = "fly",
 		rest="rest",--休息
 		hurt="hurt",
 		death = "death"}
-	bat.state=bat.allstate.idle
-	bat.x = _x*8
-	bat.y = _y*8
-	bat.hp=1
-	bat.speed = 1
-	bat.crange = 30 -- 检测范围
-	bat.sprs = {
-		idle=101,
-		fly={100,101},
-		rest=101,--休息
-		hurt={100,116}
-	} -- 精灵编号
-	add(enemies,bat)
-	return bat
-end
---[[
-function createnemy_spider(_x,_y)--小蜘蛛
-	local spider = makerole()
-	spider.name="spider"
-	spider.allstate = {
-		ran_move = "ran_move",
-		hurt="hurt",
-		death = "death"}
-	spider.state=spider.allstate.ran_move
-	spider.x = _x*8
-	spider.y = _y*8
-	spider.hp=1
-	spider.speed = 0.5
-	spider.crange = 5 -- 检测范围
-	spider.sprs={102,103} -- 精灵编号
-	add(enemies,spider)
-	return spider
-end
-function createnemy_ghost(_x,_y)--幽灵
-	local ghost = makerole()
-	ghost.name="ghost"
-	ghost.allstate = {
-		ran_move = "ran_move",
-		trace = "trace", -- 追踪
-		hurt="hurt",
-		death = "death"}
-	ghost.state=ghost.allstate.ran_move
-	ghost.x = _x*8
-	ghost.y = _y*8
-	ghost.hp=3
-	ghost.speed = 0.5
-	ghost.crange = 5 -- 检测范围
-	ghost.sprs= {104} -- 精灵编号
+	)
+	ghost.apr_t=0
+	ghost.fly_t=0
+	ghost.rest_t=0
+	ghost.crange = 10 -- 检测范围
+	ghost.state=ghost.allstate.disapr
+	ghost.frame=ghost.sprs.disapr
 	add(enemies,ghost)
 	return ghost
 end
+
 function createnemy_lizi(_x,_y) --丢栗怪
-	local lizi = makerole()
-	lizi.name="lizi"
-	lizi.allstate = {
-		idle = "idle",
-		death = "death"}
+	local lizi = makerole("lizi",
+		_x*8,_y*8,2,.5,
+		{idle={89,106,108},
+		move={{89,90},{106,107},{108,109}},
+		hurt={{118,89},{119,106},{120,108}}},
+		{idle = "idle",
+		move = "move",
+		atk="atk",
+		hurt="hurt",
+		death = "death"})
 	lizi.state=lizi.allstate.idle
-	lizi.x = _x*8
-	lizi.y = _y*8
-	lizi.hp=2
-	lizi.speed=1
-	lizi.crange=5 -- 检测范围
+	lizi.frame=lizi.sprs.idle[1]
+	lizi.dire=3--朝上
+	lizi.cubeline=5 -- 检测矩形视线
 	lizi.sprs={106,107,108,109}--精灵编号
 	add(enemies,lizi)
 	return lizi
 end
 
---大海龟Boss：两阶段]]
+--大海龟Boss：两阶段

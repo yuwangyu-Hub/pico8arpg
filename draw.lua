@@ -9,8 +9,8 @@ function draw_game()
         for e in all (enemies) do
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12)
-            if e.crange then
-                --yuan
+           if e.crange then
+                --圆检测范围
                 circ(e.x+e.w/2,e.y+e.h/2,e.crange,12)
             end
         end
@@ -28,7 +28,7 @@ function draw_game()
     if not sword.isappear then
         actdireshow(wy)
     end
-    rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
+    --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
     ui_show()--UI显示
 end
@@ -103,27 +103,30 @@ end
 function check_map_sth()
 	for i=0,15 do--行
 		for j=0,15 do--列
-            map_trans_en(i,j,105,createnemy_urchin)--海胆
-            map_trans_en(i,j,98,createnemy_snake)--蛇
-            map_trans_en(i,j,96,createnemy_slime)--史莱姆
-            map_trans_en(i,j,101,createnemy_bat)--蝙蝠
-            --map_trans_obj(i,j,113,1)
-            --map_trans_obj(i,j,114,2)
+            map_trans_en(i,j,105,createnemy_urchin,0)--海胆
+            map_trans_en(i,j,98,createnemy_snake,0)--蛇
+            map_trans_en(i,j,96,createnemy_slime,0)--史莱姆
+            map_trans_en(i,j,101,createnemy_bat,0)--蝙蝠
+            map_trans_en(i,j,103,createnemy_spider,0)--小蜘蛛
+            map_trans_en(i,j,73,createnemy_ghost,74)--幽灵
+            map_trans_en(i,j,106,createnemy_lizi,0)--丢栗怪
+            --map_trans_obj(i,j,113,1,0)
+            --map_trans_obj(i,j,114,2,0)
 		end
 	end
 end
-function map_trans_en(i,j,map_num,func)
+function map_trans_en(i,j,map_num,func,setile)
     local num=mget(i,j)
     if num==map_num then
         func(i,j)
-        mset(i,j,0)
+        mset(i,j,setile)
     end
 end
-function map_trans_obj(i,j,map_num,index)
+function map_trans_obj(i,j,map_num,index,setile)
     local num=mget(i,j)
     if num==map_num then
         makeobj(index,i*8,j*8,7,7,0,0,0,0)--coin
-        mset(i,j,0)
+        mset(i,j,setile)
     end
 end
 function draw_p(_sb,cx,cy)--绘制主角：cx和cy代表差值

@@ -26,9 +26,7 @@ function update_game()--游戏进行时
 	end
 end
 function en_update(e,name,func)
-	if e.name==name then
-		func(e)
-	end
+	if e.name==name then func(e) end
 end
 function update_mamenu()--菜单
 	blinkt+=1
