@@ -240,7 +240,7 @@ function createnemy_lizi(_x,_y) --丢栗怪
 	local lizi = makerole("lizi",
 		_x*8,_y*8,2,.5,
 		{idle={89,106,108},
-		move={{89,90},{106,107},{108,109}},
+		move={{108,109},{89,90},{108,109},{106,107}},
 		hurt={{118,89},{119,106},{120,108}}},
 		{idle = "idle",
 		move = "move",
@@ -251,7 +251,6 @@ function createnemy_lizi(_x,_y) --丢栗怪
 	lizi.frame=lizi.sprs.idle[1]
 	lizi.dire=3--朝上
 	lizi.cubeline=5 -- 检测矩形视线
-	lizi.sprs={106,107,108,109}--精灵编号
 	add(enemies,lizi)
 	return lizi
 end

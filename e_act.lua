@@ -348,16 +348,39 @@ function enstate_lizi(en) --丢栗怪
 		end,
 		move=function()
 			debug="move"
+			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
+			local d=(en.dire+1)/2 --获取方向的索引
 			check_en_hurt(sword,en,wy)
-			en.move_t+=.1
+			local wall_dire,_=check_wall_iswalk(en)--检测到朝墙壁
+			if wall_dire!=0 then--如果靠近墙
+				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
+					setspd_0(en)
+					en.move_t=0
+					en.state=en.allstate.idle
+				else
+					en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
+				end
+			else--不靠近墙,随机移动
+				en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
+			end
 			--四方向移动
-			en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
-			xypluspd(en)
 			
+			if en.dire==1 then
+				en.sprflip=false
+			elseif en.dire==5 then
+				en.sprflip=true
+			end
+			xypluspd(en)
+			--时间到了切换idle状态
+			en.move_t+=0.1
 			if en.move_t>=4 then
 				en.move_t=0
 				en.state=en.allstate.idle
 			end
+			anim_sys(en.sprs.move[(en.dire+1)/2],en,en.move_t,.1,1)
+			--检测到玩家，切换射击状态
+			
+
 		end,
 		atk=function()
 			debug="atk"
