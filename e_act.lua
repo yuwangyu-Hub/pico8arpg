@@ -2,7 +2,9 @@ function enstate_urchin(en)--小海胆：静止不动，玩家触碰会掉血，
 	local switchstate={
 		idle=function()
 			en.hurtm_t=0
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		hurt=function()--受伤弹开
@@ -37,11 +39,15 @@ function enstate_snake(en)--小蛇
 				end
 			end
 			en.frame=en.sprs.idle
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		move=function()
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
@@ -89,7 +95,9 @@ function enstate_slime(en)--史莱姆
 				en.ty=wy.y
 				en.state=en.allstate.charge
 			end
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		charge=function() --蓄力
@@ -97,7 +105,9 @@ function enstate_slime(en)--史莱姆
 			if en.charge_t>=2 then 
 				en.state=en.allstate.jump
 			end
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		jump=function()
@@ -120,7 +130,9 @@ function enstate_slime(en)--史莱姆
 				en.state = en.allstate.idle
 			end
 			en.frame=en.sprs.jump
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		hurt=function()
@@ -147,7 +159,9 @@ function enstate_bat(en) --小蝙蝠
 				en.state=en.allstate.fly
 			end
 			en.frame=en.sprs.idle
-			check_en_hurt(sword, en, wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		fly=function()
@@ -180,7 +194,9 @@ function enstate_bat(en) --小蝙蝠
 			end
 			-- 循环播放飞行动画
 			fly_t = anim_sys(en.sprs.fly, en, fly_t, .2, 1)
-			check_en_hurt(sword, en, wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		rest=function()
@@ -191,7 +207,9 @@ function enstate_bat(en) --小蝙蝠
 				rest_t=0
 			end
 			en.frame=en.sprs.rest
-			check_en_hurt(sword, en, wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		hurt=function()
@@ -206,7 +224,6 @@ function enstate_bat(en) --小蝙蝠
 	}
 	switchstate[en.state]()
 end
-
 function enstate_spider(en) --小蜘蛛
 	spr_flip(en)
 	local switchstate={
@@ -227,11 +244,15 @@ function enstate_spider(en) --小蜘蛛
 				end
 			end
 			en.frame=en.sprs.idle
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		move=function()
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
@@ -297,7 +318,9 @@ function enstate_ghost(en)
 			else
 				en.sprflip=false
 			end
-			check_en_hurt(sword, en, wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+			end
 			check_hp(en)
 		end,
 		rest=function()
@@ -324,10 +347,13 @@ function enstate_ghost(en)
 	}
 	switchstate[en.state]()
 end
+
 function enstate_lizi(en) --丢栗怪
 	local switchstate={
 		idle=function()
-			debug="idle"
+			en.hurtm_t=0
+			en.move_t=0
+			en.hurtframe=0
 			en.idle_t+=.1
 			::redo:: local dire=rnd({1,3,5,7})
 			if en.idle_t>=4 then
@@ -343,35 +369,58 @@ function enstate_lizi(en) --丢栗怪
 			debug1=en.dire
 			debug2=en.lastdire
 							
-			check_en_hurt(sword,en,wy)
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+				en.hurtframe=(en.dire+1)/2
+			end
 			check_hp(en)
 		end,
 		move=function()
-			debug="move"
-			check_en_hurt(sword,en,wy)
-			en.move_t+=.1
+			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
+			local d=(en.dire+1)/2 --获取方向的索引
+			if check_en_hurt(sword,en,wy) then
+				en.state=en.allstate.hurt
+				en.hurtframe=(en.dire+1)/2
+			end
+			local wall_dire,_=check_wall_iswalk(en)--检测到朝墙壁
+			if wall_dire!=0 then--如果靠近墙
+				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
+					setspd_0(en)
+					en.move_t=0
+					en.state=en.allstate.idle
+				else
+					en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
+				end
+			else--不靠近墙,随机移动
+				en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
+			end
 			--四方向移动
-			en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
-			xypluspd(en)
 			
+			if en.dire==1 then
+				en.sprflip=false
+			elseif en.dire==5 then
+				en.sprflip=true
+			end
+			xypluspd(en)
+			--时间到了切换idle状态
+			en.move_t+=0.1
 			if en.move_t>=4 then
 				en.move_t=0
 				en.state=en.allstate.idle
 			end
-		end,
-		atk=function()
-			debug="atk"
-			check_en_hurt(sword,en,wy)
+			anim_sys(en.sprs.move[(en.dire+1)/2],en,en.move_t,.1,1)
+			--检测到玩家，切换射击状态
 			
 		end,
+		atk=function()
+			check_en_hurt(sword,en,wy)
+		end,
 		hurt=function()
-			debug="hurt"
-			en.hurtm_t=anim_sys(en.sprs.hurt,en,en.hurtm_t,.1,10)
+			en.hurtm_t=anim_sys(en.sprs.hurt[en.hurtframe],en,en.hurtm_t,.1,8)
 			hurtdo(en,en.hurtm_t)
 			xypluspd(en)
 		end,
 		death=function()
-			debug="death"
 			en.die_t+=.4
 			death_do(en, en.die_t)
 		end,

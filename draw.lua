@@ -1,4 +1,6 @@
 
+--token:7624
+
 function draw_game()
     --主角影子(跳跃区分)
     spr(39,wy.x,wy.y+6,1,1,wy.sprflip)
@@ -103,19 +105,63 @@ end
 function check_map_sth()
 	for i=0,15 do--行
 		for j=0,15 do--列
-            map_trans_en(i,j,105,createnemy_urchin,0)--海胆
-            map_trans_en(i,j,98,createnemy_snake,0)--蛇
-            map_trans_en(i,j,96,createnemy_slime,0)--史莱姆
-            map_trans_en(i,j,101,createnemy_bat,0)--蝙蝠
-            map_trans_en(i,j,103,createnemy_spider,0)--小蜘蛛
-            map_trans_en(i,j,73,createnemy_ghost,74)--幽灵
-            map_trans_en(i,j,106,createnemy_lizi,0)--丢栗怪
+            map_trrrans(i,j)
+            --map_trans_en(i,j,105,createnemy_urchin,0)--海胆
+            --map_trans_en(i,j,98,createnemy_snake,0)--蛇
+            --map_trans_en(i,j,96,createnemy_slime,0)--史莱姆
+            --map_trans_en(i,j,101,createnemy_bat,0)--蝙蝠
+            --map_trans_en(i,j,103,createnemy_spider,0)--小蜘蛛
+            --map_trans_en(i,j,73,createnemy_ghost,74)--幽灵
+            --map_trans_en(i,j,106,createnemy_lizi,0)--丢栗怪
             --map_trans_obj(i,j,113,1,0)
             --map_trans_obj(i,j,114,2,0)
 		end
 	end
 end
-function map_trans_en(i,j,map_num,func,setile)
+function map_trrrans(i,j)
+    local num=mget(i,j)
+    switch(num,{
+        [105]=function() --海胆
+            createnemy_urchin(i,j)
+            mset(i,j,0)
+        end,
+        [98]=function()--蛇
+            createnemy_snake(i,j)
+            mset(i,j,0)
+        end,
+        [96]=function()--史莱姆
+            createnemy_slime(i,j)
+            mset(i,j,0)
+        end,
+        [101]=function()--小蝙蝠
+            createnemy_bat(i,j)
+            mset(i,j,0)
+        end,
+        [103]=function()--小蜘蛛
+            createnemy_spider(i,j)
+            mset(i,j,74)
+        end,
+        [73]=function()--小幽灵
+            createnemy_ghost(i,j)
+            mset(i,j,0)
+        end,
+        [106]=function()--丢栗怪
+            createnemy_lizi(i,j)
+            mset(i,j,0)
+        end,}
+    )
+    
+
+end
+
+function switch(num, cases)
+    -- 如果 cases 里能找到，就执行对应函数
+    if cases[num] then
+        return cases[num]()          -- 把结果返回，方便链式调用
+    end
+end
+--[[
+function map_trans_en(i,j,map_num,func,setile)--地图转换为敌人
     local num=mget(i,j)
     if num==map_num then
         func(i,j)
@@ -128,7 +174,9 @@ function map_trans_obj(i,j,map_num,index,setile)
         makeobj(index,i*8,j*8,7,7,0,0,0,0)--coin
         mset(i,j,setile)
     end
-end
+end]]
+
+
 function draw_p(_sb,cx,cy)--绘制主角：cx和cy代表差值
 	local x,y=_sb.x+cx,_sb.y+cy
 	spr(_sb.frame, x, y, 1, 1, _sb.sprflip)
@@ -144,7 +192,7 @@ function pull_anim(_sb)--玩家专有推动动画
     end
 end
 --多帧动画系统：动画帧/帧集、对象、时间
-function anim_sys(animframe,_sb,t,at,rate)--t:计时器，at:计时器加值，rate：动画速率
+function anim_sys(animframe,_sb,t,at,rate)--t:计时器，at:计时器增量，rate：动画速率
     t+=at
     _sb.frame=animframe[ceil(t*rate%#animframe)]
     return t

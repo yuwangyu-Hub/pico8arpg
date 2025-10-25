@@ -303,7 +303,7 @@ function check_en_hurt(_sword,_en,_p) --敌人受伤
 			if checkdir(_en,_p)!=0 then
 				_en.hurtdire=checkdir(_en,_p)
 			end
-			_en.state=_en.allstate.hurt
+			--_en.state=_en.allstate.hurt
 			return true
 		end
 	end
@@ -550,5 +550,6 @@ end
 function dist(x1,y1,x2,y2)--计算两点之间的距离
 	return sqrt((x1-x2)^2+(y1-y2)^2)
 end
+
 
 

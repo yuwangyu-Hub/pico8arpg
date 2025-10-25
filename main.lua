@@ -52,6 +52,5 @@ function startgame()
 end
 function printbug()
 	print(debug,10,10,10)
-	print(debug1,10,20,10)
-	print(debug2,10,30,10)
+	
 end

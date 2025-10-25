@@ -1,24 +1,3 @@
---*创建模版优化
---[[
-function makerole()--角色的创建模板
-	local role={}
-	role.allstate={}
-	role.x=0
-	role.y=0
-	role.w=7
-	role.h=7
-	role.hp=0
-	role.spd={spx=0,spy=0} --加速度
-	--role.speed=0
-	role.dire=0--方向
-	role.lastdire=5 --最后方向
-	role.hurtdire=0 --受伤方向
-	 --受伤后的移动时间
-	role.sprs={}
-	role.frame=0
-	role.sprflip=false
-	return role
-end]]
 function makerole(name,x,y,hp,speed,sprs,state)--角色的创建模板
 	local role={}
 	role.name=name
@@ -238,20 +217,21 @@ end
 
 function createnemy_lizi(_x,_y) --丢栗怪
 	local lizi = makerole("lizi",
-		_x*8,_y*8,2,.5,
+		_x*8,_y*8,10,.5,
 		{idle={89,106,108},
-		move={{89,90},{106,107},{108,109}},
-		hurt={{118,89},{119,106},{120,108}}},
+		move={{108,109},{89,90},{108,109},{106,107}},--1357
+		hurt={{108,120},{89,118},{108,120},{106,119}}--1357
+		},
 		{idle = "idle",
 		move = "move",
 		atk="atk",
 		hurt="hurt",
 		death = "death"})
 	lizi.state=lizi.allstate.idle
+	lizi.hurtframe=0
 	lizi.frame=lizi.sprs.idle[1]
 	lizi.dire=3--朝上
 	lizi.cubeline=5 -- 检测矩形视线
-	lizi.sprs={106,107,108,109}--精灵编号
 	add(enemies,lizi)
 	return lizi
 end
