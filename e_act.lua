@@ -414,7 +414,6 @@ function enstate_lizi(en) --丢栗怪
 				en.state=en.allstate.idle
 			end
 			anim_sys(en.sprs.move[(en.dire+1)/2],en,en.move_t,.1,1)
-			
 		end,
 		atk=function()
 			debug="atk"
@@ -429,7 +428,6 @@ function enstate_lizi(en) --丢栗怪
 			elseif en.dire ==7 then
 
 			end
-
 		end,
 		hurt=function()
 			en.hurtm_t=anim_sys(en.sprs.hurt[en.hurtframe],en,en.hurtm_t,.1,8)
