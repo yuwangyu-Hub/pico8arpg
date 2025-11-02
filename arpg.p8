@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
 #include universal_tools.lua
+#include compressed.lua
 #include main.lua
 #include role.lua
 #include ui.lua
@@ -11,7 +12,7 @@ __lua__
 #include p_act.lua
 #include obj_item.lua
 #include e_act.lua
-#include finish_func.lua
+
 __gfx__
 0000000000000000000000a000000000000000a000000000000000000000000000faaaf0000aafaf000000a00000000000000000000000a0000000000fa000f0
 00000000000000a000aaaaa0000000a000aaaaa0000000a0000000000000000000419914000a419100aaaaa0000000a0000000a000aaaaa000000a000faaaaf0

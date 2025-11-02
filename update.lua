@@ -38,13 +38,9 @@ end
 function update_gover()--游戏结束
 	--游戏结束
 	if btnp(4) and time()>5 then
-		_upd=update_mamenu
-		_drw=draw_mamenu
+		_upd,_drw=update_mamenu,draw_mamenu
 	end
 end
-----function update_nextlevel()--下一关
-	--下一关
---end
 function update_win()
 	--游戏通关
 end

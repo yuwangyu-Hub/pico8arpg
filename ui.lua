@@ -7,8 +7,7 @@ function ui_show()
     ui_weap()
 end 
 function head()--头像图标
-    --头像（*可拓展，播放表情）
-    spr(16,2,98,2,2)
+    spr(16,2,98,2,2)  --头像（*可拓展，播放表情）
 end
 function health(_sb)--血量
     local count=1

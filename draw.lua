@@ -1,8 +1,6 @@
---7617
 function draw_game()
     --主角影子(跳跃区分)
     spr(39,wy.x,wy.y+6,1,1,wy.sprflip)
-
     map()--地图绘制
     --角色(敌人/npc)精灵显示
     if #enemies>0 then
@@ -33,25 +31,12 @@ function draw_game()
     ui_show()--UI显示
 end
 function actdireshow(_sb)--朝向标识显示
-    --local data={{-2,3},{-2,-2},{3,-2},{8,-2},{8,3},{8,8},{3,8},{-2,8}}改为下方一系列复杂运算
-    local xsum=-2+(dirx[_sb.lastdire]+1)*5
-    local ysum=-2+(diry[_sb.lastdire]+1)*5
-    if _sb.lastdire%2!=0 then --1357
-        if _sb.lastdire==3 or _sb.lastdire==7 then
-            if _sb.sprflip then
-                xsum=-2+(dirx[_sb.lastdire]+1)*5-1
-            end
-        end
-    end
-    sspr(atdirex[_sb.lastdire],atdirey[_sb.lastdire],2,2,_sb.x+xsum,_sb.y+ysum) 
+    local data=explodeval("[-2,3],[-2,-2],[3,-2],[8,-2],[8,3],[8,8],[3,8],[-2,8]")
+    sspr(atdirex[_sb.lastdire],atdirey[_sb.lastdire],2,2,_sb.x+data[_sb.lastdire][1],_sb.y+data[_sb.lastdire][2]) 
 end
-
 function draweapon(_sb)--根据朝向绘制武器攻击
-                           --1, 2, 3, 4, 5, 6, 7, 8
-    local swordx=explodeval("16,26,16,24,16,24,20,26")
-    local swordy=explodeval("12,10,16,18, 8, 8,16,16")
-    local swordw=explodeval("7, 6, 4, 6, 7, 6, 4, 6")
-    local swordh=explodeval("4, 6, 7, 6, 4, 6, 7, 6")
+    --1,2,3,4,5,6,7,8
+    local swordx, swordy, swordw, swordh=explodeval("16,26,16,24,16,24,20,26"), explodeval("12,10,16,18, 8, 8,16,16"), explodeval("7, 6, 4, 6, 7, 6, 4, 6"), explodeval("4, 6, 7, 6, 4, 6, 7, 6")
     if sword.isappear then	
         sspr(swordx[_sb.lastdire],swordy[_sb.lastdire],swordw[_sb.lastdire],swordh[_sb.lastdire],sword.x,sword.y)
 	end
@@ -82,8 +67,6 @@ end
 function draw_win()
 
 end
-
-
 function spr_flip(_sb)--精灵反转
 	if _sb.dire==2 or _sb.dire==1 or _sb.dire==8  then
 		_sb.sprflip=true --如果是右上方向，精灵翻转
@@ -108,43 +91,41 @@ function check_map_sth()
 		end
 	end
 end
-
 function map_trrrans(i,j)
     local num=mget(i,j)
     switch(num,{
-        [105]=function() --海胆
+        [105]=function()
             createnemy_urchin(i,j)
             mset(i,j,0)
         end,
-        [98]=function()--蛇
+        [98]=function()
             createnemy_snake(i,j)
             mset(i,j,0)
         end,
-        [96]=function()--slime
+        [96]=function()
             createnemy_slime(i,j)
             mset(i,j,0)
         end,
-        [101]=function()--蝙蝠
+        [101]=function()
             createnemy_bat(i,j)
             mset(i,j,0)
         end,
-        [103]=function()--spider
+        [103]=function()
             createnemy_spider(i,j)
-            mset(i,j,74)
-        end,
-        [73]=function()--ghost
-            createnemy_ghost(i,j)
             mset(i,j,0)
         end,
-        [106]=function()--lizi
+        [73]=function()
+            createnemy_ghost(i,j)
+            mset(i,j,74)
+        end,
+        [106]=function()
             createnemy_lizi(i,j)
             mset(i,j,0)
         end,}
     )
 end
 function switch(num, cases)
-    --if cases 里能找到，就执行对应函数
-    if cases[num] then
+    if cases[num] then--能找到，就执行对应函数
         return cases[num]()--把结果返回，方便链式调用
     end
 end

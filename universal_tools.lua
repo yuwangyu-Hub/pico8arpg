@@ -17,30 +17,30 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
-
 --主角与物碰撞
 function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
-	local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
-	return coll_boxcheck(p.x-1,p.y-1,p.w+2,p.h+2,_sth.x,_sth.y,_sth.w,_sth.h)--将主角向外扩一个像素，来达到触碰即碰撞
+	--local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
+	--return coll_boxcheck(p.x-1,p.y-1,p.w+2,p.h+2,_sth.x,_sth.y,_sth.w,_sth.h)--将主角向外扩一个像素，来达到触碰即碰撞
+	return coll_boxcheck(_sb.x+cx-1, _sb.y+cy-1, _sb.w+cw+2, _sb.h+ch+2, _sth.x,_sth.y,_sth.w,_sth.h)
 end
 --具体的碰撞盒
 --物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
 function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh) 
-	local px1,py1,px2,py2=_px,_py,_px+_pw,_py+_ph
-	local bx1,by1,bx2,by2=_bx,_by,_bx+_bw,_by+_bh
-	--true:碰撞
-	--false:不碰撞
-	return px2>=bx1 and px1<=bx2 and py2>=by1 and py1<=by2
+	--local px1=_px--local py1=_py--local px2=_px+_pw--local py2=_py+_ph--local bx1=_bx--local by1=_by--local bx2=_bx+_bw--local by2=_by+_bh
+	--true:碰撞--false:不碰撞
+	return _px+_pw>=_bx and _px<=_bx+_bw and _py+_ph>=_by and _py<=_by+_bh
 end
+
 --点与物体碰撞
 function c_pcheck(_e,_px,_py) --coll_pointcheck
-	local sx,sy,sw,sh=_e.x,_e.y,_e.w,_e.h
-	return _px>=sx and _px<=sx+sw and _py>=sy and _py<=sy+sh
+	--local sx,sy,sw,sh=_e.x,_e.y,_e.w,_e.h
+	return _px>=_e.x and _px<=_e.x+_e.w and _py>=_e.y and _py<=_e.y+_e.h
 end
 --检测物体\角色在sb的哪个方向
-function checkdir(_ore,_sb)--obj or en
-	local ox1,oy1,ox2,oy2=_ore.x+2,_ore.y+2,_ore.x+_ore.w-4,_ore.y+_ore.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
+function checkdir(_ore,_sb)--obj/en
+	local ox1,oy1,ox2,oy2=_ore.x+2,_ore.y+2,_ore.x+_ore.w-4,_ore.y+_ore.h-4 --将碰撞盒向内收缩2个像素，来达到检测深度
 	local sx1,sy1,sx2,sy2=_sb.x+2,_sb.y+2,_sb.x+_sb.w-4,_sb.y+_sb.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
+
 	if sx1>ox2 and sy2>=oy1 and sy1<=oy2 then--物体在左边
 		return 1
 	elseif sx1>ox2 and sy1>oy2 then--物体在左上
@@ -62,9 +62,8 @@ function checkdir(_ore,_sb)--obj or en
 	end
 end
 -- 查找集合中距离主体最近的对象
--- @param objectGroup 对象集合
--- @param subject 主体对象
--- @return 最近的对象
+-- objectGroup 对象集合
+-- subject 主体对象
 function findnearest_object(objectgroup, subject)
 	local mindistance = 128  -- 初始最大距离
 	local nearestobject --最近的对象
@@ -79,8 +78,7 @@ function findnearest_object(objectgroup, subject)
 end
 function attack_swordpos(_sb,_wea)--处理update中的武器实时位置
 	if _wea then
-		_wea.x = _sb.x+_wea.sprx[_sb.lastdire]
-		_wea.y = _sb.y+_wea.spry[_sb.lastdire]
+		_wea.x, _wea.y = _sb.x+_wea.sprx[_sb.lastdire], _sb.y+_wea.spry[_sb.lastdire]
 	end
 end
 function setspd_0(sb)--速度设置为0
@@ -102,8 +100,7 @@ function setspd_ydire(sb,spd)
 	sb.spd.spx,sb.spd.spy=0,diry[sb.dire]*uspd
 end
 function setflrxy(_sb)--将 xy位置 四舍五入到最近的整数
-	_sb.x=flr(_sb.x)
-	_sb.y=flr(_sb.y)
+	_sb.x, _sb.y=flr(_sb.x), flr(_sb.y)
 end 
 function xypluspd(_sb)--xy位置加上速度
 	_sb.x,_sb.y=_sb.x+_sb.spd.spx,_sb.y+_sb.spd.spy
@@ -190,7 +187,6 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
 		_rollspd=1--速度为1
 		_sb.isclosewall=true
 	end
-	
 	if #enemies>0 then
 		if check_closewall_or_en(_sb,3,_sb.lastdire,"en") then--如果靠近敌人
 			_rollspd=1
@@ -229,7 +225,6 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
 				xymove="no"
 			end
 		end
-		--_sb.isclosewall=true
 	end
 	return _rollspd,xymove	
 end
@@ -289,8 +284,7 @@ function hurtmove(_sb,speed)--依照方向执行受伤
 	if check_closewall_or_en(_sb,2,_sb.hurtdire,"wall") then
 		m_spd=0--速度为1
 	end
-	_sb.spd.spx=dirx[_sb.hurtdire]*m_spd
-	_sb.spd.spy=diry[_sb.hurtdire]*m_spd
+	_sb.spd.spx, _sb.spd.spy = dirx[_sb.hurtdire]*m_spd, diry[_sb.hurtdire]*m_spd
 end
 function hurtdo(_sb,ht)
 	hurtmove(_sb,2.5)
@@ -316,19 +310,10 @@ function nomalize(sb,speed1,speed2)--归一化
 	return respeed
 end
 function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
-	local x1,y1=flr((v.x-1)/8),flr((v.y)/8) --检测该点是否在图块上
-	local x2,y2=flr((v.x-1)/8),flr((v.y+7)/8)
-	local x3,y3=flr((v.x)/8),flr((v.y+8)/8)
-	local x4,y4=flr((v.x+7)/8),flr((v.y+8)/8)
-	local x5,y5=flr((v.x+8)/8),flr((v.y+7)/8)
-	local x6,y6=flr((v.x+8)/8),flr((v.y)/8)
-	local x7,y7=flr((v.x+7)/8),flr((v.y-1)/8)
-	local x8,y8=flr((v.x)/8),flr((v.y-1)/8)
+	--检测该点是否在图块上
+	local x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8 = flr((v.x-1)/8), flr((v.y)/8), flr((v.x-1)/8), flr((v.y+7)/8), flr((v.x)/8), flr((v.y+8)/8), flr((v.x+7)/8), flr((v.y+8)/8), flr((v.x+8)/8), flr((v.y+7)/8), flr((v.x+8)/8), flr((v.y)/8), flr((v.x+7)/8), flr((v.y-1)/8), flr((v.x)/8), flr((v.y-1)/8)
 	local lu,ld,dl,dr,rd,ru,ur,ul=fget(mget(x1,y1),0),fget(mget(x2,y2),0),fget(mget(x3,y3),0),fget(mget(x4,y4),0),fget(mget(x5,y5),0),fget(mget(x6,y6),0),fget(mget(x7,y7),0),fget(mget(x8,y8),0)
-	local x02,y02=flr((v.x-1)/8),flr((v.y-1)/8) --左上角
-	local x04,y04=flr((v.x+8)/8),flr((v.y-1)/8) --右上角
-	local x06,y06=flr((v.x+8)/8),flr((v.y+8)/8) --右下角
-	local x08,y08=flr((v.x-1)/8),flr((v.y+8)/8) --左下角
+	local x02, y02, x04, y04, x06, y06, x08, y08 = flr((v.x-1)/8), flr((v.y-1)/8), flr((v.x+8)/8), flr((v.y-1)/8), flr((v.x+8)/8), flr((v.y+8)/8), flr((v.x-1)/8), flr((v.y+8)/8) --左上角,--右上角，--右下角，--左下角  
 	if (lu or ld) and not(ur or ul) and not (dl or dr) then --是否靠墙1
 		if lu and not ld then
 			return 1,"down" --因为左上角检测点检测到了，而左下角没检测到，所以在下面
@@ -430,11 +415,9 @@ function z1357wmove(_dire,_sb,side)--正wall
 	if _sb.dire==data[index][1] then
 		if wallside(_dire) then
 			if side==data[index][4] then
-				_sb.spd.spx=data[index][5]
-				_sb.spd.spy=data[index][6]
+				_sb.spd.spx, _sb.spd.spy=data[index][5], data[index][6]
 			elseif side==data[index][7] then
-				_sb.spd.spx=data[index][8]
-				_sb.spd.spy=data[index][9]
+				_sb.spd.spx, _sb.spd.spy=data[index][8], data[index][9]
 			end
 		else
 			setspd_0(_sb)
@@ -452,11 +435,7 @@ function z1357wmove(_dire,_sb,side)--正wall
 end
 function x2468wmove(_dire,_sb,t)--斜wall
 	--墙：2468情况
-	local xie_data={
-		{1,2,3,4,8},
-		{3,4,5,2,6},
-		{5,6,7,8,4},
-		{7,8,1,6,2}}
+	local xie_data=explodeval("[1,2,3,4,8],[3,4,5,2,6],[5,6,7,8,4],[7,8,1,6,2]")
 	local index=_dire/2
 	if _sb.dire==xie_data[index][1] or _sb.dire==xie_data[index][2] or _sb.dire==xie_data[index][3] then
 		setspd_0(_sb)
@@ -483,14 +462,9 @@ function edge_wmove(side,player)--斜墙边缘对角碰撞
 		end
 	end
 end
-
 --当玩家与npc碰撞时的移动
 function npc_cmove(player,colldire)
-	local data={
-		{1,2,8},
-		{3,2,4},
-		{5,4,6},
-		{7,6,8}}
+	local data=explodeval("[[1,2,8],[3,2,4],[5,4,6],[7,6,8]]")
 	local index=(colldire+1)/2
 	if colldire==1 or colldire==3 or colldire==5 or colldire==7 then
 		if player.dire==data[index][1] then
@@ -512,17 +486,14 @@ function npc_cmove(player,colldire)
 		end
 	end
 end
-
 function check_hp(e)--检测敌人血量
 	if e.hp<=0 then
 		e.state=e.allstate.death
 	end
 end
-
 function check_p_dis(e,p)--检测玩家与敌人之间的距离
 	return dist(e.x+e.w/2,e.y+e.h/2,p.x+p.w/2,p.y+p.h/2)<e.crange
 end
-
 function dist(x1,y1,x2,y2)--计算两点之间的距离
 	return sqrt((x1-x2)^2+(y1-y2)^2)
 end

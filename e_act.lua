@@ -48,7 +48,7 @@ function enstate_snake(en)--小蛇
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
 			end
-			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
+			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
 			--限定距离(或时间)
@@ -91,8 +91,7 @@ function enstate_slime(en)--史莱姆
 			
 			--检测玩家位置靠近
 			if check_p_dis(en,wy) then
-				en.tx=wy.x
-				en.ty=wy.y
+				en.tx, en.ty=wy.x, wy.y
 				en.state=en.allstate.charge
 			end
 			if check_en_hurt(sword,en,wy) then
@@ -153,8 +152,7 @@ function enstate_bat(en) --小蝙蝠
 			en.hurtm_t=0
 			en.fly_init = false --重置飞行初始化状态
 			if check_p_dis(en,wy) then
-				en.tx=wy.x
-				en.ty=wy.y
+				en.tx, en.ty=wy.x, wy.y
 				en.bat_start_x, en.bat_start_y = en.x, en.y-- 记录蝙蝠的初始位置（当发现玩家时的位置）
 				en.state=en.allstate.fly
 			end
@@ -253,7 +251,7 @@ function enstate_spider(en) --小蜘蛛
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
 			end
-			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
+			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
 			--限定距离(或时间)
@@ -302,8 +300,7 @@ function enstate_ghost(en)
 			end
 		end,
 		fly=function()
-			en.w=7
-			en.h=7
+			en.w,en.h=7,7
 			en.fly_t = anim_sys(en.sprs.fly,en,en.fly_t,.1,1)
 			--具体飞向玩家
 			local tx,ty=wy.x,wy.y
@@ -366,8 +363,6 @@ function enstate_lizi(en) --丢栗怪
 					en.idle_t=0
 				end
 			end		
-			debug1=en.dire
-			debug2=en.lastdire
 							
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
@@ -376,7 +371,7 @@ function enstate_lizi(en) --丢栗怪
 			check_hp(en)
 		end,
 		move=function()
-			local data={{1,2,8},{2,3,4},{4,5,6},{6,7,8}}
+			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt

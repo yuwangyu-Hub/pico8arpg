@@ -5,11 +5,12 @@ function updatep_state(player)--状态机: 更新玩家状态
 		input_direct_sys(player)
 	end
 	local near_o,colldire_o,is_o_coll
+	--[[
 	if #obj!=0 then --物体不为空
 		near_o=findnearest_object(obj, player)--检测最近的物体
 		colldire_o=checkdir(near_o,player)--物品在主角的朝向
 		is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
-	end
+	end]]
 	local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
 	local switchstate={
 		idle = function()
