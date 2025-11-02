@@ -6,6 +6,9 @@ function draw_game()
     if #enemies>0 then
         for e in all (enemies) do
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
+            if e.name=="lizi" then --可视化查看
+                check_p(e)
+            end
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --碰撞盒
             --if e.crange then--敌人检测范围
                 --圆检测范围
@@ -19,11 +22,8 @@ function draw_game()
         --rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
         end
     end]]
-    --主角绘制
-    draw_p(wy,wy.spr_cx,wy.spr_cy)
- 
-    --主角的朝向显示
-    if not sword.isappear then
+    draw_p(wy,wy.spr_cx,wy.spr_cy)--主角绘制
+    if not sword.isappear then--主角的朝向显示
         actdireshow(wy)
     end
     --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
@@ -31,7 +31,7 @@ function draw_game()
     ui_show()--UI显示
 end
 function actdireshow(_sb)--朝向标识显示
-    local data=explodeval("[-2,3],[-2,-2],[3,-2],[8,-2],[8,3],[8,8],[3,8],[-2,8]")
+    local data=explodeval("[-3,3],[-2,-2],[3,-3],[8,-2],[9,3],[8,8],[3,9],[-2,8]")--124578
     sspr(atdirex[_sb.lastdire],atdirey[_sb.lastdire],2,2,_sb.x+data[_sb.lastdire][1],_sb.y+data[_sb.lastdire][2]) 
 end
 function draweapon(_sb)--根据朝向绘制武器攻击
@@ -59,7 +59,7 @@ end
 function draw_Inventory_menu() --绘制背包
     --武器/道具的显示和替换
     --可使用道具的使用
-    --地图的显示
+    --地图的显示不确定暂时是否需要添加-可能移植picotron
 end
 function draw_gover()
     showend()
@@ -94,35 +94,13 @@ end
 function map_trrrans(i,j)
     local num=mget(i,j)
     switch(num,{
-        [105]=function()
-            createnemy_urchin(i,j)
-            mset(i,j,0)
-        end,
-        [98]=function()
-            createnemy_snake(i,j)
-            mset(i,j,0)
-        end,
-        [96]=function()
-            createnemy_slime(i,j)
-            mset(i,j,0)
-        end,
-        [101]=function()
-            createnemy_bat(i,j)
-            mset(i,j,0)
-        end,
-        [103]=function()
-            createnemy_spider(i,j)
-            mset(i,j,0)
-        end,
-        [73]=function()
-            createnemy_ghost(i,j)
-            mset(i,j,74)
-        end,
-        [106]=function()
-            createnemy_lizi(i,j)
-            mset(i,j,0)
-        end,}
-    )
+        [105]=function()createnemy_urchin(i,j)mset(i,j,0)end,
+        [98]=function()createnemy_snake(i,j)mset(i,j,0)end,
+        [96]=function()createnemy_slime(i,j)mset(i,j,0)end,
+        [101]=function()createnemy_bat(i,j)mset(i,j,0)end,
+        [103]=function()createnemy_spider(i,j)mset(i,j,0)end,
+        [73]=function()createnemy_ghost(i,j)mset(i,j,74)end,
+        [106]=function()createnemy_lizi(i,j)mset(i,j,0)end,})
 end
 function switch(num, cases)
     if cases[num] then--能找到，就执行对应函数

@@ -17,10 +17,11 @@ input_dire=explodeval("0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0")--btn()0-15所对应的�
 dirx,diry=explodeval("-1,-1, 0, 1,1,1, 0,-1"),explodeval(" 0,-1,-1,-1,0,1, 1, 1")
 enemies,character,item,cb_line={}
 en_dspr=explodeval("85,86,87,88")--敌人死亡
---obj={}--物体：分为两种，可推动的物体和不可推动的物体
+
+obj={}--物体：分为两种，可推动的物体和不可推动的物体
 --cb_line={}--碰撞盒
 debug=""
---debug1=""
+debug1=""
 --debug2=""
 function _init()
 	startgame()
@@ -41,4 +42,5 @@ end
 
 function printbug()
 	print(debug,10,10,10)
+	print(debug1,10,20,10)
 end

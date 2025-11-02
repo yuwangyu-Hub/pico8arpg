@@ -70,6 +70,23 @@ function initializesword()
 	sword.isappear = false -- 是否显示
 	return sword
 end
+
+function init_cnut(dire)
+	--栗子子弹动画帧sspr
+	local cnut_anim=explodeval("[104,32,5,4],[110,32,4,5],[109,38,5,4],[104,37,4,5]")
+	local index=(dire+1)/2
+	cnut={}
+	cnut.x=0
+	cnut.y=0
+	cnut.w=5
+	cnut.h=5
+	cnut.ssprx=cnut_anim[index][1]
+	cnut.sspry=cnut_anim[index][2]
+	cnut.ssprw=cnut_anim[index][3]	
+	cnut.ssprh=cnut_anim[index][4]
+	cnut.isappear = false -- 是否显示
+	return cnut
+end
 --*角色：敌人和npc
 function createnemy_urchin(_x,_y)--小海胆
 	local urchin = makerole("urchin", 

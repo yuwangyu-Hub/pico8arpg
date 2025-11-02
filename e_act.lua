@@ -348,6 +348,11 @@ end
 function enstate_lizi(en) --丢栗怪
 	local switchstate={
 		idle=function()
+			debug="idle"
+			--检测路径是否有玩家
+			if check_p(en) then
+				en.state=en.allstate.atk
+			end
 			en.hurtm_t=0
 			en.move_t=0
 			en.hurtframe=0
@@ -371,6 +376,12 @@ function enstate_lizi(en) --丢栗怪
 			check_hp(en)
 		end,
 		move=function()
+			debug="move"
+			--检测到玩家，切换射击状态
+			if check_p(en) then
+				en.state=en.allstate.atk
+			end
+
 			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
 			if check_en_hurt(sword,en,wy) then
@@ -390,7 +401,6 @@ function enstate_lizi(en) --丢栗怪
 				en.spd.spx,en.spd.spy=dirx[en.dire]*en.speed,diry[en.dire]*en.speed
 			end
 			--四方向移动
-			
 			if en.dire==1 then
 				en.sprflip=false
 			elseif en.dire==5 then
@@ -404,11 +414,22 @@ function enstate_lizi(en) --丢栗怪
 				en.state=en.allstate.idle
 			end
 			anim_sys(en.sprs.move[(en.dire+1)/2],en,en.move_t,.1,1)
-			--检测到玩家，切换射击状态
 			
 		end,
 		atk=function()
+			debug="atk"
 			check_en_hurt(sword,en,wy)
+			--发射子弹
+			if en.dire ==1 then
+
+			elseif en.dire ==3 then
+
+			elseif en.dire ==5 then
+
+			elseif en.dire ==7 then
+
+			end
+
 		end,
 		hurt=function()
 			en.hurtm_t=anim_sys(en.sprs.hurt[en.hurtframe],en,en.hurtm_t,.1,8)

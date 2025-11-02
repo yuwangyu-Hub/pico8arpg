@@ -17,6 +17,8 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
+
+
 --主角与物碰撞
 function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
 	--local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
@@ -498,5 +500,17 @@ function dist(x1,y1,x2,y2)--计算两点之间的距离
 	return sqrt((x1-x2)^2+(y1-y2)^2)
 end
 
+function check_p(e)--矩形范围内检测玩家
+	local data={--x,y,w,h
+		{e.x-30,e.y,   37,7 },--1:左
+		{e.x,   e.y-30,7, 37},--3:上
+		{e.x,   e.y,   37,7 },--5:右 
+		{e.x,   e.y,   7, 37} --7:下
+	}
+	local index=(e.lastdire+1)/2
+	local ck={x=data[index][1],y=data[index][2],w=data[index][3],h=data[index][4]}
+	rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
+	return ck_sthcoll(ck,wy,0,0,0,0)
+end
 
 
