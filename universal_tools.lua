@@ -1,27 +1,3 @@
----------------------压缩技巧----------------------
-function explode(s)--字符串恢复为数组
-    local retval,lastpos={},1 
-    for i=1,#s do
-        if sub(s,i,i)=="," then
-            add(retval,sub(s, lastpos, i-1))
-            i+=1
-            lastpos=i
-        end
-    end
-    add(retval,sub(s,lastpos,#s))--添加最后一个
-    return retval--返回该字符串组
-end
-function explodeval(_arr)--
-    return toval(explode(_arr))
-end
-function toval(_arr)--将字符串转换为非字符串
-    local _retarr={}--重新保存为数组
-    for _i in all(_arr) do
-        add(_retarr,flr(_i+0))--字符串加数字会变成数字
-    end
-    return _retarr--返回数字组
-end
----------------------压缩技巧----------------------
 function doshake()--镜头抖动
 	local shakex,shakey=rnd(shake)-(shake/2),rnd(shake)-(shake/2)
 	camera(shakex,shakey)
@@ -303,7 +279,7 @@ function check_en_hurt(_sword,_en,_p) --敌人受伤
 			if checkdir(_en,_p)!=0 then
 				_en.hurtdire=checkdir(_en,_p)
 			end
-			--_en.state=_en.allstate.hurt
+			_en.state=_en.allstate.hurt
 			return true
 		end
 	end

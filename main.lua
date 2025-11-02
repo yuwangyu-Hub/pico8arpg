@@ -1,12 +1,8 @@
---战斗系统：敌人追逐、技能系统、boss战
---背包系统(武器系统\道具系统)
---地图切换系统（不规则地图）
---对话系统
---UI系统
---敌人死亡掉落：金币、血量
---割草掉落：金币、血量
---获得增益道具后的边缘闪烁
+--7640
+--技能系统、boss战/背包系统(武器系统\道具系统)/地图切换系统（不规则地图）/对话系统/敌人死亡掉落：金币、血量
+--割草掉落：金币、血量/获得增益道具后的边缘闪烁
 --------------当前任务-------------------
+--*d token d chars
 --*史莱姆的穿墙bug+蝙蝠的受伤被墙挡住的bug
 --完成所有敌人ai系统
 --*敌人的影子
@@ -19,9 +15,9 @@
 input_dire=explodeval("0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0")--btn()0-15所对应的方向：从左边开始顺时针8方向
 dirx=explodeval("-1,-1, 0, 1,1,1, 0,-1")
 diry=explodeval(" 0,-1,-1,-1,0,1, 1, 1")
-          --1,     2,     3,     4,      5,      6,     7,      8
-atdirex=explodeval("40,40,43,46,46,46,42,40")--sspr攻击图标的x
-atdirey=explodeval("10, 8, 8, 8,11,14,14,14")--sspr攻击图标的y
+                  --1, 2, 3, 4, 5, 6, 7, 8
+atdirex=explodeval("40,40,43,46,46,46,42,40")--sspr攻击icon的x
+atdirey=explodeval("10, 8, 8, 8,11,14,14,14")--sspr攻击icon的y
 enemies={}--敌人
 en_dspr=explodeval("85,86,87,88")--敌人死亡
 character={} --NPC
@@ -29,9 +25,8 @@ item={}--物品：获取
 obj={}--物体：分为两种，可推动的物体和不可推动的物体
 cb_line={}--碰撞盒
 debug=""
-debug1=""
-debug2=""
-
+--debug1=""
+--debug2=""
 function _init()
 	startgame()
 	--enstate_lizi = create_enstate_lizi()
@@ -52,5 +47,4 @@ function startgame()
 end
 function printbug()
 	print(debug,10,10,10)
-	
 end
