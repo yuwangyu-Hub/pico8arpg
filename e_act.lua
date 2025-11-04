@@ -253,7 +253,7 @@ function enstate_spider(en) --小蜘蛛
 			end
 			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
-			--蛇的移动是四个方向的随机移动
+			--移动是四个方向的随机移动
 			--限定距离(或时间)
 			local wall_dire,_=check_wall_iswalk(en)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
@@ -350,9 +350,10 @@ function enstate_lizi(en) --丢栗怪
 		idle=function()
 			debug="idle"
 			--检测路径是否有玩家
-			if check_p(en) then
-				en.state=en.allstate.atk
-			end
+			--if check_p(en) then
+			--	en.state=en.allstate.atk
+				--init_cnut(en)--生成子弹
+			--end
 			en.hurtm_t=0
 			en.move_t=0
 			en.hurtframe=0
@@ -377,10 +378,7 @@ function enstate_lizi(en) --丢栗怪
 		end,
 		move=function()
 			debug="move"
-			--检测到玩家，切换射击状态
-			if check_p(en) then
-				en.state=en.allstate.atk
-			end
+			
 
 			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
@@ -409,24 +407,24 @@ function enstate_lizi(en) --丢栗怪
 			xypluspd(en)
 			--时间到了切换idle状态
 			en.move_t+=0.1
-			if en.move_t>=4 then
+			if en.move_t>=6 then
 				en.move_t=0
 				en.state=en.allstate.idle
 			end
 			anim_sys(en.sprs.move[(en.dire+1)/2],en,en.move_t,.1,1)
+			--检测到玩家，切换射击状态
+			if check_p(en) then
+				en.state=en.allstate.atk
+				init_cnut(en)--生成子弹
+			end
 		end,
 		atk=function()
 			debug="atk"
+			en.atk_t+=.1
 			check_en_hurt(sword,en,wy)
 			--发射子弹
-			if en.dire ==1 then
-
-			elseif en.dire ==3 then
-
-			elseif en.dire ==5 then
-
-			elseif en.dire ==7 then
-
+			if cnut.t>=0.4 then
+				en.state=en.allstate.idle
 			end
 		end,
 		hurt=function()

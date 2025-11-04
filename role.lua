@@ -71,22 +71,6 @@ function initializesword()
 	return sword
 end
 
-function init_cnut(dire)
-	--栗子子弹动画帧sspr
-	local cnut_anim=explodeval("[104,32,5,4],[110,32,4,5],[109,38,5,4],[104,37,4,5]")
-	local index=(dire+1)/2
-	cnut={}
-	cnut.x=0
-	cnut.y=0
-	cnut.w=5
-	cnut.h=5
-	cnut.ssprx=cnut_anim[index][1]
-	cnut.sspry=cnut_anim[index][2]
-	cnut.ssprw=cnut_anim[index][3]	
-	cnut.ssprh=cnut_anim[index][4]
-	cnut.isappear = false -- 是否显示
-	return cnut
-end
 --*角色：敌人和npc
 function createnemy_urchin(_x,_y)--小海胆
 	local urchin = makerole("urchin", 
@@ -215,6 +199,8 @@ function createnemy_lizi(_x,_y) --丢栗怪
 		atk="atk",
 		hurt="hurt",
 		death = "death"})
+	lizi.atk_t=0
+	lizi.lastdire=3 --最后方向?
 	lizi.state=lizi.allstate.idle
 	lizi.hurtframe=0
 	lizi.frame=lizi.sprs.idle[1]
@@ -222,6 +208,22 @@ function createnemy_lizi(_x,_y) --丢栗怪
 	lizi.cubeline=5 -- 检测矩形视线
 	add(enemies,lizi)
 	return lizi
+end
+function init_cnut(en)
+	--栗子子弹动画帧sspr
+	cnut={}
+	cnut.x=en.x
+	cnut.y=en.y
+	cnut.t=0
+	cnut.dire=en.dire
+	cnut.spd={spx=0,spy=0}
+	cnut.w=5
+	cnut.h=5
+	cnut.speed=1
+	cnut.sprs={77,78,94,93}
+	cnut.frame=77
+	add(bullets,cnut)
+	return cnut
 end
 
 --大海龟Boss：两阶段

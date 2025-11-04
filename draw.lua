@@ -7,7 +7,10 @@ function draw_game()
         for e in all (enemies) do
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
             if e.name=="lizi" then --可视化查看
-                check_p(e)
+                --check_p(e)--内置了绘制
+                if cnut then
+                   spr(cnut.frame,cnut.x,cnut.y)
+                end
             end
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --碰撞盒
             --if e.crange then--敌人检测范围

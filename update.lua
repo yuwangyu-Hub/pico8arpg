@@ -8,12 +8,12 @@ function update_game()--游戏进行时
 	--受伤无敌
 	if wy.ishurt then--如果受伤，受伤无敌时间增加
 		--受伤闪烁和无敌时间相同
-		wy.wudi_t+=1 
-		if wy.wudi_t>20 then 
+		wy.wudi_t+=1
+		if wy.wudi_t>20 then
 			wy.ishurt=false
-			wy.wudi_t=0  
+			wy.wudi_t=0
 		end
-	end
+	end 
 	updatep_state(wy)--主角的行为: 更新玩家状态
 	for e in all(enemies) do
 		en_update(e,"urchin",enstate_urchin)
@@ -23,6 +23,14 @@ function update_game()--游戏进行时
 		en_update(e,"spider",enstate_spider)
 		en_update(e,"ghost",enstate_ghost)
 		en_update(e,"lizi",enstate_lizi)
+	end
+	--敌人子弹的检测
+	for b in all(bullets) do
+		firebullet()
+		if cnut.x>128 or cnut.x<0 or cnut.y>100 or cnut.y<0 then
+			debug1="cnut out"
+			del(bullets,b)
+		end
 	end
 end
 function en_update(e,name,func)
