@@ -1,15 +1,15 @@
 function enstate_urchin(en)--小海胆：静止不动，玩家触碰会掉血，攻击弹开死亡(爆炸)，一滴血
 	local switchstate={
 		idle=function()
-			en.hurtm_t=0
+			en.wudi_t=0
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
 			end
 			check_hp(en)
 		end,
 		hurt=function()--受伤弹开
-             en.hurtm_t=anim_sys(en.sprs.hurt,en,en.hurtm_t,.1,10)
-			hurtdo(en,en.hurtm_t)
+            en.wudi_t_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,10)
+			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()--死亡爆炸
@@ -23,7 +23,7 @@ function enstate_snake(en)--小蛇
 	spr_flip(en)
 	local switchstate={
 		idle=function()
-			en.hurtm_t=0
+			en.wudi_t=0
 			en.move_t=0
 			--按时进行随机方向
 			en.idle_t+=.1
@@ -68,8 +68,8 @@ function enstate_snake(en)--小蛇
 			en.move_t = anim_sys(en.sprs.move,en,en.move_t,.2,1)
 		end,
 		hurt=function()
-            en.hurtm_t=anim_sys(en.sprs.hurt,en,en.hurtm_t,.1,10)
-			hurtdo(en,en.hurtm_t)
+            en.wudi_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,10)
+			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()
@@ -82,7 +82,7 @@ end
 function enstate_slime(en)--史莱姆
 	local switchstate={
 		idle=function()
-			en.hurtm_t=0
+			en.wudi_t=0
 			en.charge_t=0
 			en.tx,en.ty=0,0
 			--因为slime的idle动画是循环播放的，所以这里需要判断是否需要播放idle动画
@@ -135,8 +135,8 @@ function enstate_slime(en)--史莱姆
 			check_hp(en)
 		end,
 		hurt=function()
-			en.hurtm_t=anim_sys(en.sprs.hurt,en,en.hurtm_t,.1,5)
-			hurtdo(en,en.hurtm_t)
+			en.wudi_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,5)
+			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()
@@ -149,7 +149,7 @@ end
 function enstate_bat(en) --小蝙蝠
 	local switchstate={
 		idle=function()
-			en.hurtm_t=0
+			en.wudi_t=0
 			en.fly_init = false --重置飞行初始化状态
 			if check_p_dis(en,wy) then
 				en.tx, en.ty=wy.x, wy.y
@@ -211,8 +211,8 @@ function enstate_bat(en) --小蝙蝠
 			check_hp(en)
 		end,
 		hurt=function()
-			en.hurtm_t=anim_sys(en.sprs.hurt, en, en.hurtm_t, .1, 5)
-			hurtdo(en, en.hurtm_t)
+			en.wudi_t=anim_sys(en.sprs.hurt, en, en.wudi_t, .1, 5)
+			hurtdo(en, en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()
@@ -226,7 +226,7 @@ function enstate_spider(en) --小蜘蛛
 	spr_flip(en)
 	local switchstate={
 		idle=function()
-			en.hurtm_t=0
+			en.wudi_t=0
 			en.move_t=0
 			--按时进行随机方向
 			en.idle_t+=.1
@@ -271,8 +271,8 @@ function enstate_spider(en) --小蜘蛛
 			en.move_t = anim_sys(en.sprs.move,en,en.move_t,.2,1)
 		end,
 		hurt=function()
-           en.hurtm_t=anim_sys(en.sprs.hurt,en,en.hurtm_t,.1,10)
-			hurtdo(en,en.hurtm_t)
+           en.wudi_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,10)
+			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()
@@ -328,10 +328,10 @@ function enstate_ghost(en)
 			end
 		end,
 		hurt=function()
-			en.hurtm_t=anim_sys(en.sprs.hurt, en, en.hurtm_t, .1, 5)
-			--hurtdo(en, hurtm_t)
+			en.wudi_t=anim_sys(en.sprs.hurt, en, en.wudi_t, .1, 5)
+			--hurtdo(en, wudi_t)
 			hurtmove(en,2.5)
-			if en.hurtm_t>=0.5 then
+			if en.wudi_t>=0.5 then
 				en.state=en.allstate.fly
 				en.hp-=1
 			end
@@ -348,13 +348,7 @@ end
 function enstate_lizi(en) --丢栗怪
 	local switchstate={
 		idle=function()
-			debug="idle"
-			--检测路径是否有玩家
-			--if check_p(en) then
-			--	en.state=en.allstate.atk
-				--init_cnut(en)--生成子弹
-			--end
-			en.hurtm_t=0
+			en.wudi_t=0
 			en.move_t=0
 			en.hurtframe=0
 			en.idle_t+=.1
@@ -377,9 +371,6 @@ function enstate_lizi(en) --丢栗怪
 			check_hp(en)
 		end,
 		move=function()
-			debug="move"
-			
-
 			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
 			if check_en_hurt(sword,en,wy) then
@@ -419,7 +410,6 @@ function enstate_lizi(en) --丢栗怪
 			end
 		end,
 		atk=function()
-			debug="atk"
 			en.atk_t+=.1
 			check_en_hurt(sword,en,wy)
 			--发射子弹
@@ -428,8 +418,8 @@ function enstate_lizi(en) --丢栗怪
 			end
 		end,
 		hurt=function()
-			en.hurtm_t=anim_sys(en.sprs.hurt[en.hurtframe],en,en.hurtm_t,.1,8)
-			hurtdo(en,en.hurtm_t)
+			en.wudi_t=anim_sys(en.sprs.hurt[en.hurtframe],en,en.wudi_t,.1,8)
+			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()

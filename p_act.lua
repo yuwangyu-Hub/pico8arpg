@@ -113,6 +113,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 			end
 		end,
 		death=function()
+			--死亡
 		end
 	}
 	switchstate[player.state]()

@@ -1,5 +1,5 @@
 function draw_game()
-    --主角影子(跳跃区分)
+    --主角影子(用来跳跃区分)
     spr(39,wy.x,wy.y+6,1,1,wy.sprflip)
     map()--地图绘制
     --角色(敌人/npc)精灵显示
@@ -8,9 +8,7 @@ function draw_game()
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
             if e.name=="lizi" then --可视化查看
                 --check_p(e)--内置了绘制
-                if cnut then
-                   spr(cnut.frame,cnut.x,cnut.y)
-                end
+                
             end
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --碰撞盒
             --if e.crange then--敌人检测范围
@@ -31,6 +29,10 @@ function draw_game()
     end
     --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
+    for b in all(bullets) do
+        spr(b.frame,b.x,b.y)
+        
+    end
     ui_show()--UI显示
 end
 function actdireshow(_sb)--朝向标识显示

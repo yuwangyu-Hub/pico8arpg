@@ -1,7 +1,7 @@
 function update_game()--游戏进行时
 	check_map_sth()--检测地图上的东西
 	--主角受伤检测（无敌时间0，主角不在攻击状态）
-	if check_p_hurt(wy) and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
+	if check_p_hurt(wy,"en") and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
 		wy.ishurt=true
 		wy.state=wy.allstate.hurt
 	end
@@ -26,9 +26,16 @@ function update_game()--游戏进行时
 	end
 	--敌人子弹的检测
 	for b in all(bullets) do
-		firebullet()
+		firebullet(b)--开火
+
+		--玩家受伤
+		if check_p_hurt(wy,"bu",b) and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
+			wy.ishurt=true
+			wy.state=wy.allstate.hurt
+			del(bullets,b)
+		end
+		--如果子弹越过屏幕
 		if cnut.x>128 or cnut.x<0 or cnut.y>100 or cnut.y<0 then
-			debug1="cnut out"
 			del(bullets,b)
 		end
 	end

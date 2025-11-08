@@ -249,10 +249,20 @@ function roll(_sb,iwcd)--is_wall_coll_dire
 		setflrxy(_sb)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
 	end
 end
-function check_p_hurt(_sb)--玩家受伤,最近的敌人
-	for e in all(enemies) do
-		if e.name=="ghost" then
-			if e.state==e.allstate.fly then
+
+function check_p_hurt(_sb,type,b)--玩家受伤,最近的敌人,type:检测类型,b：bullet
+	if type=="en" then--检测类型为敌人
+		for e in all(enemies) do
+			if e.name=="ghost" then--如果敌人是小幽灵
+				if e.state==e.allstate.fly then
+					if ck_sthcoll(_sb,e,0,0,0,0) then
+						if checkdir(_sb,e)!=0 then
+							_sb.hurtdire=checkdir(_sb,e)
+						end
+						return true
+					end
+				end
+			else
 				if ck_sthcoll(_sb,e,0,0,0,0) then
 					if checkdir(_sb,e)!=0 then
 						_sb.hurtdire=checkdir(_sb,e)
@@ -260,18 +270,19 @@ function check_p_hurt(_sb)--玩家受伤,最近的敌人
 					return true
 				end
 			end
-		else
-			if ck_sthcoll(_sb,e,0,0,0,0) then
-				if checkdir(_sb,e)!=0 then
-					_sb.hurtdire=checkdir(_sb,e)
+		end
+
+	elseif type=="bu" then  --检测类型为子弹
+		if ck_sthcoll(_sb,b,0,0,0,0) then
+				if checkdir(_sb,b)!=0 then
+					_sb.hurtdire=checkdir(_sb,b)
 				end
-				return true
-			end
+			return true
 		end
 	end
 end
 function check_en_hurt(_sword,_en,_p) --敌人受伤
-	if _sword.isappear and _en.state!=_en.allstate.hurt then
+	if _sword.isappear and _en.state!=_en.allstate.hurt and _en.wudi_t==0 then
 		if ck_sthcoll(_en,_sword,0,0,0,0) then
 			if checkdir(_en,_p)!=0 then
 				_en.hurtdire=checkdir(_en,_p)
@@ -291,7 +302,7 @@ end
 function hurtdo(_sb,ht)
 	hurtmove(_sb,2.5)
 	--受伤动画
-	if ht>=0.5 then
+	if ht>=1 then
 		_sb.state=_sb.allstate.idle
 		_sb.hp-=1
 	end
@@ -512,12 +523,12 @@ function check_p(e)--矩形范围内检测玩家
 	rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
 	return ck_sthcoll(ck,wy,0,0,0,0)
 end
-function firebullet()--栗子怪发射子弹
-	setspd_xydire(cnut)
+function firebullet(c)--栗子怪发射子弹
+	setspd_xydire(c)
 	cnut.t+=0.1
-	xypluspd(cnut)
+	xypluspd(c)
 	--动画
-	anim_sys(cnut.sprs,cnut,cnut.t,.1,4)
+	anim_sys(c.sprs,c,c.t,.1,4)
 end
 
 

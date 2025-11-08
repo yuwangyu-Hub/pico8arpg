@@ -15,7 +15,7 @@ function makerole(name,x,y,hp,speed,sprs,state)--角色的创建模板
 	role.frame=0
 	role.sprflip=false
 	role.idle_t=0
-	role.hurtm_t=0
+	role.wudi_t=0--无敌时间
 	role.die_t=0
 	role.move_t=0
 	return role
@@ -52,7 +52,6 @@ function initializeplayer()
 	player.move_t=0--用来绘制移动动画
 	player.ishurt=false
 	player.hurtmt=0
-	player.wudi_t=0 --无敌时间
 	player.isroll = false -- 是否翻滚
 	player.rollspeed = 3 -- 翻滚速度
 	player.roll_t = 0 -- 翻滚计时器
@@ -88,7 +87,7 @@ function createnemy_urchin(_x,_y)--小海胆
 end
 function createnemy_snake(_x,_y)--蛇
 	local snake = makerole("snake", 
-		_x*8,_y*8,2,0.5,
+		_x*8,_y*8,5,0.5,
 		{idle=99,
 		move={98,99},
 		hurt={99,115}},
@@ -189,7 +188,7 @@ function createnemy_ghost(_x,_y)--幽灵
 end
 function createnemy_lizi(_x,_y) --丢栗怪
 	local lizi = makerole("lizi",
-		_x*8,_y*8,10,.5,
+		_x*8,_y*8,2,.5,
 		{idle={89,106,108},
 		move=explodeval("[108,109],[89,90],[108,109],[106,107]"),--1357
 		hurt=explodeval("[108,120],[89,118],[108,120],[106,119]")--1357
