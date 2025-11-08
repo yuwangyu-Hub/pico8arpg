@@ -87,7 +87,7 @@ function createnemy_urchin(_x,_y)--小海胆
 end
 function createnemy_snake(_x,_y)--蛇
 	local snake = makerole("snake", 
-		_x*8,_y*8,5,0.5,
+		_x*8,_y*8,2,0.5,
 		{idle=99,
 		move={98,99},
 		hurt={99,115}},
@@ -97,7 +97,6 @@ function createnemy_snake(_x,_y)--蛇
 		death = "death"})
 		snake.state = snake.allstate.idle
 		snake.frame=snake.sprs.idle
-		snake.lastdire=0
 		add(enemies,snake)
 	return snake
 end
