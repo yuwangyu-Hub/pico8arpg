@@ -17,8 +17,6 @@ end
 function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
-
-
 --主角与物碰撞
 function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
 	--local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
@@ -32,7 +30,6 @@ function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh)
 	--true:碰撞--false:不碰撞
 	return _px+_pw>=_bx and _px<=_bx+_bw and _py+_ph>=_by and _py<=_by+_bh
 end
-
 --点与物体碰撞
 function c_pcheck(_e,_px,_py) --coll_pointcheck
 	--local sx,sy,sw,sh=_e.x,_e.y,_e.w,_e.h
@@ -42,7 +39,6 @@ end
 function checkdir(_ore,_sb)--obj/en
 	local ox1,oy1,ox2,oy2=_ore.x+2,_ore.y+2,_ore.x+_ore.w-4,_ore.y+_ore.h-4 --将碰撞盒向内收缩2个像素，来达到检测深度
 	local sx1,sy1,sx2,sy2=_sb.x+2,_sb.y+2,_sb.x+_sb.w-4,_sb.y+_sb.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
-
 	if sx1>ox2 and sy2>=oy1 and sy1<=oy2 then--物体在左边
 		return 1
 	elseif sx1>ox2 and sy1>oy2 then--物体在左上
@@ -510,24 +506,16 @@ end
 function dist(x1,y1,x2,y2)--计算两点之间的距离
 	return sqrt((x1-x2)^2+(y1-y2)^2)
 end
-
-function check_p(e)--矩形范围内检测玩家
-	local data={--x,y,w,h
-		{e.x-20,e.y,   27,7 },--1:左
-		{e.x,   e.y-20,7, 27},--3:上
-		{e.x,   e.y,   27,7 },--5:右
-		{e.x,   e.y,   7, 27} --7:下
-	}
+function check_p(e,c)--矩形范围内检测玩家
+	local data={{e.x-c,e.y,c+7,7},{e.x,e.y-c,7,c+7},{e.x,e.y,c+7,7},{e.x,e.y,7,c+7}}--x,y,w,h,1357
 	local index=(e.lastdire+1)/2
-	local ck={x=data[index][1],y=data[index][2],w=data[index][3],h=data[index][4]}
-	rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
+	local ck={x=data[index][1],y=data[index][2],w=data[index][3],h=data[index][4]}--rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
 	return ck_sthcoll(ck,wy,0,0,0,0)
 end
 function firebullet(c)--栗子怪发射子弹
 	setspd_xydire(c)
 	cnut.t+=0.1
 	xypluspd(c)
-	--动画
 	anim_sys(c.sprs,c,c.t,.1,4)
 end
 

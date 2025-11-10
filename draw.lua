@@ -1,16 +1,11 @@
 function draw_game()
-    --主角影子(用来跳跃区分)
-    spr(39,wy.x,wy.y+6,1,1,wy.sprflip)
+    spr(39,wy.x,wy.y+6,1,1,wy.sprflip)--主角影子(用来跳跃区分)
     map()--地图绘制
-    --角色(敌人/npc)精灵显示
+    --敌人精灵显示
     if #enemies>0 then
         for e in all (enemies) do
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
-            if e.name=="lizi" then --可视化查看
-                --check_p(e)--内置了绘制
-                
-            end
-            --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --碰撞盒
+            --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --可视化碰撞盒
             --if e.crange then--敌人检测范围
                 --圆检测范围
                 --circ(e.x+e.w/2,e.y+e.h/2,e.crange,12)
@@ -105,7 +100,7 @@ function map_trrrans(i,j)
         [101]=function()createnemy_bat(i,j)mset(i,j,0)end,
         [103]=function()createnemy_spider(i,j)mset(i,j,0)end,
         [73]=function()createnemy_ghost(i,j)mset(i,j,74)end,
-        [106]=function()createnemy_lizi(i,j)mset(i,j,0)end,})
+        [89]=function()createnemy_lizi(i,j)mset(i,j,0)end,})
 end
 function switch(num, cases)
     if cases[num] then--能找到，就执行对应函数

@@ -1,6 +1,7 @@
 function enstate_urchin(en)--小海胆：静止不动，玩家触碰会掉血，攻击弹开死亡(爆炸)，一滴血
 	local switchstate={
 		idle=function()
+			debug1="idle"
 			en.wudi_t=0
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
@@ -8,11 +9,13 @@ function enstate_urchin(en)--小海胆：静止不动，玩家触碰会掉血，
 			check_hp(en)
 		end,
 		hurt=function()--受伤弹开
-            en.wudi_t_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,10)
+			debug1="hurt"
+            en.wudi_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,5)
 			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()--死亡爆炸
+			debug1="death"
 			en.die_t+=.4
 			death_do(en,en.die_t)
 		end,
@@ -164,7 +167,7 @@ function enstate_bat(en) --小蝙蝠
 		end,
 		fly=function()
 			-- 初始化飞行参数
-			if not fly_init then
+			if not en.fly_init then
 				-- 计算初始半径（蝙蝠当时与玩家的距离）
 				en.radius = sqrt((en.bat_start_x - en.tx)^2 + (en.bat_start_y - en.ty)^2)
 				-- 计算初始角度（使用蝙蝠的初始位置）pico-8中:atan2(x,y)
@@ -179,7 +182,7 @@ function enstate_bat(en) --小蝙蝠
 					en.fly_direction = -1 -- 顺时针
 					en.sprflip=false
 				end
-				fly_init = true
+				en.fly_init = true
 			end
 			-- 更新角度，实现旋转效果，结合en.speed和飞行方向来控制
 			en.angle += 0.005 * en.speed * en.fly_direction
@@ -191,18 +194,18 @@ function enstate_bat(en) --小蝙蝠
 				en.state=en.allstate.rest
 			end
 			-- 循环播放飞行动画
-			fly_t = anim_sys(en.sprs.fly, en, fly_t, .2, 1)
+			en.fly_t = anim_sys(en.sprs.fly, en, en.fly_t, 0.2, 1)
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
 			end
 			check_hp(en)
 		end,
 		rest=function()
-			rest_t+=.1
-			if rest_t>=1 then
+			en.rest_t+=.1
+			if en.rest_t>=1 then
 				en.state=en.allstate.idle
 				en.crange=25 -- 检测范围
-				rest_t=0
+				en.rest_t=0
 			end
 			en.frame=en.sprs.rest
 			if check_en_hurt(sword,en,wy) then
@@ -284,12 +287,12 @@ function enstate_spider(en) --小蜘蛛
 end
 function enstate_ghost(en)
 	local switchstate={
-		disapr=function()
-			--靠近后发现，切换到出现
+		idle=function()
+			--靠近后发现，切换到出现状态
 			if check_p_dis(en,wy) then
 				en.state=en.allstate.apr
 			end
-			en.frame=en.sprs.disapr
+			en.frame=en.sprs.idle
 		end,
 		apr=function()
 			en.apr_t=anim_sys(en.sprs.apr,en,en.apr_t,.1,2)
@@ -362,8 +365,7 @@ function enstate_lizi(en) --丢栗怪
 					en.state=en.allstate.move
 					en.idle_t=0
 				end
-			end		
-							
+			end				
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
 				en.hurtframe=(en.dire+1)/2
@@ -404,7 +406,7 @@ function enstate_lizi(en) --丢栗怪
 			end
 			anim_sys(en.sprs.move[(en.dire+1)/2],en,en.move_t,.1,1)
 			--检测到玩家，切换射击状态
-			if check_p(en) then
+			if check_p(en,en.crange) then
 				en.state=en.allstate.atk
 				init_cnut(en)--生成子弹
 			end

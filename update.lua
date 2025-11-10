@@ -27,7 +27,6 @@ function update_game()--游戏进行时
 	--敌人子弹的检测
 	for b in all(bullets) do
 		firebullet(b)--开火
-
 		--玩家受伤
 		if check_p_hurt(wy,"bu",b) and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
 			wy.ishurt=true

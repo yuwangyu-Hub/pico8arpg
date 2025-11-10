@@ -9,10 +9,16 @@
 --*敌人死亡几率掉落
 --*翻滚衔接攻击:?可能有
 --*特效：移动粒子
+chaname={"player","urchin","snake","spider","slime","bat","ghost","lizi"}
+chahp=explodeval("8,1,2,1,1,1,4,2")
+chaspd={1,0,.5,.5,.5,1,.3,.5}
+chalastdire=explodeval("5,0,5,5,5,5,5,3")
+chacrange=explodeval("0,0,0,0,20,25,10,20")
+
 atdirex=explodeval("40,40,43,46,46,46,42,40")--sspr攻击icon的x
-atdirey=explodeval("10, 8, 8, 8,11,14,14,14")--sspr攻击icon的y
+atdirey=explodeval("10,8,8,8,11,14,14,14")--sspr攻击icon的y
 input_dire=explodeval("0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0")--btn()0-15所对应的方向：从左边开始顺时针8方向
-dirx,diry=explodeval("-1,-1, 0, 1,1,1, 0,-1"),explodeval(" 0,-1,-1,-1,0,1, 1, 1")
+dirx,diry=explodeval("-1,-1,0,1,1,1,0,-1"),explodeval("0,-1,-1,-1,0,1,1,1")
 enemies,character,item,cb_line={}
 en_dspr=explodeval("85,86,87,88")--敌人死亡
 bullets={}--子弹,敌人所有可发射的物体
@@ -39,6 +45,9 @@ function startgame()
 end
 
 function printbug()
-	print(debug,10,10,10)
+	--print(debug,10,10,10)
 	print(debug1,10,40,10)
+	if enemies[1] then
+		print(enemies[1].hp,10,60,10)
+	end
 end
