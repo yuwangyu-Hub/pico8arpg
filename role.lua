@@ -29,7 +29,7 @@ function makerole(cha_tpye,x,y,sprs,state)--角色的创建模板
 end
 -- 初始化玩家数据
 -- @return 玩家对象
-function initializeplayer()
+function init_player()
 	local player = makerole(1,7,7,
 		{idle = 2, --  idle状态精灵
 		move=explodeval("1,2,3,4"), -- 移动状态精灵序列
@@ -66,27 +66,24 @@ function initializeplayer()
 	return player
 end
 -- 初始化武器数据 武器对象
-function initializesword()
+function init_sword()
 	sword={}
 	sword.x,sword.y,sword.w,sword.h=0,0,7,7
 	sword.sprx,sword.spry=explodeval("-7,-6,2,8,8,8,2,-6"),explodeval("2,-6,-7,-6,2,8,8,8")	 --1 2 3 4 5 6 7 8
 	sword.isappear = false -- 是否显示
 	return sword
 end
-
---*角色：敌人和npc
-function createnemy_urchin(_x,_y)--海胆
+function createnemy_urchin(_x,_y)
 	local urchin = makerole(2,_x,_y,
 		{idle=105,
-		hurt={105,121}
-		},
+		hurt={105,121}},
 		{idle = "idle",
 		hurt="hurt",
 		death = "death"})
 	add(enemies,urchin)
 	return urchin
 end
-function createnemy_snake(_x,_y)--蛇
+function createnemy_snake(_x,_y)
 	local snake = makerole(3,_x,_y,
 		{idle=99,
 		move={98,99},
@@ -98,7 +95,7 @@ function createnemy_snake(_x,_y)--蛇
 	add(enemies,snake)
 	return snake
 end
-function createnemy_spider(_x,_y)--小蜘蛛
+function createnemy_spider(_x,_y)
 	local spider = makerole(4,_x,_y,
 		{idle=103,
 		move={102,103},
@@ -110,10 +107,10 @@ function createnemy_spider(_x,_y)--小蜘蛛
 	add(enemies,spider)
 	return spider
 end
-function createnemy_slime(_x,_y)--史莱姆
+function createnemy_slime(_x,_y)
 	local slime = makerole(5,_x,_y,
 		{idle={96,117},
-		charge={97,113},--跳跃前的蓄力
+		charge={97,113},
 		jump=114,
 		hurt={96,112}},
 		{idle = "idle",
@@ -121,17 +118,10 @@ function createnemy_slime(_x,_y)--史莱姆
 		jump = "jump",
 		hurt="hurt",
 		death = "death"})
-	slime.charge_t=0
-	slime.tx,slime.ty=0, 0
-	slime.jump_t = nil
-	slime.jump_start_x, slime.jump_start_y=0, 0--跳跃初始位置
-	slime.jump_dir_x, slime.jump_dir_y=0, 0--跳跃方向
-	slime.jump_dist=0--跳跃距离
-	slime.crange = 20--检测范围
 	add(enemies,slime)
 	return slime
 end
-function createnemy_bat(_x,_y)--小蝙蝠
+function createnemy_bat(_x,_y)
 	local bat = makerole(6,_x,_y,
 		{idle=101,
 		fly={100,101},
@@ -142,15 +132,10 @@ function createnemy_bat(_x,_y)--小蝙蝠
 		rest="rest",
 		hurt="hurt",
 		death = "death"})
-	bat.rest_t,bat.fly_t=0,0
-	bat.tx, bat.ty=0,0
-	bat.angle,bat.radius=0,0 -- 用于圆形飞行的角度-- 圆形飞行的半径
-	bat.fly_init,bat.fly_direction = false, 1 --是否初始化了飞行参数--飞行方向：1为顺时针，-1为逆时针
-	bat.bat_start_x, bat.bat_start_y=0,0
 	add(enemies,bat)
 	return bat
 end
-function createnemy_ghost(_x,_y)--幽灵
+function createnemy_ghost(_x,_y)
 	local ghost = makerole(7,_x,_y,
 		{idle=126,--空白
 		apr={126,122,123},--出现
@@ -163,13 +148,10 @@ function createnemy_ghost(_x,_y)--幽灵
 		hurt="hurt",
 		death = "death"}
 	)
-	ghost.apr_t=0
-	ghost.fly_t=0
-	ghost.rest_t=0
 	add(enemies,ghost)
 	return ghost
 end
-function createnemy_lizi(_x,_y) --丢栗怪
+function createnemy_lizi(_x,_y)
 	local lizi = makerole(8,_x,_y,
 		{idle={89,106,108},
 		move=explodeval("[108,109],[89,90],[108,109],[106,107]"),--1357
@@ -182,7 +164,6 @@ function createnemy_lizi(_x,_y) --丢栗怪
 		death = "death"})
 	lizi.atk_t=0
 	lizi.hurtframe=0
-	lizi.cubeline=5 -- 检测矩形视线
 	add(enemies,lizi)
 	return lizi
 end

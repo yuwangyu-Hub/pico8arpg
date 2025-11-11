@@ -44,8 +44,8 @@ function en_update(e,name,func)
 end
 function update_mamenu()--菜单
 	blinkt+=1
-	wy = initializeplayer()  -- 初始化玩家
-	sword = initializesword()  -- 初始化武器
+	wy = init_player()  -- 初始化玩家
+	sword = init_sword()  -- 初始化武器
 	--startgame()
 	input_mamenu()--主菜单输入
 end
