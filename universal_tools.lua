@@ -319,8 +319,32 @@ function nomalize(sb,speed1,speed2)--归一化
 	return respeed
 end
 function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
+	--*修改函数，来匹配不同尺寸的物体/人物
 	--检测该点是否在图块上
-	local x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8 = flr((v.x-1)/8), flr((v.y)/8), flr((v.x-1)/8), flr((v.y+7)/8), flr((v.x)/8), flr((v.y+8)/8), flr((v.x+7)/8), flr((v.y+8)/8), flr((v.x+8)/8), flr((v.y+7)/8), flr((v.x+8)/8), flr((v.y)/8), flr((v.x+7)/8), flr((v.y-1)/8), flr((v.x)/8), flr((v.y-1)/8)
+	local x1=flr((v.x-1)/8)--左上角
+	local y1=flr((v.y)/8)
+
+	local x2=flr((v.x-1)/8)--左下角
+	local y2=flr((v.y+7)/8)
+
+	local x3=flr((v.x)/8)--
+	local y3=flr((v.y+8)/8)
+
+	local x4=flr((v.x+7)/8)--右下角
+	local y4=flr((v.y+8)/8)
+
+	local x5=flr((v.x+8)/8)
+	local y5=flr((v.y+7)/8)
+
+	local x6=flr((v.x+8)/8)--
+	local y6=flr((v.y)/8)
+
+	local x7=flr((v.x+7)/8)--右上角
+	local y7=flr((v.y-1)/8)
+
+	local x8=flr((v.x)/8)--
+	local y8=flr((v.y-1)/8)
+
 	local lu,ld,dl,dr,rd,ru,ur,ul=fget(mget(x1,y1),0),fget(mget(x2,y2),0),fget(mget(x3,y3),0),fget(mget(x4,y4),0),fget(mget(x5,y5),0),fget(mget(x6,y6),0),fget(mget(x7,y7),0),fget(mget(x8,y8),0)
 	local x02, y02, x04, y04, x06, y06, x08, y08 = flr((v.x-1)/8), flr((v.y-1)/8), flr((v.x+8)/8), flr((v.y-1)/8), flr((v.x+8)/8), flr((v.y+8)/8), flr((v.x-1)/8), flr((v.y+8)/8) --左上角,--右上角，--右下角，--左下角  
 	if (lu or ld) and not(ur or ul) and not (dl or dr) then --是否靠墙1

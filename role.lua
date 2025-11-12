@@ -118,6 +118,7 @@ function createnemy_slime(_x,_y)
 		jump = "jump",
 		hurt="hurt",
 		death = "death"})
+	slime.w,slime.h=2,2
 	add(enemies,slime)
 	return slime
 end

@@ -99,7 +99,7 @@ function enstate_slime(en)
 					en.idle_t=anim_sys(en.sprs.idle,en,en.idle_t,.1,1)
 					
 					--检测玩家位置靠近
-					if check_p_dis(en,wy) then
+					if check_p_dis(en,wy) and check_wall_iswalk(en)==0 then
 						tx, ty=wy.x, wy.y
 						en.state=en.allstate.charge
 					end
@@ -119,6 +119,14 @@ function enstate_slime(en)
 					check_hp(en)
 				end,
 				jump=function()
+					--*穿墙bug
+					--如果跳跃过程中碰到墙壁，直接停止跳跃，回到idle状态
+					if check_wall_iswalk(en)!=0 then
+						jump_t = nil
+						en.state = en.allstate.idle
+					end
+
+
 					--跳跃移动到玩家位置（线性平移）
 					if jump_t == nil then
 							jump_t = 0
