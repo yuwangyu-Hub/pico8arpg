@@ -345,8 +345,22 @@ function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁�
 	local x8=flr((v.x)/8)--
 	local y8=flr((v.y-1)/8)
 
-	local lu,ld,dl,dr,rd,ru,ur,ul=fget(mget(x1,y1),0),fget(mget(x2,y2),0),fget(mget(x3,y3),0),fget(mget(x4,y4),0),fget(mget(x5,y5),0),fget(mget(x6,y6),0),fget(mget(x7,y7),0),fget(mget(x8,y8),0)
-	local x02, y02, x04, y04, x06, y06, x08, y08 = flr((v.x-1)/8), flr((v.y-1)/8), flr((v.x+8)/8), flr((v.y-1)/8), flr((v.x+8)/8), flr((v.y+8)/8), flr((v.x-1)/8), flr((v.y+8)/8) --左上角,--右上角，--右下角，--左下角  
+	local lu=fget(mget(x1,y1),0)--左上
+	local ld=fget(mget(x2,y2),0)--左下
+	local dl=fget(mget(x3,y3),0)--下左
+	local dr=fget(mget(x4,y4),0)--下右
+	local rd=fget(mget(x5,y5),0)--右下
+	local ru=fget(mget(x6,y6),0)--右上
+	local ur=fget(mget(x7,y7),0)--上右
+	local ul=fget(mget(x8,y8),0)--上左
+	local x02=flr((v.x-1)/8)--左上角
+	local y02=flr((v.y-1)/8)
+	local x04=flr((v.x+8)/8)--右上角
+	local y04=flr((v.y-1)/8)
+	local x06=flr((v.x+8)/8)--右下角
+	local y06=flr((v.y+8)/8)
+	local x08=flr((v.x-1)/8)--左下角 
+	local y08=flr((v.y+8)/8) 
 	if (lu or ld) and not(ur or ul) and not (dl or dr) then --是否靠墙1
 		if lu and not ld then
 			return 1,"down" --因为左上角检测点检测到了，而左下角没检测到，所以在下面
