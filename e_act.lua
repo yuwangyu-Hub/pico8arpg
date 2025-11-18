@@ -55,7 +55,7 @@ function enstate_snake(en)
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
 			--限定距离(或时间)
-			local wall_dire,_=check_wall_iswalk(en)--检测到朝墙壁
+			local wall_dire,_=check_wall_iswalk(en,8,8)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
 					setspd_0(en)
@@ -97,11 +97,17 @@ function enstate_slime(en)
 					--因为slime的idle动画是循环播放的，所以这里需要判断是否需要播放idle动画
 					--所以需要有idle_t来记录idle动画的播放时间
 					en.idle_t=anim_sys(en.sprs.idle,en,en.idle_t,.1,1)
-					
 					--检测玩家位置靠近
-					if check_p_dis(en,wy) and check_wall_iswalk(en)==0 then
-						tx, ty=wy.x, wy.y
-						en.state=en.allstate.charge
+					if check_p_dis(en,wy)  then
+						if check_wall_iswalk(en,6,6)==0 then --不靠墙
+							tx, ty=wy.x, wy.y
+							en.state=en.allstate.charge
+						else--靠墙
+							if en_nestwall_pos(wy,en)==check_wall_iswalk(en,6,6) then
+								tx, ty=wy.x, wy.y
+								en.state=en.allstate.charge
+							end
+						end
 					end
 					if check_en_hurt(sword,en,wy) then
 						en.state=en.allstate.hurt
@@ -121,12 +127,10 @@ function enstate_slime(en)
 				jump=function()
 					--*穿墙bug
 					--如果跳跃过程中碰到墙壁，直接停止跳跃，回到idle状态
-					if check_wall_iswalk(en)!=0 then
+					if check_wall_iswalk(en,6,6)!=0 then --靠墙
 						jump_t = nil
 						en.state = en.allstate.idle
 					end
-
-
 					--跳跃移动到玩家位置（线性平移）
 					if jump_t == nil then
 							jump_t = 0
@@ -286,7 +290,7 @@ function enstate_spider(en)
 			local d=(en.dire+1)/2 --获取方向的索引
 			--移动是四个方向的随机移动
 			--限定距离(或时间)
-			local wall_dire,_=check_wall_iswalk(en)--检测到朝墙壁
+			local wall_dire,_=check_wall_iswalk(en,8,8)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
 					setspd_0(en)
@@ -418,7 +422,7 @@ function enstate_lizi(en)
 				en.state=en.allstate.hurt
 				en.hurtframe=(en.dire+1)/2
 			end
-			local wall_dire,_=check_wall_iswalk(en)--检测到朝墙壁
+			local wall_dire,_=check_wall_iswalk(en,8,8)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
 					setspd_0(en)

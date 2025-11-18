@@ -36,29 +36,50 @@ function c_pcheck(_e,_px,_py) --coll_pointcheck
 	return _px>=_e.x and _px<=_e.x+_e.w and _py>=_e.y and _py<=_e.y+_e.h
 end
 --检测物体\角色在sb的哪个方向
-function checkdir(_ore,_sb)--obj/en
-	local ox1,oy1,ox2,oy2=_ore.x+2,_ore.y+2,_ore.x+_ore.w-4,_ore.y+_ore.h-4 --将碰撞盒向内收缩2个像素，来达到检测深度
-	local sx1,sy1,sx2,sy2=_sb.x+2,_sb.y+2,_sb.x+_sb.w-4,_sb.y+_sb.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
-	if sx1>ox2 and sy2>=oy1 and sy1<=oy2 then--物体在左边
+function checkdir(_ob2,_sb1)--obj/sb
+	local ox1,oy1,ox2,oy2=_ob2.x+2,_ob2.y+2,_ob2.x+_ob2.w-4,_ob2.y+_ob2.h-4 --将碰撞盒向内收缩2个像素，来达到检测深度
+	local sx1,sy1,sx2,sy2=_sb1.x+2,_sb1.y+2,_sb1.x+_sb1.w-4,_sb1.y+_sb1.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
+	if sx1>ox2 and sy2>=oy1 and sy1<=oy2 then--ob2在sb1左边
 		return 1
-	elseif sx1>ox2 and sy1>oy2 then--物体在左上
+	elseif sx1>ox2 and sy1>oy2 then--ob2在sb1左上
 		return 2
-	elseif sy1>oy2 and sx2>=ox1 and sx1<=ox2 then--物体在上边
+	elseif sy1>oy2 and sx2>=ox1 and sx1<=ox2 then--ob2在sb1上边
 		return 3
-	elseif sx2<ox1 and sy1>oy2 then--物体在右上
+	elseif sx2<ox1 and sy1>oy2 then--ob2在sb1右上
 		return 4
-	elseif sx2<ox1 and sy2>=oy1 and sy1<=oy2 then--物体在右边
+	elseif sx2<ox1 and sy2>=oy1 and sy1<=oy2 then--ob2在sb1右边
 		return 5
-	elseif sx2<ox1 and sy2<oy1 then--物体在右下
+	elseif sx2<ox1 and sy2<oy1 then--ob2在sb1右下
 		return 6
-	elseif sy2<oy1 and sx2>=ox1 and sx1<=ox2 then--物体在下边
+	elseif sy2<oy1 and sx2>=ox1 and sx1<=ox2 then--ob2在sb1下边
 		return 7
-	elseif sx1>ox2 and sy2<oy1 then--物体在左下
+	elseif sx1>ox2 and sy2<oy1 then--ob2在sb1左下
 		return 8
 	else --在物体内？(碰撞)
 		return 0
 	end
 end
+--用于当敌人靠墙后，识别玩家在敌人的位置。当在对应的位置上，就可动，不在位置上，就idle
+function en_nestwall_pos(p,en)--p:玩家,en:敌人
+	if checkdir(p,en)==3 or checkdir(p,en)==4 or checkdir(p,en)==5 or checkdir(p,en)==6 or checkdir(p,en)==7 then
+		return 1 --34567 --en靠墙的值所对应的--》玩家位置，只有玩家在这些个位置时，靠墙的en才可动。如果玩家不在这些位置也是被墙遮挡。
+	elseif checkdir(p,en)==5 or checkdir(p,en)==6 or checkdir(p,en)==7 then
+		return 2 --567
+	elseif checkdir(p,en)==1 or checkdir(p,en)==5 or checkdir(p,en)==6 or checkdir(p,en)==7 or checkdir(p,en)==8 then
+		return 3 --15678
+	elseif checkdir(p,en)==1 or checkdir(p,en)==7 or checkdir(p,en)==8 then
+		return 4 --178
+	elseif checkdir(p,en)==1 or checkdir(p,en)==2 or checkdir(p,en)==3 or checkdir(p,en)==7 or checkdir(p,en)==8 then
+		return 5 --12378
+	elseif checkdir(p,en)==1 or checkdir(p,en)==2 or checkdir(p,en)==3 then
+		return 6 --123
+	elseif checkdir(p,en)==1 or checkdir(p,en)==2 or checkdir(p,en)==3 or checkdir(p,en)==4 or checkdir(p,en)==5 then
+		return 7 --12345
+	elseif checkdir(p,en)==3 or checkdir(p,en)==4 or checkdir(p,en)==5 then
+		return 8 --345
+	end
+end
+
 -- 查找集合中距离主体最近的对象
 -- objectGroup 对象集合
 -- subject 主体对象
@@ -318,49 +339,45 @@ function nomalize(sb,speed1,speed2)--归一化
 	end
 	return respeed
 end
-function check_wall_iswalk(v)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
+function check_wall_iswalk(v,w,h)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
+	--*w,h为物体的宽度和高度
 	--*修改函数，来匹配不同尺寸的物体/人物
 	--检测该点是否在图块上
-	local x1=flr((v.x-1)/8)--左上角
+	--八个点分别为上下左右四个侧面的两个端点。
+	local x1=flr((v.x-1)/8) 
 	local y1=flr((v.y)/8)
-
-	local x2=flr((v.x-1)/8)--左下角
-	local y2=flr((v.y+7)/8)
-
-	local x3=flr((v.x)/8)--
-	local y3=flr((v.y+8)/8)
-
-	local x4=flr((v.x+7)/8)--右下角
-	local y4=flr((v.y+8)/8)
-
-	local x5=flr((v.x+8)/8)
-	local y5=flr((v.y+7)/8)
-
-	local x6=flr((v.x+8)/8)--
+	local x2=flr((v.x-1)/8)
+	local y2=flr((v.y+h-1)/8) -- +h-1
+	local x3=flr((v.x)/8)
+	local y3=flr((v.y+h)/8) -- +h
+	local x4=flr((v.x+w-1)/8) -- +w-1
+	local y4=flr((v.y+h)/8) -- +h
+	local x5=flr((v.x+w)/8) -- +w
+	local y5=flr((v.y+h-1)/8) -- +h-1
+	local x6=flr((v.x+w)/8) -- +w
 	local y6=flr((v.y)/8)
-
-	local x7=flr((v.x+7)/8)--右上角
+	local x7=flr((v.x+w-1)/8) -- +w-1
 	local y7=flr((v.y-1)/8)
-
-	local x8=flr((v.x)/8)--
+	local x8=flr((v.x)/8)
 	local y8=flr((v.y-1)/8)
-
+	--分别对应这八个点的图块
 	local lu=fget(mget(x1,y1),0)--左上
 	local ld=fget(mget(x2,y2),0)--左下
 	local dl=fget(mget(x3,y3),0)--下左
 	local dr=fget(mget(x4,y4),0)--下右
 	local rd=fget(mget(x5,y5),0)--右下
-	local ru=fget(mget(x6,y6),0)--右上
+	local ru=fget(mget(x6,y6),0)--右上 
 	local ur=fget(mget(x7,y7),0)--上右
 	local ul=fget(mget(x8,y8),0)--上左
+	--物体的四个顶点位置
 	local x02=flr((v.x-1)/8)--左上角
 	local y02=flr((v.y-1)/8)
-	local x04=flr((v.x+8)/8)--右上角
+	local x04=flr((v.x+w)/8)--右上角 +w
 	local y04=flr((v.y-1)/8)
-	local x06=flr((v.x+8)/8)--右下角
-	local y06=flr((v.y+8)/8)
+	local x06=flr((v.x+h)/8)--右下角 +h
+	local y06=flr((v.y+w)/8)--      +w
 	local x08=flr((v.x-1)/8)--左下角 
-	local y08=flr((v.y+8)/8) 
+	local y08=flr((v.y+h)/8)--      +h
 	if (lu or ld) and not(ur or ul) and not (dl or dr) then --是否靠墙1
 		if lu and not ld then
 			return 1,"down" --因为左上角检测点检测到了，而左下角没检测到，所以在下面
@@ -429,7 +446,6 @@ end
 function checkwallside(x1,y1,x2,y2)
 	return not (fget(mget(x1,y1),0) and fget(mget(x2,y2),0))
 end
-
 
 function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移动
 	if coll_dire==1 then

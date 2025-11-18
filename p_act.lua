@@ -11,7 +11,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 		colldire_o=checkdir(near_o,player)--物品在主角的朝向
 		is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
 	end]]
-	local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
+	local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8)--获取墙在玩家的位置，在边缘的哪一侧
 	local switchstate={
 		idle = function()
 			player.isroll=false
@@ -89,7 +89,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 			end
 		end,
 		roll=function()
-			local is_wall_coll_dire,oneside=check_wall_iswalk(player)--获取墙在玩家的位置，在边缘的哪一侧
+			local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8)--获取墙在玩家的位置，在边缘的哪一侧
 			roll(player,is_wall_coll_dire)
 			--动画相关
 			player.roll_t+=0.5

@@ -16,7 +16,7 @@ chaname={"player","urchin","snake","spider","slime","bat","ghost","lizi"}
 chahp=explodeval("8,1,2,1,1,1,4,2")
 chaspd={1,0,.5,.5,.5,1,.3,.5}
 chalastdire=explodeval("5,0,5,5,5,5,5,3")
-chacrange=explodeval("0,0,0,0,20,25,10,20")
+chacrange=explodeval("0,0,0,0,30,25,10,20")
 
 atdirex=explodeval("40,40,43,46,46,46,42,40")--sspr攻击icon的x
 atdirey=explodeval("10,8,8,8,11,14,14,14")--sspr攻击icon的y
