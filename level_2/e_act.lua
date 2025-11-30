@@ -1,7 +1,6 @@
 function enstate_urchin(en)
 	local switchstate={
 		idle=function()
-			debug1="idle"
 			en.wudi_t=0
 			if check_en_hurt(sword,en,wy) then
 				en.state=en.allstate.hurt
@@ -9,13 +8,11 @@ function enstate_urchin(en)
 			check_hp(en)
 		end,
 		hurt=function()--受伤弹开
-			debug1="hurt"
             en.wudi_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,5)
 			hurtdo(en,en.wudi_t)
 			xypluspd(en)
 		end,
 		death=function()
-			debug1="death"
 			en.die_t+=.4
 			death_do(en,en.die_t)
 		end,
@@ -91,6 +88,7 @@ function enstate_slime(en)
 		en.slime_handler = function()
 			local switchstate={
 				idle=function()
+					debug="idle"
 					en.wudi_t=0
 					charge_t=0
 					tx,ty=0,0
@@ -99,14 +97,9 @@ function enstate_slime(en)
 					en.idle_t=anim_sys(en.sprs.idle,en,en.idle_t,.1,1)
 					--检测玩家位置靠近
 					if check_p_dis(en,wy)  then
-						if check_wall_iswalk(en,6,6)==0 then --不靠墙
+						if en_nestwall(wy,en) then
 							tx, ty=wy.x, wy.y
 							en.state=en.allstate.charge
-						else--靠墙
-							if en_nestwall_pos(wy,en)==check_wall_iswalk(en,6,6) then
-								tx, ty=wy.x, wy.y
-								en.state=en.allstate.charge
-							end
 						end
 					end
 					if check_en_hurt(sword,en,wy) then
@@ -115,6 +108,7 @@ function enstate_slime(en)
 					check_hp(en)
 				end,
 				charge=function() --蓄力
+					debug="charge"
 					charge_t = anim_sys(en.sprs.charge,en,charge_t,.1,4)
 					if charge_t>=2 then 
 						en.state=en.allstate.jump
@@ -125,9 +119,13 @@ function enstate_slime(en)
 					check_hp(en)
 				end,
 				jump=function()
+					debug="jump"
 					--*穿墙bug
 					--如果跳跃过程中碰到墙壁，直接停止跳跃，回到idle状态
-					if check_wall_iswalk(en,6,6)!=0 then --靠墙
+					debug3=en_nestwall(wy,en)
+					if not en_nestwall(wy,en) then
+						debug1=check_wall_iswalk(en,8,8)
+						debug2=checkdir(wy,en)
 						jump_t = nil
 						en.state = en.allstate.idle
 					end

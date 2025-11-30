@@ -6,10 +6,10 @@ function draw_game()
         for e in all (enemies) do
             spr(e.frame, e.x, e.y,1,1,e.sprflip)
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --可视化碰撞盒
-            if e.name=="slime" then--敌人检测范围
+            --if e.name=="slime" then--敌人检测范围
                 --圆检测范围
                 --circ(e.x+e.w/2,e.y+e.h/2,e.crange,12)
-            end
+            --end
         end
     end
     --[[if #obj>0 then--物体显示
@@ -24,9 +24,8 @@ function draw_game()
     end
     --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
-    for b in all(bullets) do
+    for b in all(bullets) do --射击物的绘制
         spr(b.frame,b.x,b.y)
-        
     end
     ui_show()--UI显示
 end

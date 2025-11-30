@@ -40,46 +40,58 @@ function checkdir(_ob2,_sb1)--obj/sb
 	local ox1,oy1,ox2,oy2=_ob2.x+2,_ob2.y+2,_ob2.x+_ob2.w-4,_ob2.y+_ob2.h-4 --将碰撞盒向内收缩2个像素，来达到检测深度
 	local sx1,sy1,sx2,sy2=_sb1.x+2,_sb1.y+2,_sb1.x+_sb1.w-4,_sb1.y+_sb1.h-4--将碰撞盒向内收缩2个像素，来达到检测深度
 	if sx1>ox2 and sy2>=oy1 and sy1<=oy2 then--ob2在sb1左边
-		return 1
+		return 1 --ob2为sb的1
 	elseif sx1>ox2 and sy1>oy2 then--ob2在sb1左上
-		return 2
+		return 2 --2
 	elseif sy1>oy2 and sx2>=ox1 and sx1<=ox2 then--ob2在sb1上边
-		return 3
+		return 3 --3
 	elseif sx2<ox1 and sy1>oy2 then--ob2在sb1右上
-		return 4
+		return 4 --4
 	elseif sx2<ox1 and sy2>=oy1 and sy1<=oy2 then--ob2在sb1右边
-		return 5
+		return 5 --5
 	elseif sx2<ox1 and sy2<oy1 then--ob2在sb1右下
-		return 6
+		return 6 --6
 	elseif sy2<oy1 and sx2>=ox1 and sx1<=ox2 then--ob2在sb1下边
-		return 7
+		return 7 --7
 	elseif sx1>ox2 and sy2<oy1 then--ob2在sb1左下
-		return 8
+		return 8 --8
 	else --在物体内？(碰撞)
 		return 0
 	end
 end
---用于当敌人靠墙后，识别玩家在敌人的位置。当在对应的位置上，就可动，不在位置上，就idle
-function en_nestwall_pos(p,en)--p:玩家,en:敌人
-	if checkdir(p,en)==3 or checkdir(p,en)==4 or checkdir(p,en)==5 or checkdir(p,en)==6 or checkdir(p,en)==7 then
-		return 1 --34567 --en靠墙的值所对应的--》玩家位置，只有玩家在这些个位置时，靠墙的en才可动。如果玩家不在这些位置也是被墙遮挡。
-	elseif checkdir(p,en)==5 or checkdir(p,en)==6 or checkdir(p,en)==7 then
-		return 2 --567
-	elseif checkdir(p,en)==1 or checkdir(p,en)==5 or checkdir(p,en)==6 or checkdir(p,en)==7 or checkdir(p,en)==8 then
-		return 3 --15678
-	elseif checkdir(p,en)==1 or checkdir(p,en)==7 or checkdir(p,en)==8 then
-		return 4 --178
-	elseif checkdir(p,en)==1 or checkdir(p,en)==2 or checkdir(p,en)==3 or checkdir(p,en)==7 or checkdir(p,en)==8 then
-		return 5 --12378
-	elseif checkdir(p,en)==1 or checkdir(p,en)==2 or checkdir(p,en)==3 then
-		return 6 --123
-	elseif checkdir(p,en)==1 or checkdir(p,en)==2 or checkdir(p,en)==3 or checkdir(p,en)==4 or checkdir(p,en)==5 then
-		return 7 --12345
-	elseif checkdir(p,en)==3 or checkdir(p,en)==4 or checkdir(p,en)==5 then
-		return 8 --345
+function judge(v,p,e)--用于下方判断,v:数据集合、p:player、e:enemy
+	return v[checkdir(p,e)] or false
+end
+--检测敌人如果靠墙后识别 玩家位置 是否在靠墙一侧。如果在靠墙一侧就false不追，如果不在靠墙一侧true追
+function en_nestwall(p,en)--p:玩家,en:敌人
+	if check_wall_iswalk(en,8,8)==1 then --34567
+		local data={[3]=true,[4]=true,[5]=true,[6]=true,[7]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==2 then--567
+		local data={[5]=true,[6]=true,[7]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==3 then--15678
+		local data={[1]=true,[5]=true,[6]=true,[7]=true,[8]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==4 then--178
+		local data={[1]=true,[7]=true,[8]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==5 then--12378
+		local data={[1]=true,[2]=true,[3]=true,[7]=true,[8]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==6 then--123
+		local data={[1]=true,[2]=true,[3]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==7 then--12345
+		local data={[1]=true,[2]=true,[3]=true,[4]=true,[5]=true}
+		return judge(data,p,en)
+	elseif check_wall_iswalk(en,8,8)==8 then--345
+		local data={[3]=true,[4]=true,[5]=true}
+		return judge(data,p,en)
+	else--0
+		return true
 	end
 end
-
 -- 查找集合中距离主体最近的对象
 -- objectGroup 对象集合
 -- subject 主体对象
@@ -89,8 +101,7 @@ function findnearest_object(objectgroup, subject)
 	for object in all(objectgroup) do
 		local distance = sqrt(abs(object.x - subject.x) + abs(object.y - subject.y))
 		if distance < mindistance then
-			mindistance = distance
-			nearestobject = object
+			mindistance,nearestobject = distance,object
 		end
 	end
 	return nearestobject
@@ -196,7 +207,7 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 		end
 	end
 end
-function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
+function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙 iwcd:
 	local xymove=""--xy轴移动方向,贴墙斜角度也可翻滚，只是速度较低:1
 	local _rollspd
 	if not _sb.isclosewall then
@@ -234,7 +245,9 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
 		
 	else--1357
 		if _sb.dire==1 then
-			if iwcd==8 or iwcd==1 or iwcd==2 then
+			local v={[8]=true,[1]=true,[2]=true}
+			if v[iwcd] then
+			--if iwcd==8 or iwcd==1 or iwcd==2 then
 				_rollspd= 0--速度为0
 				xymove="no"
 			end
@@ -259,10 +272,7 @@ function roll(_sb,iwcd)--is_wall_coll_dire
 	--翻滚所需时间结束
 	if _sb.roll_t>=5  then
 		setspd_0(_sb)
-		_sb.isroll=false
-		_sb.roll_t=0
-		_sb.isclosewall=false
-		_sb.state=_sb.allstate.idle
+		_sb.isroll, _sb.isclosewall, _sb.roll_t, _sb.state=false, false, 0, _sb.allstate.idle
 		setflrxy(_sb)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
 	end
 end
@@ -288,7 +298,6 @@ function check_p_hurt(_sb,type,b)--玩家受伤,最近的敌人,type:检测类�
 				end
 			end
 		end
-
 	elseif type=="bu" then  --检测类型为子弹
 		if ck_sthcoll(_sb,b,0,0,0,0) then
 				if checkdir(_sb,b)!=0 then
@@ -332,11 +341,7 @@ function death_do(_e,dt)
 end
 function nomalize(sb,speed1,speed2)--归一化
 	local respeed=0
-	if sb.dire==2 or  sb.dire==4 or sb.dire==6 or sb.dire==8 then
-		respeed=speed1 --2.1213--sqrt(wy.rollspeed*wy.rollspeed/2)--斜方向归一化
-	else
-		respeed=speed2 --3
-	end
+	respeed=(sb.dire==2 or sb.dire==4 or sb.dire==6 or sb.dire==8) and speed1 or speed2 
 	return respeed
 end
 function check_wall_iswalk(v,w,h)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
@@ -344,40 +349,14 @@ function check_wall_iswalk(v,w,h)--检测物体(角色、箱子)是否靠近墙�
 	--*修改函数，来匹配不同尺寸的物体/人物
 	--检测该点是否在图块上
 	--八个点分别为上下左右四个侧面的两个端点。
-	local x1=flr((v.x-1)/8) 
-	local y1=flr((v.y)/8)
-	local x2=flr((v.x-1)/8)
-	local y2=flr((v.y+h-1)/8) -- +h-1
-	local x3=flr((v.x)/8)
-	local y3=flr((v.y+h)/8) -- +h
-	local x4=flr((v.x+w-1)/8) -- +w-1
-	local y4=flr((v.y+h)/8) -- +h
-	local x5=flr((v.x+w)/8) -- +w
-	local y5=flr((v.y+h-1)/8) -- +h-1
-	local x6=flr((v.x+w)/8) -- +w
-	local y6=flr((v.y)/8)
-	local x7=flr((v.x+w-1)/8) -- +w-1
-	local y7=flr((v.y-1)/8)
-	local x8=flr((v.x)/8)
-	local y8=flr((v.y-1)/8)
+	local x1,y1,x2,y2=flr((v.x-1)/8),flr((v.y)/8),flr((v.x-1)/8),flr((v.y+h-1)/8)
+	local x3,y3,x4,y4=flr((v.x)/8),flr((v.y+h)/8),flr((v.x+w-1)/8),flr((v.y+h)/8)
+	local x5,y5,x6,y6=flr((v.x+w)/8),flr((v.y+h-1)/8),flr((v.x+w)/8),flr((v.y)/8)
+	local x7,y7,x8,y8=flr((v.x+w-1)/8),flr((v.y-1)/8),flr((v.x)/8),flr((v.y-1)/8)
 	--分别对应这八个点的图块
-	local lu=fget(mget(x1,y1),0)--左上
-	local ld=fget(mget(x2,y2),0)--左下
-	local dl=fget(mget(x3,y3),0)--下左
-	local dr=fget(mget(x4,y4),0)--下右
-	local rd=fget(mget(x5,y5),0)--右下
-	local ru=fget(mget(x6,y6),0)--右上 
-	local ur=fget(mget(x7,y7),0)--上右
-	local ul=fget(mget(x8,y8),0)--上左
+	local lu,ld,dl,dr,rd,ru,ur,ul=fget(mget(x1,y1),0),fget(mget(x2,y2),0),fget(mget(x3,y3),0),fget(mget(x4,y4),0),fget(mget(x5,y5),0),fget(mget(x6,y6),0),fget(mget(x7,y7),0),fget(mget(x8,y8),0)--左上,左下,下左,下右,右下,右上,上右,上左
 	--物体的四个顶点位置
-	local x02=flr((v.x-1)/8)--左上角
-	local y02=flr((v.y-1)/8)
-	local x04=flr((v.x+w)/8)--右上角 +w
-	local y04=flr((v.y-1)/8)
-	local x06=flr((v.x+h)/8)--右下角 +h
-	local y06=flr((v.y+w)/8)--      +w
-	local x08=flr((v.x-1)/8)--左下角 
-	local y08=flr((v.y+h)/8)--      +h
+	local x02,y02,x04,y04,x06,y06,x08,y08=flr((v.x-1)/8),flr((v.y-1)/8),flr((v.x+w)/8),flr((v.y-1)/8),flr((v.x+h)/8),flr((v.y+w)/8),flr((v.x-1)/8),flr((v.y+h)/8)--左上角--右上角--右下角--左下角
 	if (lu or ld) and not(ur or ul) and not (dl or dr) then --是否靠墙1
 		if lu and not ld then
 			return 1,"down" --因为左上角检测点检测到了，而左下角没检测到，所以在下面
@@ -446,15 +425,8 @@ end
 function checkwallside(x1,y1,x2,y2)
 	return not (fget(mget(x1,y1),0) and fget(mget(x2,y2),0))
 end
-
 function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移动
-	if coll_dire==1 then
-		z1357wmove(coll_dire,player,oneside)
-	elseif coll_dire==3 then
-		z1357wmove(coll_dire,player,oneside)
-	elseif coll_dire==5 then
-		z1357wmove(coll_dire,player,oneside)
-	elseif coll_dire==7 then
+	if coll_dire==1 or coll_dire==3 or coll_dire==5 or coll_dire==7 then
 		z1357wmove(coll_dire,player,oneside)
 	-------------------------------斜4角度----------------------------
 	elseif coll_dire==-1 then --无常规碰撞
@@ -526,29 +498,29 @@ function edge_wmove(side,player)--斜墙边缘对角碰撞
 	end
 end
 --当玩家与npc碰撞时的移动
-function npc_cmove(player,colldire)
-	local data=explodeval("[[1,2,8],[3,2,4],[5,4,6],[7,6,8]]")
-	local index=(colldire+1)/2
-	if colldire==1 or colldire==3 or colldire==5 or colldire==7 then
-		if player.dire==data[index][1] then
-			setspd_0(player)
-		elseif player.dire==data[index][2] or player.dire==data[index][3] then
-			if index%2==0 then
-				setspd_xdire(player)
-			else
-				setspd_ydire(player)
-			end
-		else
-			move(player)
-		end
-	else --在2468对角线
-		if colldire==player.dire then
-			setspd_0(player)
-		else
-			move(player)
-		end
-	end
-end
+--function npc_cmove(player,colldire)
+--	local data=explodeval("[[1,2,8],[3,2,4],[5,4,6],[7,6,8]]")
+--	local index=(colldire+1)/2
+--	if colldire==1 or colldire==3 or colldire==5 or colldire==7 then
+--		if player.dire==data[index][1] then
+--			setspd_0(player)
+--		elseif player.dire==data[index][2] or player.dire==data[index][3] then
+--			if index%2==0 then
+--				setspd_xdire(player)
+--			else
+--				setspd_ydire(player)
+--			end
+--		else
+--			move(player)
+--		end
+--	else --在2468对角线
+--		if colldire==player.dire then
+--			setspd_0(player)
+--		else
+--			move(player)
+--		end
+--	end
+--end
 function check_hp(e)--检测敌人血量
 	if e.hp<=0 then
 		e.state=e.allstate.death
