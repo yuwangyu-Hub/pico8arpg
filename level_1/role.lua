@@ -41,15 +41,11 @@ function init_player()
 	-- 玩家状态常量
 	player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
 	player.curhp=6--当前血量
-	player.move_t=0--用来绘制移动动画
-	player.ishurt=false
-	player.hurtmt=0
-	player.isroll = false -- 是否翻滚
-	player.rollspeed = 3 -- 翻滚速度
-	player.roll_t = 0 -- 翻滚计时器
-	player.isclosewall=false--是否靠近墙壁(翻滚时)
-	player.isattack = false -- 是否攻击
-	player.att_t = 0 -- 攻击计时器
+	player.is_s_scene=true--场景切换
+	player.ishurt,player.isroll,player.isclosewall,player.isattack=false,false,false,false
+	--受伤移动时间、用来绘制移动动画、翻滚计时器、攻击计时器
+	player.hurtmt,player.move_t,player.roll_t,player.att_t=0,0,0,0
+	player.rollspeed=3--翻滚速度
 	player.mappos=1--地图位置编号
 	return player
 end
@@ -63,8 +59,8 @@ function init_sword()
 end
 function createnemy_urchin(_x,_y)
 	local urchin = makerole(2,_x,_y,
-		{idle=64,
-		hurt={64,65}},
+		{idle=137,
+		hurt={137,138}},
 		{idle = "idle",
 		hurt="hurt",
 		death = "death"})
@@ -73,9 +69,9 @@ function createnemy_urchin(_x,_y)
 end
 function createnemy_crab(_x,_y)
 	local crab = makerole(3,_x,_y,
-		{idle=66,
-		move={66,67},
-		hurt={66,68}},
+		{idle=139,
+		move={139,140},
+		hurt={139,141}},
 		{idle = "idle",
 		move = "move",
 		hurt="hurt",
@@ -85,9 +81,9 @@ function createnemy_crab(_x,_y)
 end
 function createnemy_spider(_x,_y)
 	local spider = makerole(4,_x,_y,
-		{idle=70,
-		move={69,70},
-		hurt={70,71}},
+		{idle=143,
+		move={142,143},
+		hurt={143,159}},
 		{idle = "idle",
 		move = "move",
 		hurt="hurt",
@@ -97,10 +93,10 @@ function createnemy_spider(_x,_y)
 end
 function createnemy_slime(_x,_y)
 	local slime = makerole(5,_x,_y,
-		{idle={80,81},
-		charge={82,83},
-		jump=84,
-		hurt={80,85}},
+		{idle={153,154},
+		charge={155,156},
+		jump=157,
+		hurt={153,158}},
 		{idle = "idle",
 		charge="charge",--跳跃前的蓄力
 		jump = "jump",
@@ -111,9 +107,9 @@ function createnemy_slime(_x,_y)
 end
 function createnemy_lizi(_x,_y)
 	local lizi = makerole(6,_x,_y,
-		{idle={72,74,76},
-		move=explodeval("[76,77],[72,73],[76,77],[74,75]"),--1357
-		hurt=explodeval("[76,92],[72,88],[76,92],[74,90]")--1357
+		{idle={185,187,189},
+		move=explodeval("[189,190],[185,186],[189,190],[187,188]"),--1357
+		hurt=explodeval("[189,175],[185,173],[189,175],[187,174]")--1357
 		},
 		{idle = "idle",
 		move = "move",
@@ -126,7 +122,7 @@ function createnemy_lizi(_x,_y)
 end
 function init_cnut(en)--栗子弹
 	cnut={}
-	cnut.x,cnut.y,cnut.w,cnut.h,cnut.t,cnut.dire,cnut.spd,cnut.speed,cnut.sprs,cnut.frame=en.x,en.y,5,5,0,en.dire,{spx=0,spy=0},1,explodeval("96,97,98,99"),96
+	cnut.x,cnut.y,cnut.w,cnut.h,cnut.t,cnut.dire,cnut.spd,cnut.speed,cnut.sprs,cnut.frame=en.x,en.y,5,5,0,en.dire,{spx=0,spy=0},1,explodeval("169,170,171,172"),96
 	add(bullets,cnut)
 	return cnut
 end

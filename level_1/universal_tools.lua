@@ -189,9 +189,9 @@ function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将�
 	if dire!=0 then
 		if c_type=="wall" then
 			if dire%2==1 then--sb.dire1\3\5\7
-				return fget(mget(flr(zpoints[dire].x/8),flr(zpoints[dire].y/8)),0) or fget(mget(flr(zpoints[dire+1].x/8),flr(zpoints[dire+1].y/8)),0)
+				return fget(mget(flr(zpoints[dire].x/8)+mapnum[wy.mappos][1],flr(zpoints[dire].y/8)+mapnum[wy.mappos][2]),0) or fget(mget(flr(zpoints[dire+1].x/8)+mapnum[wy.mappos][1],flr(zpoints[dire+1].y/8)+mapnum[wy.mappos][2]),0)
 			else --sb.dire2468
-				return fget(mget(flr(xpoints[dire-1].x/8),flr(xpoints[dire-1].y/8)),0) or fget(mget(flr(xpoints[dire].x/8),flr(xpoints[dire].y/8)),0)
+				return fget(mget(flr(xpoints[dire-1].x/8)+mapnum[wy.mappos][1],flr(xpoints[dire-1].y/8)+mapnum[wy.mappos][2]),0) or fget(mget(flr(xpoints[dire].x/8)+mapnum[wy.mappos][1],flr(xpoints[dire].y/8)+mapnum[wy.mappos][2]),0)
 			end
 		elseif c_type=="en" then
 			if dire%2==1 then--sb.dire1\3\5\7
@@ -344,15 +344,21 @@ function nomalize(sb,speed1,speed2)--归一化
 	respeed=(sb.dire==2 or sb.dire==4 or sb.dire==6 or sb.dire==8) and speed1 or speed2 
 	return respeed
 end
-function check_wall_iswalk(v,w,h)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）
+function check_wall_iswalk(v,w,h,num)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）num:地图位置编号
+	--mapnum[num][1]和mapnum[num][2]用来对应不同地图下的图块位置偏移量
 	--*w,h为物体的宽度和高度
 	--*修改函数，来匹配不同尺寸的物体/人物
 	--检测该点是否在图块上
 	--八个点分别为上下左右四个侧面的两个端点。
-	local x1,y1,x2,y2=flr((v.x-1)/8),flr((v.y)/8),flr((v.x-1)/8),flr((v.y+h-1)/8)
-	local x3,y3,x4,y4=flr((v.x)/8),flr((v.y+h)/8),flr((v.x+w-1)/8),flr((v.y+h)/8)
-	local x5,y5,x6,y6=flr((v.x+w)/8),flr((v.y+h-1)/8),flr((v.x+w)/8),flr((v.y)/8)
-	local x7,y7,x8,y8=flr((v.x+w-1)/8),flr((v.y-1)/8),flr((v.x)/8),flr((v.y-1)/8)
+	--local x1,y1,x2,y2=flr((v.x-1)/8),flr((v.y)/8),flr((v.x-1)/8),flr((v.y+h-1)/8)
+	--local x3,y3,x4,y4=flr((v.x)/8),flr((v.y+h)/8),flr((v.x+w-1)/8),flr((v.y+h)/8)
+	--local x5,y5,x6,y6=flr((v.x+w)/8),flr((v.y+h-1)/8),flr((v.x+w)/8),flr((v.y)/8)
+	--local x7,y7,x8,y8=flr((v.x+w-1)/8),flr((v.y-1)/8),flr((v.x)/8),flr((v.y-1)/8)
+	--local x5,y5,x6,y6=flr((v.x+w)/8),flr((v.y+h-1)/8),flr((v.x+w)/8),flr((v.y)/8)
+	local x1,y1,x2,y2=flr((v.x-1)/8)+mapnum[num][1],flr((v.y)/8)+mapnum[num][2],flr((v.x-1)/8)+mapnum[num][1],flr((v.y+h-1)/8)+mapnum[num][2]
+	local x3,y3,x4,y4=flr((v.x)/8)+mapnum[num][1],flr((v.y+h)/8)+mapnum[num][2],flr((v.x+w-1)/8)+mapnum[num][1],flr((v.y+h)/8)+mapnum[num][2]
+	local x5,y5,x6,y6=flr((v.x+w)/8)+mapnum[num][1],flr((v.y+h-1)/8)+mapnum[num][2],flr((v.x+w)/8)+mapnum[num][1],flr((v.y)/8)+mapnum[num][2]
+	local x7,y7,x8,y8=flr((v.x+w-1)/8)+mapnum[num][1],flr((v.y-1)/8)+mapnum[num][2],flr((v.x)/8)+mapnum[num][1],flr((v.y-1)/8)+mapnum[num][2]
 	--分别对应这八个点的图块
 	local lu,ld,dl,dr,rd,ru,ur,ul=fget(mget(x1,y1),0),fget(mget(x2,y2),0),fget(mget(x3,y3),0),fget(mget(x4,y4),0),fget(mget(x5,y5),0),fget(mget(x6,y6),0),fget(mget(x7,y7),0),fget(mget(x8,y8),0)--左上,左下,下左,下右,右下,右上,上右,上左
 	--物体的四个顶点位置
@@ -399,13 +405,13 @@ function check_wall_iswalk(v,w,h)--检测物体(角色、箱子)是否靠近墙�
 		return 8,"no"
 	else  ----不靠墙
 		--对角检测
-		if fget(mget(x02,y02),0) then
+		if fget(mget(x02+mapnum[num][1],y02+mapnum[num][2]),0) then
 			return -1,"left_up"
-		elseif fget(mget(x04,y04),0) then
+		elseif fget(mget(x04+mapnum[num][1],y04+mapnum[num][2]),0) then
 			return -1,"right_up"
-		elseif fget(mget(x06,y06),0) then
+		elseif fget(mget(x06+mapnum[num][1],y06+mapnum[num][2]),0) then
 			return -1,"right_down"
-		elseif fget(mget(x08,y08),0) then
+		elseif fget(mget(x08+mapnum[num][1],y08+mapnum[num][2]),0) then
 			return -1,"left_down"
 		else
 			return 0,"no"
@@ -423,7 +429,7 @@ function wallside(coll_dire)--是否站在墙角边缘(用于滑动)
 	return checkwallside(data[index][1],data[index][2],data[index][3],data[index][4])
 end
 function checkwallside(x1,y1,x2,y2)
-	return not (fget(mget(x1,y1),0) and fget(mget(x2,y2),0))
+	return not (fget(mget(x1+mapnum[wy.mappos][1],y1+mapnum[wy.mappos][2]),0) and fget(mget(x2+mapnum[wy.mappos][1],y2+mapnum[wy.mappos][2]),0))
 end
 function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移动
 	if coll_dire==1 or coll_dire==3 or coll_dire==5 or coll_dire==7 then

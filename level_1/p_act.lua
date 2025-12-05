@@ -1,5 +1,5 @@
 function updatep_state(player)--状态机: 更新玩家状态
-	spr_flip(wy)--精灵的反转
+	spr_flip(player)--精灵的反转
 	--检测方向
 	if player.state== player.allstate.idle or player.state== player.allstate.move then
 		input_direct_sys(player)
@@ -11,7 +11,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 		colldire_o=checkdir(near_o,player)--物品在主角的朝向
 		is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
 	end]]
-	local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8)--获取墙在玩家的位置，在边缘的哪一侧
+	local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8,player.mappos)--获取墙在玩家的位置，在边缘的哪一侧
 	local switchstate={
 		idle = function()
 			player.isroll=false
@@ -39,12 +39,24 @@ function updatep_state(player)--状态机: 更新玩家状态
             		player.rollspeed=nomalize(player,2.1213,3)
 					player.state=player.allstate.roll
 				end
+				if is_wall_coll_dire!=0 then --与墙体的碰撞---------------------------
+					
+					wallcoll_move(player,is_wall_coll_dire,oneside)
+				else ---------------------------------普通移动----------------------------
+					
+					move(player)
+					player.move_t=anim_sys(player.sprs.move,player,player.move_t,.2,1)
+				end
+				xypluspd(player)
 			end
+
+			--攻击
 			if player.isattack then
 				sword.isappear,player.state=true,player.allstate.attack
                 attack_swordpos(player,sword)
 			end
 			--与可交互物体的碰撞（收集/推动）
+			--[[
 			if is_o_coll then ---------------与物体(最近的箱子)与主角之间碰撞--------------
 				--确保物体和获取的金币分开，避免金币影响物体的推动
 				if near_o.type=="move" then--推动	
@@ -55,12 +67,13 @@ function updatep_state(player)--状态机: 更新玩家状态
 					end
 				end
 			elseif is_wall_coll_dire!=0 then --与墙体的碰撞---------------------------
+				
 				wallcoll_move(player,is_wall_coll_dire,oneside)
 			else ---------------------------------普通移动----------------------------
 				move(player)
     			player.move_t=anim_sys(player.sprs.move,player,player.move_t,.2,1)
-			end
-			xypluspd(player)
+			end]]
+			
 		end,
 		attack=function()
 			setspd_0(player)
@@ -85,7 +98,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 			end
 		end,
 		roll=function()
-			local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8)--获取墙在玩家的位置，在边缘的哪一侧
+			local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8,player.mappos)--获取墙在玩家的位置，在边缘的哪一侧
 			roll(player,is_wall_coll_dire)
 			--动画相关
 			player.roll_t+=0.5

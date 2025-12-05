@@ -23,7 +23,8 @@ function enstate_crab(en)--螃蟹
 	spr_flip(en)
 	local switchstate={
 		idle=function()
-			en.wudi_t,en.move_t=0,0
+			en.wudi_t=0
+			en.move_t=0
 			--按时进行随机方向
 			en.idle_t+=.1
 			::redo:: local dire=rnd({1,3,5,7})
@@ -31,7 +32,10 @@ function enstate_crab(en)--螃蟹
 				if en.lastdire==dire then --如果随机方向等于上一次的方向
 					goto redo --回到随机位置
 				else --如果随机方向不等于上一次的方向
-					en.dire, en.lastdire, en.state, en.idle_t=dire, dire, en.allstate.move, 0
+					en.dire=dire
+					en.lastdire=dire
+					en.state=en.allstate.move
+					en.idle_t=0
 				end
 			end
 			en.frame=en.sprs.idle
@@ -48,11 +52,12 @@ function enstate_crab(en)--螃蟹
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
 			--限定距离(或时间)
-			local wall_dire,_=check_wall_iswalk(en,8,8)--检测到朝墙壁
+			local wall_dire,_=check_wall_iswalk(en,8,8,wy.mappos)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
 					setspd_0(en)
-					en.move_t,en.state=0,en.allstate.idle
+					en.move_t=0
+					en.state=en.allstate.idle
 				else--随机移动
 					rnd_move(en,en.move_t)
 				end
@@ -81,14 +86,17 @@ function enstate_slime(en)
 			local switchstate={
 				idle=function()
 					en.wudi_t=0
-					charge_t,tx,ty=0,0,0
+					charge_t=0
+					ty=0
+					tx=0
 					--因为slime的idle动画是循环播放的，所以这里需要判断是否需要播放idle动画
 					--所以需要有idle_t来记录idle动画的播放时间
 					en.idle_t=anim_sys(en.sprs.idle,en,en.idle_t,.1,1)
 					--检测玩家位置靠近
 					if check_p_dis(en,wy)  then
 						if en_nestwall(wy,en) then
-							tx, ty=wy.x, wy.y
+							tx=wy.x
+							ty=wy.y
 							en.state=en.allstate.charge
 						end
 					end
@@ -110,7 +118,6 @@ function enstate_slime(en)
 				jump=function()
 					--*穿墙bug
 					--如果跳跃过程中碰到墙壁，直接停止跳跃，回到idle状态
-					debug3=en_nestwall(wy,en)
 					if not en_nestwall(wy,en) then
 						jump_t=nil
 						en.state = en.allstate.idle
@@ -181,7 +188,7 @@ function enstate_spider(en)
 			local data,d=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]"),(en.dire+1)/2 --获取方向的索引
 			--移动是四个方向的随机移动
 			--限定距离(或时间)
-			local wall_dire,_=check_wall_iswalk(en,8,8)--检测到朝墙壁
+			local wall_dire,_=check_wall_iswalk(en,8,8,wy.mappos)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
 					setspd_0(en)
@@ -230,7 +237,7 @@ function enstate_lizi(en)
 			if check_en_hurt(sword,en,wy) then
 				en.state,en.hurtframe=en.allstate.hurt,(en.dire+1)/2
 			end
-			local wall_dire,_=check_wall_iswalk(en,8,8)--检测到朝墙壁
+			local wall_dire,_=check_wall_iswalk(en,8,8,wy.mappos)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
 					setspd_0(en)

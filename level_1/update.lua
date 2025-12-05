@@ -1,12 +1,17 @@
 function update_game()--游戏进行时
-	check_map_sth()--检测地图上的东西
+	mapsys()
+	
+	if wy.is_s_scene then
+		check_map_sth()--检测地图上的东西
+		wy.is_s_scene=false
+	end
 	--主角受伤检测（无敌时间0，主角不在攻击状态）
 	if check_p_hurt(wy,"en") and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
 		wy.ishurt=true
 		wy.state=wy.allstate.hurt
 	end
 	--受伤无敌
-	if wy.ishurt then--如果受伤，受伤无敌时间增加
+	if wy.ishurt then--如果受伤，受伤无敌时间增加 
 		--受伤闪烁和无敌时间相同
 		wy.wudi_t+=1
 		if wy.wudi_t>20 then

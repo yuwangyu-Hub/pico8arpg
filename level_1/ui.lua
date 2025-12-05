@@ -7,7 +7,7 @@ function ui_show()
     --ui_weap()
 end 
 function head()--头像图标
-    spr(16,2,2,2,2)  --头像（*可拓展，播放表情）
+    spr(16,0,0,2,2)  --头像（*可拓展，播放表情）
 end
 function health(_sb)--血量
     local count=1
@@ -30,6 +30,7 @@ function health(_sb)--血量
         end
     end
 end
+--[[
 function ui_weap()--武器/道具
     local x1,y1,x2,y2=92,110,114,110
     circfill(x1,y1+1,8,1)
@@ -40,4 +41,4 @@ function ui_weap()--武器/道具
     sspr(111,106,9,13,x2-4,y2-6)--x位置显示
     spr(48,x1+2,y1+4)
     spr(49,x2+2,y2+4)
-end
+end]]
