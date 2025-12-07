@@ -11,7 +11,7 @@ end
 function blink()--闪烁工具，返回闪烁的颜色动画
 	local blink_anim=explodeval("5,5,5,5,5,5,5,5,6,6,7,7,6,6,5,5")
     --blinkt:闪烁计时器，在主函数中创建并且更新
-	return blink_anim[blinkt%#blink_anim] 
+	return blink_anim[blinkt%#blink_anim]
 end
 --x位置对称打印，而不是左上角位置。输入 x 为画面中心位置打印
 function cprint(txt,x,y,c)--xy位置，c颜色

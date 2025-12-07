@@ -2,7 +2,7 @@
 function makerole(cha_tpye,x,y,sprs,state)--角色的创建模板
 	local role={}
 	role.name=chaname[cha_tpye]
-	role.x,role.y,role.w,role.h=x*8,y*8,7,7
+	role.x,role.y,role.w,role.h=x,y,7,7
 	role.hp,role.speed,role.crange,role.lastdire=chahp[cha_tpye],chaspd[cha_tpye],chacrange[cha_tpye],chalastdire[cha_tpye]
 	role.dire,role.allstate,role.sprs=3,state,sprs
 	role.spd={spx=0,spy=0} --加速度
@@ -17,7 +17,7 @@ end
 -- 初始化玩家数据
 -- @return 玩家对象
 function init_player()
-	local player = makerole(1,7,7,
+	local player = makerole(1,54,70,
 		{idle = 2, --  idle状态精灵
 		move=explodeval("1,2,3,4"), -- 移动状态精灵序列
 		push=explodeval("13,15,13,14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())

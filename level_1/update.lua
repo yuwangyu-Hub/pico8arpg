@@ -2,7 +2,7 @@ function update_game()--游戏进行时
 	mapsys()
 	
 	if wy.is_s_scene then
-		check_map_sth()--检测地图上的东西
+		mapenemy_reset()--检测地图上的东西
 		wy.is_s_scene=false
 	end
 	--主角受伤检测（无敌时间0，主角不在攻击状态）

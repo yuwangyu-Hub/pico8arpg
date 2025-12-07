@@ -144,35 +144,29 @@ function showend()--游戏结束动画播放
     cprint("gameover",64,90,7)
     --*按键回到游戏开始
 end
---检测地图上绘制的敌人/物品精灵，将其转换为对应的实例，*可优化提炼
 
-function check_map_sth()
-    local icount=mapnum[wy.mappos][1]
-    local jcount=mapnum[wy.mappos][2]
-    --对应新的地图模式
-	for i=icount,icount+15 do--行
-		for j=jcount,jcount+15 do--列
-            map_trrrans(i,j)
-		end
-	end  
+function mapenemy_reset()--切换场景时，重置敌人
+    for ep in all(maps[wy.mappos]) do
+        --ep=enemy position  
+        map_trrrans(ep[3],ep[1],ep[2])--根据地图上绘制的敌人，创建敌人实例
+    end
 end
-function map_trrrans(_i,_j)
-    local num=mget(_i,_j)
-    switch(num,{
-        [64]=function()
-            createnemy_urchin(_i-mapnum[wy.mappos][1],_j-mapnum[wy.mappos][2])
+function map_trrrans(_num,_x,_y)
+    switch(_num,{
+        [1]=function()
+            createnemy_urchin(_x,_y)
         end,
-        [66]=function()
-            createnemy_crab(_i-mapnum[wy.mappos][1],_j-mapnum[wy.mappos][2])
+        [2]=function()
+            createnemy_crab(_x,_y)
         end,
-        [80]=function()
-            createnemy_slime(_i-mapnum[wy.mappos][1],_j-mapnum[wy.mappos][2])
+        [3]=function()
+            createnemy_spider(_x,_y)
         end,
-        [69]=function()
-            createnemy_spider(_i-mapnum[wy.mappos][1],_j-mapnum[wy.mappos][2])
+        [4]=function()
+            createnemy_slime(_x,_y)
         end,
-        [72]=function()
-            createnemy_lizi(_i-mapnum[wy.mappos][1],_j-mapnum[wy.mappos][2])
+        [5]=function()
+            createnemy_lizi(_x,_y)
         end,}
     )
 end
