@@ -94,23 +94,20 @@ function enstate_slime(en)
 					en.idle_t=anim_sys(en.sprs.idle,en,en.idle_t,.1,1)
 					--检测玩家位置靠近
 					if check_p_dis(en,wy)then --检测主角的距离，如果达到要求进入蓄力状态
-						--if en_nestwall(wy,en) then--靠近墙
-							debug="charge"
+						if en_nestwall(wy,en) then--靠近墙
 							tx=wy.x
 							ty=wy.y
 							en.state=en.allstate.charge
-						--end
+						end
 					end
 					if check_en_hurt(sword,en,wy) then
 						en.state=en.allstate.hurt
 					end
 					check_hp(en)
-					debug="0"
 				end,
-				charge=function() --蓄力
-					debug="charge"
+				charge=function()--蓄力
 					charge_t = anim_sys(en.sprs.charge,en,charge_t,.1,4)
-					if charge_t>=2 then 
+					if charge_t>=2 then --经过2t时间后
 						en.state=en.allstate.jump
 					end
 					if check_en_hurt(sword,en,wy) then
@@ -119,7 +116,6 @@ function enstate_slime(en)
 					check_hp(en)
 				end,
 				jump=function()
-					debug="jump"
 					--*穿墙bug
 					--如果跳跃过程中碰到墙壁，直接停止跳跃，回到idle状态
 					if not en_nestwall(wy,en) then

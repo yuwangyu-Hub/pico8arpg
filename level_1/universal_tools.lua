@@ -64,28 +64,28 @@ function judge(v,p,e)--用于下方判断,v:数据集合、p:player、e:enemy
 end
 --检测敌人如果靠墙后识别 玩家位置 是否在靠墙一侧。如果在靠墙一侧就false不追，如果不在靠墙一侧true追
 function en_nestwall(p,en)--p:玩家,en:敌人
-	if check_wall_iswalk(en,8,8)==1 then --34567
+	if check_wall_iswalk(en,8,8,wy.mappos)==1 then --34567
 		local data={[3]=true,[4]=true,[5]=true,[6]=true,[7]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==2 then--567
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==2 then--567
 		local data={[5]=true,[6]=true,[7]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==3 then--15678
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==3 then--15678
 		local data={[1]=true,[5]=true,[6]=true,[7]=true,[8]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==4 then--178
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==4 then--178
 		local data={[1]=true,[7]=true,[8]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==5 then--12378
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==5 then--12378
 		local data={[1]=true,[2]=true,[3]=true,[7]=true,[8]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==6 then--123
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==6 then--123
 		local data={[1]=true,[2]=true,[3]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==7 then--12345
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==7 then--12345
 		local data={[1]=true,[2]=true,[3]=true,[4]=true,[5]=true}
 		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8)==8 then--345
+	elseif check_wall_iswalk(en,8,8,wy.mappos)==8 then--345
 		local data={[3]=true,[4]=true,[5]=true}
 		return judge(data,p,en)
 	else--0

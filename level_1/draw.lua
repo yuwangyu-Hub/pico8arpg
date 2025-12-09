@@ -1,38 +1,38 @@
-function sceneset(p,t)
-    wy.mappos = t
+function sceneset(p,t)--t:table
+    wy.mappos=t
     enemies={}
+    obj={}
     p.is_s_scene=true
 end
 function sceneswitch_u(p)
-    local mappos=p.mappos
     if p.y<-6 then--上
         p.y+=126
         local mapTable={[1]=4,[2]=5,[3]=6,[4]=7,[5]=8,[7]=9,[8]=10}
-        sceneset(p,mapTable[mappos])
+        sceneset(p,mapTable[p.mappos])
     end
 end
 function sceneswitch_d(p)
-    local mappos=p.mappos
     if p.y>126 then--下
         p.y-=127
         local mapTable={[4]=1,[5]=2,[6]=3,[7]=4,[8]=5,[9]=7,[10]=8}
-       sceneset(p,mapTable[mappos])
+       sceneset(p,mapTable[p.mappos])
     end
 end
 function sceneswitch_l(p)
-    local mappos=p.mappos
     if p.x<-6 then--左
         p.x+=128
         local mapTable={[2]=1,[3]=2,[5]=4,[6]=5,[8]=7,[10]=9}
-       sceneset(p,mapTable[mappos])
+       sceneset(p,mapTable[p.mappos])
     end
 end
 function sceneswitch_r(p)
-    local mappos=p.mappos
     if p.x>124 then--右
         p.x-=125
         local mapTable={[1]=2,[2]=3,[4]=5,[5]=6,[7]=8,[9]=10}
-       sceneset(p,mapTable[mappos])
+        sceneset(p,mapTable[p.mappos])
+        if p.mappos==3 then--当在第三张图时
+            makeobj(2)--创建剑
+        end
     end
 end
 function mapsys()
@@ -80,22 +80,26 @@ function draw_game()
     spr(39,wy.x,wy.y+6,1,1,wy.sprflip)--主角影子(用来跳跃区分)
     if #enemies>0 then--敌人精灵显示
         for e in all (enemies) do
-            spr(191, e.x, e.y+8,1,1,e.sprflip)--敌人影子
-            spr(e.frame, e.x, e.y,1,1,e.sprflip)
-            --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --可视化碰撞盒
+            spr(191, e.x, e.y+8,1,1,e.sprflip)--影子
+            draw_p(e)
+            --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --可视碰撞盒
             --if e.name=="slime" then--敌人检测范围
                 --circ(e.x+e.w/2,e.y+e.h/2,e.crange,12)--圆检测范围
             --end
         end
     end
-    draw_p(wy,wy.spr_cx,wy.spr_cy)--主角绘制
-    --[[if #obj>0 then--物体显示
+    --get sword 
+    if wy.state==wy.allstate.get and wy.getsowrd then
+        spr(41,wy.x-4,wy.y-8,2,1)
+    end
+    draw_p(wy)--主角绘制
+    if #obj>0 then--物体显示
         for o in all (obj) do--物体显示
-        spr(o.spr[o.frame], o.sprx, o.spry)
+        spr(o.spr, o.x, o.y)
         --rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
         end
-    end]]
-    if not sword.isappear then--如果没有攻击，则主角的朝向显示
+    end
+    if not sword.isappear then
         actdireshow(wy)
     end
     --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
@@ -103,7 +107,7 @@ function draw_game()
     for b in all(bullets) do --射击物（敌人）的绘制
         spr(b.frame,b.x,b.y)
     end
-    ui_show()--UI显示
+    ui_show()
 end
 function actdireshow(_sb)--朝向标识显示
     local data=explodeval("[-3,3],[-2,-2],[3,-3],[8,-2],[9,3],[8,8],[3,9],[-2,8]")--124578
@@ -127,12 +131,7 @@ function draw_mamenu()--主菜单
     cprint("exitgame",64,100,cor2)
     spr(mainmenu_cursor.spr,38,89+(mainmenu_cursor.count-1)*10)--光标
 end
---[[
-function draw_Inventory_menu() --绘制背包
-    --武器/道具的显示和替换
-    --可使用道具的使用
-    --地图的显示不确定暂时是否需要添加-可能移植picotron
-end]]
+
 function draw_gover()--游戏结束界面
     showend()
 end
@@ -175,9 +174,20 @@ function switch(num, cases)
         return cases[num]()--把结果返回，方便链式调用
     end
 end
-function draw_p(_sb,cx,cy)--绘制主角：cx和cy代表差值
-	local x,y=_sb.x+cx,_sb.y+cy
-	spr(_sb.frame, x, y, 1, 1, _sb.sprflip)
+function draw_p(_sb)--绘制主角：cx和cy代表差值
+	local x,y=_sb.x,_sb.y
+    local frame=_sb.frame
+    local flip=_sb.sprflip
+    --黑边
+    pal({1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}) -- 所有颜色映射为黑色（0）
+    --pal(7, 7) -- 保留白色（7）为白色 
+    spr(frame, x-1, y, 1, 1, flip)
+    spr(frame, x+1, y, 1, 1, flip)
+    spr(frame, x, y-1, 1, 1, flip)
+    spr(frame, x, y+1, 1, 1, flip)
+    pal() -- 恢复默认调色板
+    --本体
+	spr(frame, x, y, 1, 1, flip)
 end
 --*与下面的动画系统整合优化：推动动画 player玩家对象
 --[[

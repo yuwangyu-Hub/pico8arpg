@@ -5,12 +5,12 @@ function updatep_state(player)--状态机: 更新玩家状态
 		input_direct_sys(player)
 	end
 	local near_o,colldire_o,is_o_coll
-	--[[
+	
 	if #obj!=0 then --物体不为空
 		near_o=findnearest_object(obj, player)--检测最近的物体
 		colldire_o=checkdir(near_o,player)--物品在主角的朝向
 		is_o_coll=ck_sthcoll(near_o, player, 0, 0, 0, 0)
-	end]]
+	end
 	local is_wall_coll_dire,oneside=check_wall_iswalk(player,8,8,player.mappos)--获取墙在玩家的位置，在边缘的哪一侧
 	local switchstate={
 		idle = function()
@@ -20,7 +20,7 @@ function updatep_state(player)--状态机: 更新玩家状态
             if player.dire!=0 and not player.isroll  then
 				player.state=player.allstate.move
             end
-			if player.isattack then --攻击
+			if player.isattack and player.getsowrd then --攻击
 				sword.isappear=true
                 attack_swordpos(player,sword)
 				player.state=player.allstate.attack
@@ -51,13 +51,18 @@ function updatep_state(player)--状态机: 更新玩家状态
 			end
 
 			--攻击
-			if player.isattack then
+			if player.isattack and player.getsowrd then
 				sword.isappear,player.state=true,player.allstate.attack
                 attack_swordpos(player,sword)
 			end
+
+			--获得
+			if player.getsth then
+				player.state=player.allstate.get
+			end
 			--与可交互物体的碰撞（收集/推动）
 			--[[
-			if is_o_coll then ---------------与物体(最近的箱子)与主角之间碰撞--------------
+			if is_o_coll then ---------------物体(最近的箱子)与主角之间碰撞--------------
 				--确保物体和获取的金币分开，避免金币影响物体的推动
 				if near_o.type=="move" then--推动	
 				elseif near_o.type=="get" then--获取
@@ -73,6 +78,19 @@ function updatep_state(player)--状态机: 更新玩家状态
 				move(player)
     			player.move_t=anim_sys(player.sprs.move,player,player.move_t,.2,1)
 			end]]
+			if is_o_coll then ---------------物体(最近的箱子)与主角之间碰撞--------------
+				--确保物体和获取的金币分开，避免金币影响物体的推动
+				--如果当前血量大于血量，则当前血量等于血量	
+				if near_o.name=="sword" then
+					player.getsowrd=true
+					player.getsth=true
+					del(obj,near_o)
+				end
+				--限制血量不超过
+				--if player.curhp>player.hp then
+					--player.curhp=player.hp
+				--end
+			end
 			
 		end,
 		attack=function()
@@ -104,6 +122,16 @@ function updatep_state(player)--状态机: 更新玩家状态
 			player.roll_t+=0.5
 			anim_sys(player.sprs.roll,player,player.roll_t,.5,1)
 			xypluspd(player)
+		end,
+		get=function()
+			debug="get sword"
+			player.getsth=false
+			player.get_t+=1
+			player.frame=player.sprs.get
+			if player.get_t>=30 then
+				player.state=player.allstate.idle
+				player.get_t=0
+			end
 		end,
 		hurt=function()
 			player.hurtmt+=0.1

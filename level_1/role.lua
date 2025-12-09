@@ -36,15 +36,18 @@ function init_player()
 		archery="archery",
 		roll="roll",
 		push="push",
+		get="get",
 		hurt="hurt",
 		death="death"})
-	-- 玩家状态常量
-	player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
+	--player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
 	player.curhp=6--当前血量
 	player.is_s_scene=true--场景切换
 	player.ishurt,player.isroll,player.isclosewall,player.isattack=false,false,false,false
-	--受伤移动时间、用来绘制移动动画、翻滚计时器、攻击计时器
-	player.hurtmt,player.move_t,player.roll_t,player.att_t=0,0,0,0
+	player.getsth=false
+	player.getsowrd=false
+	player.get_t=0
+	
+	player.hurtmt,player.move_t,player.roll_t,player.att_t=0,0,0,0--受伤移动、绘制移动动画、翻滚计时、攻击计时
 	player.rollspeed=3--翻滚速度
 	player.mappos=1--地图位置编号
 	return player
