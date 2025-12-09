@@ -344,17 +344,12 @@ function nomalize(sb,speed1,speed2)--归一化
 	respeed=(sb.dire==2 or sb.dire==4 or sb.dire==6 or sb.dire==8) and speed1 or speed2 
 	return respeed
 end
-function check_wall_iswalk(v,w,h,num)--检测物体(角色、箱子)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）num:地图位置编号
+function check_wall_iswalk(v,w,h,num)--检测物体v(物体)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）num:地图位置编号
 	--mapnum[num][1]和mapnum[num][2]用来对应不同地图下的图块位置偏移量
 	--*w,h为物体的宽度和高度
 	--*修改函数，来匹配不同尺寸的物体/人物
 	--检测该点是否在图块上
 	--八个点分别为上下左右四个侧面的两个端点。
-	--local x1,y1,x2,y2=flr((v.x-1)/8),flr((v.y)/8),flr((v.x-1)/8),flr((v.y+h-1)/8)
-	--local x3,y3,x4,y4=flr((v.x)/8),flr((v.y+h)/8),flr((v.x+w-1)/8),flr((v.y+h)/8)
-	--local x5,y5,x6,y6=flr((v.x+w)/8),flr((v.y+h-1)/8),flr((v.x+w)/8),flr((v.y)/8)
-	--local x7,y7,x8,y8=flr((v.x+w-1)/8),flr((v.y-1)/8),flr((v.x)/8),flr((v.y-1)/8)
-	--local x5,y5,x6,y6=flr((v.x+w)/8),flr((v.y+h-1)/8),flr((v.x+w)/8),flr((v.y)/8)
 	local x1,y1,x2,y2=flr((v.x-1)/8)+mapnum[num][1],flr((v.y)/8)+mapnum[num][2],flr((v.x-1)/8)+mapnum[num][1],flr((v.y+h-1)/8)+mapnum[num][2]
 	local x3,y3,x4,y4=flr((v.x)/8)+mapnum[num][1],flr((v.y+h)/8)+mapnum[num][2],flr((v.x+w-1)/8)+mapnum[num][1],flr((v.y+h)/8)+mapnum[num][2]
 	local x5,y5,x6,y6=flr((v.x+w)/8)+mapnum[num][1],flr((v.y+h-1)/8)+mapnum[num][2],flr((v.x+w)/8)+mapnum[num][1],flr((v.y)/8)+mapnum[num][2]
@@ -381,9 +376,9 @@ function check_wall_iswalk(v,w,h,num)--检测物体(角色、箱子)是否靠近
 		else
 			return 3,"no"
 		end
-	elseif (ur or ul) and (rd or ru) then --是否靠墙4
+	elseif(ur or ul)and(rd or ru)then --是否靠墙4
 		return 4,"no"
-	elseif (rd or ru) and not(ur or ul) and not(dl or dr) then --是否靠墙5
+	elseif(rd or ru)and not(ur or ul)and not(dl or dr)then --是否靠墙5
 		if rd and not ru then
 			return 5,"up"
 		elseif not rd and ru then
@@ -391,9 +386,9 @@ function check_wall_iswalk(v,w,h,num)--检测物体(角色、箱子)是否靠近
 		else
 			return 5,"no"
 		end	
-	elseif (rd or ru) and (dl or dr) then --是否靠墙6
+	elseif(rd or ru)and(dl or dr)then --是否靠墙6
 		return 6,"no"
-	elseif (dl or dr) and not(lu or ld) and not(rd or ru) then --是否靠墙7
+	elseif(dl or dr)and not(lu or ld)and not(rd or ru)then --是否靠墙7
 		if dl and not dr then
 			return 7,"right"
 		elseif not dl and  dr then
@@ -401,7 +396,7 @@ function check_wall_iswalk(v,w,h,num)--检测物体(角色、箱子)是否靠近
 		else
 			return 7,"no"
 		end
-	elseif (dl or dr) and (lu or ld) then --是否靠墙8
+	elseif(dl or dr)and(lu or ld)then --是否靠墙8
 		return 8,"no"
 	else  ----不靠墙
 		--对角检测

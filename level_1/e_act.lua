@@ -19,7 +19,7 @@ function enstate_urchin(en)
 	}
 	switchstate[en.state]()
 end
-function enstate_crab(en)--螃蟹
+function enstate_4direcmove(en)--螃蟹/蜘蛛
 	spr_flip(en)
 	local switchstate={
 		idle=function()
@@ -93,19 +93,22 @@ function enstate_slime(en)
 					--所以需要有idle_t来记录idle动画的播放时间
 					en.idle_t=anim_sys(en.sprs.idle,en,en.idle_t,.1,1)
 					--检测玩家位置靠近
-					if check_p_dis(en,wy)  then
-						if en_nestwall(wy,en) then
+					if check_p_dis(en,wy)then --检测主角的距离，如果达到要求进入蓄力状态
+						--if en_nestwall(wy,en) then--靠近墙
+							debug="charge"
 							tx=wy.x
 							ty=wy.y
 							en.state=en.allstate.charge
-						end
+						--end
 					end
 					if check_en_hurt(sword,en,wy) then
 						en.state=en.allstate.hurt
 					end
 					check_hp(en)
+					debug="0"
 				end,
 				charge=function() --蓄力
+					debug="charge"
 					charge_t = anim_sys(en.sprs.charge,en,charge_t,.1,4)
 					if charge_t>=2 then 
 						en.state=en.allstate.jump
@@ -116,6 +119,7 @@ function enstate_slime(en)
 					check_hp(en)
 				end,
 				jump=function()
+					debug="jump"
 					--*穿墙bug
 					--如果跳跃过程中碰到墙壁，直接停止跳跃，回到idle状态
 					if not en_nestwall(wy,en) then
@@ -160,60 +164,7 @@ function enstate_slime(en)
 	end
 	en.slime_handler()
 end
-function enstate_spider(en)
-	spr_flip(en)
-	local switchstate={
-		idle=function()
-			en.wudi_t,en.move_t=0,0
-			--按时进行随机方向
-			en.idle_t+=.1
-			::redo:: local dire=rnd({1,3,5,7})
-			if en.idle_t>=2 then
-				if en.lastdire==dire then --如果随机方向等于上一次的方向
-					goto redo --回到随机位置
-				else --如果随机方向不等于上一次的方向
-					en.dire,en.lastdire,en.state,en.idle_t=dire,dire,en.allstate.move,0
-				end
-			end
-			en.frame=en.sprs.idle
-			if check_en_hurt(sword,en,wy) then
-				en.state=en.allstate.hurt
-			end
-			check_hp(en)
-		end,
-		move=function()
-			if check_en_hurt(sword,en,wy) then
-				en.state=en.allstate.hurt
-			end
-			local data,d=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]"),(en.dire+1)/2 --获取方向的索引
-			--移动是四个方向的随机移动
-			--限定距离(或时间)
-			local wall_dire,_=check_wall_iswalk(en,8,8,wy.mappos)--检测到朝墙壁
-			if wall_dire!=0 then--如果靠近墙
-				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
-					setspd_0(en)
-					en.move_t,en.state=0,en.allstate.idle
-				else--随机移动
-					rnd_move(en,en.move_t)
-				end
-			else--不靠近墙,随机移动
-				rnd_move(en,en.move_t)
-			end
-			xypluspd(en)
-			en.move_t=anim_sys(en.sprs.move,en,en.move_t,.2,1)
-		end,
-		hurt=function()
-           en.wudi_t=anim_sys(en.sprs.hurt,en,en.wudi_t,.1,10)
-			hurtdo(en,en.wudi_t)
-			xypluspd(en)
-		end,
-		death=function()
-			en.die_t+=.4
-			death_do(en,en.die_t)
-		end,
-	}
-	switchstate[en.state]()
-end
+
 function enstate_lizi(en)
 	local switchstate={
 		idle=function()

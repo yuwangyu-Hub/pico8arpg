@@ -21,9 +21,9 @@ function update_game()--游戏进行时
 	updatep_state(wy)--主角的行为: 更新玩家状态
 	for e in all(enemies) do
 		en_update(e,"urchin",enstate_urchin)
-		en_update(e,"crab",enstate_crab)
+		en_update(e,"crab",enstate_4direcmove)
 		en_update(e,"slime",enstate_slime)
-		en_update(e,"spider",enstate_spider)
+		en_update(e,"spider",enstate_4direcmove)
 		en_update(e,"lizi",enstate_lizi)
 	end
 	--敌人子弹的检测
