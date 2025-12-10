@@ -29,7 +29,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 			player.frame=player.sprs.idle
 		end,
 		move = function()
-			---------切换状态-----------------
+			--切换状态--
 			if player.dire==0 then
 				player.move_t,player.state=0,player.allstate.idle
 			else
@@ -39,11 +39,9 @@ function updatep_state(player)--状态机: 更新玩家状态
             		player.rollspeed=nomalize(player,2.1213,3)
 					player.state=player.allstate.roll
 				end
-				if is_wall_coll_dire!=0 then --与墙体的碰撞---------------------------
-					
+				if is_wall_coll_dire!=0 then --与墙体的碰撞--
 					wallcoll_move(player,is_wall_coll_dire,oneside)
-				else ---------------------------------普通移动----------------------------
-					
+				else --普通移动--
 					move(player)
 					player.move_t=anim_sys(player.sprs.move,player,player.move_t,.2,1)
 				end
@@ -82,8 +80,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 				--确保物体和获取的金币分开，避免金币影响物体的推动
 				--如果当前血量大于血量，则当前血量等于血量	
 				if near_o.name=="sword" then
-					player.getsowrd=true
-					player.getsth=true
+					player.getsowrd,player.getsth=true,true
 					del(obj,near_o)
 				end
 				--限制血量不超过
@@ -96,7 +93,8 @@ function updatep_state(player)--状态机: 更新玩家状态
 		attack=function()
 			setspd_0(player)
 			local att_frame = function(dire) --内部封装了一个函数
-				if dire==1 or dire==5 then 
+				return ({[1]=3,[5]=3,[2]=2,[4]=2,[8]=4,[6]=4,[3]=1})[dire] or 5
+				--[[if dire==1 or dire==5 then 
 					return 3
 				elseif dire==2 or dire==4 then 
 					return 2
@@ -106,7 +104,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 					return 1
 				else --7
 					return 5
-				end
+				end]]
 			end
 			player.frame=player.sprs.attack[att_frame(player.lastdire)]
 			player.att_t+=.2

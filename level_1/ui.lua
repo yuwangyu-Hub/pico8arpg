@@ -1,7 +1,5 @@
 --UI栏
 function ui_show()
-    --rectfill(0,96,127,127,13)--底
-    --rect(0,96,127,127,10)--底框
     head()
     --health(wy)
     --ui_weap()

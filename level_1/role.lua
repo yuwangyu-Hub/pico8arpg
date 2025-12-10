@@ -41,22 +41,15 @@ function init_player()
 		death="death"})
 	--player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
 	player.curhp=6--当前血量
-	player.is_s_scene=true--场景切换
+	player.is_s_scene,player.mappos=true,1--场景切换、地图位置编号
 	player.ishurt,player.isroll,player.isclosewall,player.isattack=false,false,false,false
-	player.getsth=false
-	player.getsowrd=false
-	player.get_t=0
-	
-	player.hurtmt,player.move_t,player.roll_t,player.att_t=0,0,0,0--受伤移动、绘制移动动画、翻滚计时、攻击计时
-	player.rollspeed=3--翻滚速度
-	player.mappos=1--地图位置编号
+	player.getsth,player.getsowrd,player.get_t=false,false,0
+	player.hurtmt,player.move_t,player.roll_t,player.att_t,player.rollspeed=0,0,0,0,3--受伤移动、绘制移动动画、翻滚计时、攻击计时、翻滚速度
 	return player
 end
 -- 初始化武器数据 武器对象
 function init_sword()
-	sword={}
-	sword.x,sword.y,sword.w,sword.h=0,0,7,7
-	sword.sprx,sword.spry=explodeval("-7,-6,2,8,8,8,2,-6"),explodeval("2,-6,-7,-6,2,8,8,8")	 --1 2 3 4 5 6 7 8
+	sword={x=0,y=0,w=7,h=7,sprx=explodeval("-7,-6,2,8,8,8,2,-6"),spry=explodeval("2,-6,-7,-6,2,8,8,8")}--1 2 3 4 5 6 7 8
 	sword.isappear = false -- 是否显示
 	return sword
 end
@@ -82,6 +75,7 @@ function createnemy_crab(_x,_y)
 	add(enemies,crab)
 	return crab
 end
+
 function createnemy_spider(_x,_y)
 	local spider = makerole(4,_x,_y,
 		{idle=143,
@@ -110,7 +104,7 @@ function createnemy_slime(_x,_y)
 end
 function createnemy_lizi(_x,_y)
 	local lizi = makerole(6,_x,_y,
-		{idle={185,187,189},
+		{idle=explodeval("85,187,189"),
 		move=explodeval("[189,190],[185,186],[189,190],[187,188]"),--1357
 		hurt=explodeval("[189,175],[185,173],[189,175],[187,174]")--1357
 		},
@@ -128,5 +122,49 @@ function init_cnut(en)--栗子弹
 	cnut.x,cnut.y,cnut.w,cnut.h,cnut.t,cnut.dire,cnut.spd,cnut.speed,cnut.sprs,cnut.frame=en.x,en.y,5,5,0,en.dire,{spx=0,spy=0},1,explodeval("169,170,171,172"),96
 	add(bullets,cnut)
 	return cnut
+end
+
+function createnemy_snake(_x,_y)
+	local snake = makerole(7,_x,_y,
+		{idle=64,
+		move={64,65},
+		hurt={64,66}},
+		{idle = "idle",
+		move = "move",
+		hurt="hurt",
+		death = "death"})
+	add(enemies,snake)
+	return snake
+end
+
+function createnemy_bat(_x,_y)
+	local bat = makerole(8,_x,_y,
+		{idle=67,
+		fly={68,67},
+		rest=67,
+		hurt={68,69}},
+		{idle = "idle",
+		fly = "fly",
+		rest="rest",
+		hurt="hurt",
+		death = "death"})
+	add(enemies,bat)
+	return bat
+end
+function createnemy_ghost(_x,_y)
+	local ghost = makerole(9,_x,_y,
+		{idle=96,--空白
+		apr=explodeval("96,82,83"),--出现
+		fly={83,84},
+		hurt={83,85}},
+		{idle = "idle",--idle:隐藏
+		apr="apr",--出现
+		fly = "fly",
+		rest="rest",--休息
+		hurt="hurt",
+		death = "death"}
+	)
+	add(enemies,ghost)
+	return ghost
 end
 --大海龟Boss：两阶段

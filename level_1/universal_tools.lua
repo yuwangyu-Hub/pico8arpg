@@ -414,12 +414,7 @@ function check_wall_iswalk(v,w,h,num)--检测物体v(物体)是否靠近墙壁�
 	end
 end
 function wallside(coll_dire)--是否站在墙角边缘(用于滑动)
-	local data={
-		{flr((wy.x-1)/8),flr((wy.y+3)/8),flr((wy.x-1)/8),flr((wy.y+4)/8)},
-		{flr((wy.x+4)/8),flr((wy.y-1)/8),flr((wy.x+3)/8),flr((wy.y-1)/8)},
-		{flr((wy.x+8)/8),flr((wy.y+3)/8),flr((wy.x+8)/8),flr((wy.y+4)/8)},
-		{flr((wy.x+4)/8),flr((wy.y+8)/8),flr((wy.x+3)/8),flr((wy.y+8)/8)},
-	}
+	local data={{flr((wy.x-1)/8),flr((wy.y+3)/8),flr((wy.x-1)/8),flr((wy.y+4)/8)},{flr((wy.x+4)/8),flr((wy.y-1)/8),flr((wy.x+3)/8),flr((wy.y-1)/8)},{flr((wy.x+8)/8),flr((wy.y+3)/8),flr((wy.x+8)/8),flr((wy.y+4)/8)},{flr((wy.x+4)/8),flr((wy.y+8)/8),flr((wy.x+3)/8),flr((wy.y+8)/8)}}
 	local index=(coll_dire+1)/2
 	return checkwallside(data[index][1],data[index][2],data[index][3],data[index][4])
 end
@@ -441,24 +436,19 @@ function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移�
 	end
 end
 function z1357wmove(_dire,_sb,side)--正wall
-	local data={
-		{1,2,8,"up",0,-1,"down",0,1},
-		{3,2,4,"left",-1,0,"right",1,0},
-		{5,4,6,"up",0,-1,"down",0,1},
-		{7,6,8,"left",-1,0,"right",1,0}
-	}
-	local index=(_dire+1)/2
-	if _sb.dire==data[index][1] then
+	local data=({{1,2,8,"up",0,-1,"down",0,1},{3,2,4,"left",-1,0,"right",1,0},{5,4,6,"up",0,-1,"down",0,1},{7,6,8,"left",-1,0,"right",1,0}})[(_dire+1)/2]
+	if _sb.dire==data[1] then
 		if wallside(_dire) then
-			if side==data[index][4] then
-				_sb.spd.spx, _sb.spd.spy=data[index][5], data[index][6]
-			elseif side==data[index][7] then
-				_sb.spd.spx, _sb.spd.spy=data[index][8], data[index][9]
+			if side==data[4] then
+				_sb.spd.spx, _sb.spd.spy=data[5], data[6]
+			elseif side==data[7] then
+				_sb.spd.spx, _sb.spd.spy=data[8], data[9]
 			end
 		else
 			setspd_0(_sb)
 		end
-	elseif _sb.dire==data[index][2] or _sb.dire==data[index][3] then
+	elseif _sb.dire==data[2] or _sb.dire==data[3] then
+		--(({[1]=setspd_ydire,[5]=setspd_ydire})[_dire]or setspd_xdire)(_sb)
 		if _dire==1 or _dire==5 then
 			setspd_ydire(_sb)--*bug
 		else
@@ -469,19 +459,21 @@ function z1357wmove(_dire,_sb,side)--正wall
 	end
 	_sb.move_t = anim_sys(_sb.sprs.move,_sb,_sb.move_t,.2,1)
 end
-function x2468wmove(_dire,_sb,t)--斜wall
-	--墙：2468情况
-	local xie_data=explodeval("[1,2,3,4,8],[3,4,5,2,6],[5,6,7,8,4],[7,8,1,6,2]")
-	local index=_dire/2
-	if _sb.dire==xie_data[index][1] or _sb.dire==xie_data[index][2] or _sb.dire==xie_data[index][3] then
+function x2468wmove(_dire,_sb,t)--斜wall：2468情况
+	--x=xie_data
+	local x=explodeval("[1,2,3,4,8],[3,4,5,2,6],[5,6,7,8,4],[7,8,1,6,2]")[_dire/2]
+	if _sb.dire!=0 then
+		(({[x[1]]=setspd_0,[x[2]]=setspd_0,[x[3]]=setspd_0,[x[4]]=setspd_xdire,[x[5]]=setspd_ydire})[_sb.dire]or move)(_sb)
+	end
+	--[[if _sb.dire==xie_data[1] or _sb.dire==xie_data[2] or _sb.dire==xie_data[3] then
 		setspd_0(_sb)
-	elseif _sb.dire==xie_data[index][4] then
+	elseif _sb.dire==xie_data[4] then
 		setspd_xdire(_sb)
-	elseif _sb.dire==xie_data[index][5] then
+	elseif _sb.dire==xie_data[5] then
 		setspd_ydire(_sb)
 	else--
 		move(_sb)
-	end
+	end]]
 	_sb.move_t = anim_sys(_sb.sprs.move,_sb,_sb.move_t,.2,1)
 end
 function edge_wmove(side,player)--斜墙边缘对角碰撞
@@ -498,30 +490,6 @@ function edge_wmove(side,player)--斜墙边缘对角碰撞
 		end
 	end
 end
---当玩家与npc碰撞时的移动
---function npc_cmove(player,colldire)
---	local data=explodeval("[[1,2,8],[3,2,4],[5,4,6],[7,6,8]]")
---	local index=(colldire+1)/2
---	if colldire==1 or colldire==3 or colldire==5 or colldire==7 then
---		if player.dire==data[index][1] then
---			setspd_0(player)
---		elseif player.dire==data[index][2] or player.dire==data[index][3] then
---			if index%2==0 then
---				setspd_xdire(player)
---			else
---				setspd_ydire(player)
---			end
---		else
---			move(player)
---		end
---	else --在2468对角线
---		if colldire==player.dire then
---			setspd_0(player)
---		else
---			move(player)
---		end
---	end
---end
 function check_hp(e)--检测敌人血量
 	if e.hp<=0 then
 		e.state=e.allstate.death
@@ -534,10 +502,10 @@ function dist(x1,y1,x2,y2)--计算两点之间的距离
 	return sqrt((x1-x2)^2+(y1-y2)^2)
 end
 function check_p(e,c)--矩形范围内检测玩家
-	local data={{e.x-c,e.y,c+7,7},{e.x,e.y-c,7,c+7},{e.x,e.y,c+7,7},{e.x,e.y,7,c+7}}--x,y,w,h,1357
-	local index=(e.lastdire+1)/2
-	local ck={x=data[index][1],y=data[index][2],w=data[index][3],h=data[index][4]}--rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
-	return ck_sthcoll(ck,wy,0,0,0,0)
+	--x,y,w,h,1357
+	local data=({{e.x-c,e.y,c+7,7},{e.x,e.y-c,7,c+7},{e.x,e.y,c+7,7},{e.x,e.y,7,c+7}})[(e.lastdire+1)/2]
+	--local ck=--rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
+	return ck_sthcoll({x=data[1],y=data[2],w=data[3],h=data[4]},wy,0,0,0,0)
 end
 function firebullet(c)--栗子怪发射子弹
 	setspd_xydire(c)

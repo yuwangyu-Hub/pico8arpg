@@ -19,7 +19,7 @@ function enstate_urchin(en)
 	}
 	switchstate[en.state]()
 end
-function enstate_4direcmove(en)--螃蟹/蜘蛛
+function enstate_4direcmove(en)--螃蟹/蜘蛛/蛇
 	spr_flip(en)
 	local switchstate={
 		idle=function()
@@ -159,6 +159,166 @@ function enstate_slime(en)
 		end 
 	end
 	en.slime_handler()
+end
+function enstate_bat(en)
+	if not en.bat_handler then
+		local rest_t,fly_t=0,0
+		local tx, ty=0,0
+		local angle,radius=0,0 -- 用于圆形飞行的角度-- 圆形飞行的半径
+		local fly_init,fly_direction = false, 1 --是否初始化了飞行参数--飞行方向：1为顺时针，-1为逆时针
+		local bat_start_x, bat_start_y=0,0
+
+		en.bat_handler = function()
+			local switchstate={
+				idle=function()
+					en.wudi_t=0
+					fly_init = false --重置飞行初始化状态
+					if check_p_dis(en,wy) then
+						tx, ty=wy.x, wy.y
+						bat_start_x, bat_start_y = en.x, en.y-- 记录蝙蝠的初始位置（当发现玩家时的位置）
+						en.state=en.allstate.fly
+					end
+					en.frame=en.sprs.idle
+					if check_en_hurt(sword,en,wy) then
+						en.state=en.allstate.hurt
+					end
+					check_hp(en)
+				end,
+				fly=function()
+					-- 初始化飞行参数
+					if not fly_init then
+						-- 计算初始半径（蝙蝠当时与玩家的距离）
+						radius = sqrt((bat_start_x - tx)^2 + (bat_start_y - ty)^2)
+						-- 计算初始角度（使用蝙蝠的初始位置）pico-8中:atan2(x,y)
+						angle = atan2(bat_start_x - tx,bat_start_y - ty)
+						-- 根据玩家相对于蝙蝠的位置决定飞行方向
+						-- 如果玩家在蝙蝠的左边，逆时针飞行（负方向）
+						-- 如果玩家在蝙蝠的右边，顺时针飞行（正方向）
+						if wy.x < en.x then
+							fly_direction = 1 -- 逆时针
+							en.sprflip=true
+						else
+							fly_direction = -1 -- 顺时针
+							en.sprflip=false
+						end
+						fly_init = true
+					end
+					-- 更新角度，实现旋转效果，结合en.speed和飞行方向来控制
+					angle += 0.005 * en.speed * fly_direction
+					-- 计算圆形飞行的新位置
+					en.x = tx + radius * cos(angle)
+					en.y = ty + radius * sin(angle)
+					radius-=0.5 -- 控制飞行半径减小，使蝙蝠向玩家移动
+					if  radius<=2 then
+						en.state=en.allstate.rest
+					end
+					-- 循环播放飞行动画
+					fly_t = anim_sys(en.sprs.fly, en, fly_t, 0.2, 1)
+					if check_en_hurt(sword,en,wy) then
+						en.state=en.allstate.hurt
+					end
+					check_hp(en)
+				end,
+				rest=function()
+					rest_t+=.1
+					if rest_t>=1 then
+						en.state=en.allstate.idle
+						en.crange=25 -- 检测范围
+						rest_t=0
+					end
+					en.frame=en.sprs.rest
+					if check_en_hurt(sword,en,wy) then
+						en.state=en.allstate.hurt
+					end
+					check_hp(en)
+				end,
+				hurt=function()
+					en.wudi_t=anim_sys(en.sprs.hurt, en, en.wudi_t, .1, 5)
+					hurtdo(en, en.wudi_t)
+					xypluspd(en)
+				end,
+				death=function()
+					en.die_t+=.4
+					death_do(en, en.die_t)
+				end,
+			}
+			switchstate[en.state]()
+		end
+	end
+	en.bat_handler()
+end
+function enstate_ghost(en)
+	-- 工厂模式：为每个 en 实例创建一个闭包处理器，闭包内使用局部的 apr_t/fly_t/rest_t
+	if not en.ghost_handler then
+		local apr_t=0
+		local fly_t=0
+		local rest_t=0
+
+		en.ghost_handler = function()
+			local switchstate={
+				idle=function()
+					--靠近后发现，切换到出现状态
+					if check_p_dis(en,wy) then
+						en.state=en.allstate.apr
+					end
+					en.frame=en.sprs.idle
+				end,
+				apr=function()
+					apr_t = anim_sys(en.sprs.apr,en,apr_t,.1,2)
+					en.y-=.2
+					if apr_t>=5 then
+						en.state=en.allstate.fly
+						apr_t=0
+					end
+				end,
+				fly=function()
+					en.w,en.h=7,7
+					fly_t = anim_sys(en.sprs.fly,en,fly_t,.1,1)
+					--具体飞向玩家
+					local tx,ty=wy.x,wy.y
+					local angle = atan2(tx - en.x, ty - en.y)
+					en.x += cos(angle) * en.speed
+					en.y += sin(angle) * en.speed
+					if wy.state==wy.allstate.hurt then
+						en.state=en.allstate.rest
+					end
+					if wy.x < en.x then
+						en.sprflip=true
+					else
+						en.sprflip=false
+					end
+					if check_en_hurt(sword,en,wy) then
+						en.state=en.allstate.hurt
+					end
+					check_hp(en)
+				end,
+				rest=function()
+					rest_t = anim_sys(en.sprs.apr,en,rest_t,.1,4)
+					if rest_t>=2 then
+						en.state=en.allstate.fly
+						rest_t=0
+					end
+				end,
+				hurt=function()
+					en.wudi_t=anim_sys(en.sprs.hurt, en, en.wudi_t, .1, 5)
+					--hurtdo(en, wudi_t)
+					hurtmove(en,2.5)
+					if en.wudi_t>=0.5 then
+						en.state=en.allstate.fly
+						en.hp-=1
+					end
+					xypluspd(en)
+				end,
+				death=function()
+					en.die_t+=.4
+					death_do(en, en.die_t)
+				end,
+			}
+			switchstate[en.state]()
+		end
+	end
+	-- 调用该实例的闭包处理器
+	en.ghost_handler()
 end
 
 function enstate_lizi(en)
