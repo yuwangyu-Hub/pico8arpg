@@ -19,15 +19,11 @@ function cprint(txt,x,y,c)--xy位置，c颜色
 end
 --主角与物碰撞
 function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
-	--local p={x=_sb.x+cx, y=_sb.y+cy, w=_sb.w+cw, h=_sb.h+ch}
-	--return coll_boxcheck(p.x-1,p.y-1,p.w+2,p.h+2,_sth.x,_sth.y,_sth.w,_sth.h)--将主角向外扩一个像素，来达到触碰即碰撞
 	return coll_boxcheck(_sb.x+cx-1, _sb.y+cy-1, _sb.w+cw+2, _sb.h+ch+2, _sth.x,_sth.y,_sth.w,_sth.h)
 end
 --具体的碰撞盒
 --物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
 function coll_boxcheck(_px,_py,_pw,_ph,_bx,_by,_bw,_bh) 
-	--local px1=_px--local py1=_py--local px2=_px+_pw--local py2=_py+_ph--local bx1=_bx--local by1=_by--local bx2=_bx+_bw--local by2=_by+_bh
-	--true:碰撞--false:不碰撞
 	return _px+_pw>=_bx and _px<=_bx+_bw and _py+_ph>=_by and _py<=_by+_bh
 end
 --点与物体碰撞
@@ -248,13 +244,11 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙 iwcd:
 			local v={[8]=true,[1]=true,[2]=true}
 			if v[iwcd] then
 			--if iwcd==8 or iwcd==1 or iwcd==2 then
-				_rollspd= 0--速度为0
-				xymove="no"
+				_rollspd,xymove=0,"no"--速度为0
 			end
 		else
 			if iwcd==_sb.dire-1 or iwcd==_sb.dire or iwcd==_sb.dire+1 then
-				_rollspd= 0--速度为0
-				xymove="no"
+				_rollspd,xymove=0,"no"--速度为0
 			end
 		end
 	end
@@ -262,13 +256,8 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙 iwcd:
 end
 function roll(_sb,iwcd)--is_wall_coll_dire
 	local _rollspd,xymove=check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
-	if xymove=="x" then
-		setspd_xdire(_sb,_rollspd)
-	elseif xymove=="y" then
-		setspd_ydire(_sb,_rollspd)
-	else
-		setspd_xydire(_sb,_rollspd)--设置速度
-	end
+	local t={["x"]=setspd_xdire,["y"]=setspd_ydire}
+	(t[xymove]or setspd_xydire)(_sb,_rollspd)
 	--翻滚所需时间结束
 	if _sb.roll_t>=5  then
 		setspd_0(_sb)

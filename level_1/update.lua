@@ -19,12 +19,10 @@ function update_game()--游戏进行时
 		end
 	end 
 	updatep_state(wy)--主角的行为: 更新玩家状态
+	
 	for e in all(enemies) do
-		en_update(e,"urchin",enstate_urchin)
-		en_update(e,"crab",enstate_4direcmove)
-		en_update(e,"slime",enstate_slime)
-		en_update(e,"spider",enstate_4direcmove)
-		en_update(e,"lizi",enstate_lizi)
+		local t={["urchin"]=enstate_urchin,["crab"]=enstate_4direcmove,["slime"]=enstate_slime,["spider"]=enstate_4direcmove,["lizi"]=enstate_lizi}
+		t[e.name](e)
 	end
 	--敌人子弹的检测
 	for b in all(bullets) do
@@ -41,9 +39,7 @@ function update_game()--游戏进行时
 		end
 	end
 end
-function en_update(e,name,func)
-	if e.name==name then func(e) end
-end
+
 function update_mamenu()--菜单
 	blinkt+=1
 	wy,sword = init_player(),init_sword()  -- 初始化武器

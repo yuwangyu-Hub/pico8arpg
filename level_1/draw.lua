@@ -156,10 +156,10 @@ function draw_p(_sb)--绘制主角：cx和cy代表差值
 	local x,y,frame,flip=_sb.x,_sb.y,_sb.frame,_sb.sprflip
     --黑边
     pal({1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}) -- 所有颜色映射为1颜色
-    for _,d in ipairs{{-1,0},{1,0},{0,-1},{0,1}} do--把四周的偏移写成坐标表，一个循环就搞定：
+    for _,d in ipairs{{-1,0},{1,0},{0,-1},{0,1}} do--把四周的偏移写成坐标表，一个循环就搞定
         spr(frame, x+d[1], y+d[2], 1, 1, flip)
     end
-    pal() -- 恢复默认
+    pal()--恢复默认
 	spr(frame, x, y, 1, 1, flip)--本体
 end
 --多帧动画系统：动画帧/帧集、对象、时间

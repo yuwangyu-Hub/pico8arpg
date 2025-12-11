@@ -9,7 +9,8 @@
 --*敌人死亡几率掉落:回血道具
 --*割草+掉落回血、增益道具
 --en：1：urchin 2：crab 3：spider 4:slime 5：lizi 6:snake 7:bat 8:ghost
-map1=explodeval("[80,60,2],[108,80,2]")--x,y,type
+--x,y,type
+map1=explodeval("[80,60,2],[108,80,2]")
 map2=explodeval("[34,88,2],[48,40,2],[112,72,1]")
 map3=explodeval("[8,48,2],[48,40,2]")
 map4=explodeval("[48,40,4],[48,40,4],[96,80,2]")
@@ -20,11 +21,7 @@ map8=explodeval("[24,56,4],[80,80,4],[88,24,4]")
 map9=explodeval("[24,40,4],[104,104,4]")
 map10=explodeval("[24,80,4],[88,72,4]")
 maps={map1,map2,map3,map4,map5,map6,map7,map8,map9,map10}
-chaname={"player","urchin","crab","spider","slime","lizi","snake","bat","ghost"}
-chahp=explodeval("3,1,1,1,1,2,2,1,2")
-chaspd={1,0,.5,.5,.5,.5,.5,1,.3}
-chalastdire=explodeval("5,0,5,5,5,3,5,5,5")
-chacrange=explodeval("0,0,0,0,25,20,0,20,10")
+chaname,chahp,chaspd,chalastdire,chacrange={"player","urchin","crab","spider","slime","lizi","snake","bat","ghost"},explodeval("3,1,1,1,1,2,2,1,2"),{1,0,.5,.5,.5,.5,.5,1,.3},explodeval("5,0,5,5,5,3,5,5,5"),explodeval("0,0,0,0,25,20,0,20,10")
 -----
 atdirex,atdirey=explodeval("40,40,43,46,46,46,42,40"),explodeval("10,8,8,8,11,14,14,14")--sspr攻击icon的x/y
 input_dire=explodeval("0,1,5,0,3,2,4,3,7,8,6,7,0,1,5,0")--btn()0-15所对应的方向：从左边开始顺时针8方向
