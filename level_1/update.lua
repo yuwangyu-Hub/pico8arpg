@@ -5,11 +5,7 @@ function update_game()--游戏进行时
 		mapenemy_reset()--地图上敌人刷新
 		wy.is_s_scene=false
 	end
-	--主角受伤检测（无敌时间0，主角不在攻击状态）
-	if check_p_hurt(wy,"en") and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
-		wy.ishurt=true
-		wy.state=wy.allstate.hurt
-	end
+	
 	--受伤无敌
 	if wy.ishurt then--如果受伤，受伤无敌时间增加 
 		--受伤闪烁和无敌时间相同
@@ -19,10 +15,15 @@ function update_game()--游戏进行时
 		end
 	end 
 	updatep_state(wy)--主角的行为: 更新玩家状态
-	
+	--创建敌人组
 	for e in all(enemies) do
-		local t={["urchin"]=enstate_urchin,["crab"]=enstate_4direcmove,["slime"]=enstate_slime,["spider"]=enstate_4direcmove,["lizi"]=enstate_lizi}
+		local t={["urchin"]=enstate_urchin,["crab"]=enstate_4direcmove,["slime"]=enstate_slime,["spider"]=enstate_4direcmove,["lizi"]=enstate_lizi,["snake"]=enstate_4direcmove,["bat"]=enstate_bat,["ghost"]=enstate_ghost}
 		t[e.name](e)
+	end
+	--主角受伤检测（无敌时间0，主角不在攻击状态）
+	if check_p_hurt(wy,"en") and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
+		wy.ishurt=true
+		wy.state=wy.allstate.hurt
 	end
 	--敌人子弹的检测
 	for b in all(bullets) do

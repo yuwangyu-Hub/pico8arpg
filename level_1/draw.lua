@@ -79,7 +79,7 @@ function draw_game()
     end
     --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
     draweapon(wy)
-    for b in all(bullets) do --射击物（敌人）的绘制
+    for b in all(bullets) do--射击物（敌人）的绘制
         spr(b.frame,b.x,b.y)
     end
     ui_show()
@@ -120,7 +120,7 @@ function showend()--游戏结束动画播放
 end
 function mapenemy_reset()--切换场景时，重置敌人
     map_trrrans = function(_num,_x,_y)
-        ({createnemy_urchin,createnemy_crab,createnemy_spider,createnemy_slime,createnemy_lizi})[_num](_x,_y)
+        ({createnemy_urchin,createnemy_crab,createnemy_spider,createnemy_slime,createnemy_lizi,createnemy_snake,createnemy_bat,createnemy_ghost})[_num](_x,_y)
     end
     for ep in all(maps[wy.mappos]) do
         --ep=enemy position  
@@ -155,12 +155,14 @@ end]]
 function draw_p(_sb)--绘制主角：cx和cy代表差值
 	local x,y,frame,flip=_sb.x,_sb.y,_sb.frame,_sb.sprflip
     --黑边
-    pal({1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}) -- 所有颜色映射为1颜色
-    for _,d in ipairs{{-1,0},{1,0},{0,-1},{0,1}} do--把四周的偏移写成坐标表，一个循环就搞定
+    t1=explodeval("1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1")
+    t2=explodeval("[-1,0],[1,0],[0,-1],[0,1]")
+    pal(t1) -- 所有颜色映射为1颜色
+    for _,d in ipairs(t2) do--把四周的偏移写成坐标表，一个循环就搞定
         spr(frame, x+d[1], y+d[2], 1, 1, flip)
     end
     pal()--恢复默认
-	spr(frame, x, y, 1, 1, flip)--本体
+	spr(frame,x,y,1,1,flip)--本体
 end
 --多帧动画系统：动画帧/帧集、对象、时间
 function anim_sys(animframe,_sb,t,at,rate)--t:计时器，at:计时器增量，rate：动画速率
