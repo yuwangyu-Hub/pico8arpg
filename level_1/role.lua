@@ -104,7 +104,7 @@ function createnemy_slime(_x,_y)
 end
 function createnemy_lizi(_x,_y)
 	local lizi = makerole(6,_x,_y,
-		{idle=explodeval("85,187,189"),
+		{idle=explodeval("185,187,189"),
 		move=explodeval("[189,190],[185,186],[189,190],[187,188]"),--1357
 		hurt=explodeval("[189,175],[185,173],[189,175],[187,174]")--1357
 		},

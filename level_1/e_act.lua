@@ -2,9 +2,7 @@ function enstate_urchin(en)
 	local switchstate={
 		idle=function()
 			en.wudi_t=0
-			if check_en_hurt(sword,en,wy) then
-				en.state=en.allstate.hurt
-			end
+			switchhurt(en)
 			check_hp(en)
 		end,
 		hurt=function()--受伤弹开
@@ -39,15 +37,11 @@ function enstate_4direcmove(en)--螃蟹/蜘蛛/蛇
 				end
 			end
 			en.frame=en.sprs.idle
-			if check_en_hurt(sword,en,wy) then
-				en.state=en.allstate.hurt
-			end
+			switchhurt(en)
 			check_hp(en)
 		end,
 		move=function()
-			if check_en_hurt(sword,en,wy) then
-				en.state=en.allstate.hurt
-			end
+			switchhurt(en)
 			local data=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]")
 			local d=(en.dire+1)/2 --获取方向的索引
 			--蛇的移动是四个方向的随机移动
@@ -100,9 +94,7 @@ function enstate_slime(en)
 							en.state=en.allstate.charge
 						end
 					end
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				charge=function()--蓄力
@@ -110,9 +102,7 @@ function enstate_slime(en)
 					if charge_t>=2 then --经过2t时间后
 						en.state=en.allstate.jump
 					end
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				jump=function()
@@ -140,9 +130,7 @@ function enstate_slime(en)
 						en.state=en.allstate.idle
 					end
 					en.frame=en.sprs.jump
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				hurt=function()
@@ -179,9 +167,7 @@ function enstate_bat(en)
 						en.state=en.allstate.fly
 					end
 					en.frame=en.sprs.idle
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				fly=function()
@@ -214,9 +200,7 @@ function enstate_bat(en)
 					end
 					-- 循环播放飞行动画
 					fly_t = anim_sys(en.sprs.fly, en, fly_t, 0.2, 1)
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				rest=function()
@@ -227,9 +211,7 @@ function enstate_bat(en)
 						rest_t=0
 					end
 					en.frame=en.sprs.rest
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				hurt=function()
@@ -287,9 +269,7 @@ function enstate_ghost(en)
 					else
 						en.sprflip=false
 					end
-					if check_en_hurt(sword,en,wy) then
-						en.state=en.allstate.hurt
-					end
+					switchhurt(en)
 					check_hp(en)
 				end,
 				rest=function()
@@ -334,16 +314,12 @@ function enstate_lizi(en)
 					en.dire,en.lastdire,en.state,en.idle_t=dire,dire,en.allstate.move,0
 				end
 			end				
-			if check_en_hurt(sword,en,wy) then
-				en.state,en.hurtframe=en.allstate.hurt,(en.dire+1)/2
-			end
+			switch_framehurt(en)
 			check_hp(en)
 		end,
 		move=function()
 			local data,d=explodeval("[1,2,8],[2,3,4],[4,5,6],[6,7,8]"),(en.dire+1)/2 --获取方向的索引
-			if check_en_hurt(sword,en,wy) then
-				en.state,en.hurtframe=en.allstate.hurt,(en.dire+1)/2
-			end
+			switch_framehurt(en)
 			local wall_dire,_=check_wall_iswalk(en,8,8,wy.mappos)--检测到朝墙壁
 			if wall_dire!=0 then--如果靠近墙
 				if wall_dire==data[d][1] or wall_dire==data[d][2] or wall_dire==data[d][3] then--移动方向与靠墙方向一致
@@ -371,7 +347,7 @@ function enstate_lizi(en)
 		end,
 		atk=function()
 			en.atk_t+=.1
-			check_en_hurt(sword,en,wy)
+			switchhurt(en)
 			--发射子弹
 			if cnut.t>=0.4 then
 				en.state=en.allstate.idle

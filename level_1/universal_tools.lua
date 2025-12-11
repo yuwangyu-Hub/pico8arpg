@@ -265,46 +265,40 @@ function roll(_sb,iwcd)--is_wall_coll_dire
 		setflrxy(_sb)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
 	end
 end
-
-function check_p_hurt(_sb,type,b)--玩家受伤,最近的敌人,type:检测类型,b：bullet
+function hurtdir(_sb,_v1,_v2)--如果碰撞了受伤方向设置为检测方向
+	if ck_sthcoll(_sb,_v1,0,0,0,0) then
+		if checkdir(_sb,_v2)!=0 then
+			_sb.hurtdire=checkdir(_sb,_v2)
+		end
+		return true
+	end
+end
+function check_p_hurt(_sb,type,v)--玩家受伤,最近的敌人,type:检测类型,v:bullet/enemy
 	if type=="en" then--检测类型为敌人
-		for e in all(enemies) do
-			if e.name=="ghost" then--如果敌人是小幽灵
-				if e.state==e.allstate.fly then
-					if ck_sthcoll(_sb,e,0,0,0,0) then
-						if checkdir(_sb,e)!=0 then
-							_sb.hurtdire=checkdir(_sb,e)
-						end
-						return true
-					end
-				end
-			else
-				if ck_sthcoll(_sb,e,0,0,0,0) then
-					if checkdir(_sb,e)!=0 then
-						_sb.hurtdire=checkdir(_sb,e)
-					end
-					return true
-				end
+		if v.name=="ghost" then--如果敌人是小幽灵
+			if v.state==v.allstate.fly then
+				 return hurtdir(_sb,v,v)
 			end
+		else
+			return hurtdir(_sb,v,v)
 		end
 	elseif type=="bu" then  --检测类型为子弹
-		if ck_sthcoll(_sb,b,0,0,0,0) then
-				if checkdir(_sb,b)!=0 then
-					_sb.hurtdire=checkdir(_sb,b)
-				end
-			return true
-		end
+		return hurtdir(_sb,v,v)
 	end
 end
 function check_en_hurt(_sword,_en,_p) --敌人受伤
 	if _sword.isappear and _en.state!=_en.allstate.hurt and _en.wudi_t==0 then
-		if ck_sthcoll(_en,_sword,0,0,0,0) then
-			if checkdir(_en,_p)!=0 then
-				_en.hurtdire=checkdir(_en,_p)
-			end
-			_en.state=_en.allstate.hurt
-			return true
-		end
+		return hurtdir(_en,_sword,_p)
+	end
+end
+function switchhurt(en)
+	if check_en_hurt(sword,en,wy) then
+		en.state=en.allstate.hurt
+	end
+end
+function switch_framehurt(en)
+	if check_en_hurt(sword,en,wy) then
+		en.state,en.hurtframe=en.allstate.hurt,(en.dire+1)/2
 	end
 end
 function hurtmove(_sb,speed)--依照方向执行受伤

@@ -1,4 +1,5 @@
 --*黑洞掉落
+--*敌人受伤方向改成4方向而不是8方向
 --*缩小玩家的碰撞
 --*血量绘制
 --*钥匙
@@ -11,14 +12,14 @@
 --*割草+掉落回血、增益道具
 --en：1：urchin 2：crab 3：spider 4:slime 5：lizi 6:snake 7:bat 8:ghost
 --x,y,type
-map1=explodeval("[80,60,2],[108,80,2]")
+map1=explodeval("[80,60,5],[108,80,2]")
 map2=explodeval("[34,88,2],[48,40,2],[112,72,1]")
 map3=explodeval("[8,48,2],[48,40,2]")
 map4=explodeval("[48,40,4],[28,80,6],[96,80,2]")
 map5=explodeval("[24,72,4],[56,32,3],[96,56,6]")
-map6=explodeval("[16,48,4],[88,32,2],[96,80,2]")
-map7=explodeval("[32,32,6],[24,88,4],[104,72,4]")
-map8=explodeval("[24,56,4],[80,80,6],[88,24,4]")
+map6=explodeval("[16,48,4],[88,32,5],[96,80,2]")
+map7=explodeval("[32,32,6],[24,88,5],[104,72,4]")
+map8=explodeval("[24,56,5],[80,80,6],[88,24,4]")
 map9=explodeval("[24,40,6],[104,104,4]")
 map10=explodeval("[24,80,6],[88,72,4]")
 maps={map1,map2,map3,map4,map5,map6,map7,map8,map9,map10}
