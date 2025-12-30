@@ -1,16 +1,13 @@
 function input_direct_sys()
-	local btnv_mask=btn()&0b001111 --遮罩剔除掉X\O的输入
+	local btnv_mask,btnp=btn()&0b001111,btnp()&0b110000--遮罩剔除掉X\O的输入\获取方向键输入
 
 	wy.dire = input_dire[btnv_mask+1] --获取方向
     --攻击为真(遮罩剔除掉方向输入只查看xo输入)
-	if btnp()&0b110000==16 and wy.getsowrd then --o键为真
-		wy.isattack=true
-	end
-	if btnp()&0b110000==32 then--x键为真
+	
+	if btnp==32 then--x键为真
 		wy.isroll=true
-	end
-	if btnp()&0b110000==48 then --x+o键为真
-		--debug="inv"
+    elseif btnp==16 and wy.getsowrd then --o键为真
+		wy.isattack=true
 	end
 end
 function input_mamenu()--主菜单输入

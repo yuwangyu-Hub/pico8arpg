@@ -1,9 +1,6 @@
 function sceneset(p,table)--t:table
     local maptable=table
-    wy.mappos=maptable[p.mappos]
-    enemies={}
-    obj={}
-    p.is_s_scene=true
+    wy.mappos,enemies,p.is_s_scene=maptable[p.mappos],{},true
 end
 function sceneswitch_u(p)
     if p.y<-6 then--上
@@ -27,12 +24,9 @@ function sceneswitch_r(p)
     if p.x>124 then--右
         p.x-=125
         sceneset(p,{[1]=2,[2]=3,[4]=5,[5]=6,[7]=8,[9]=10})
-        if p.mappos==3 then--当在第三张图时
-            makeobj(2)--创建剑
-        end
     end
 end
-function mapsys()
+function mapsys()--地图切换系统
     local switches = {
         [1] = {sceneswitch_u, sceneswitch_r},
         [2] = {sceneswitch_u, sceneswitch_l, sceneswitch_r},
@@ -43,41 +37,50 @@ function mapsys()
         [7] = {sceneswitch_u, sceneswitch_d, sceneswitch_r},
         [8] = {sceneswitch_u, sceneswitch_d, sceneswitch_l},
         [9] = {sceneswitch_d, sceneswitch_r},
-        [10] = {sceneswitch_d, sceneswitch_l}
-    }
+        [10] = {sceneswitch_d, sceneswitch_l}}
     for _, func in ipairs(switches[wy.mappos] or {}) do
         func(wy)
     end
 end
 function draw_game()
-    --地图绘制
-    map(mapnum[wy.mappos][1],mapnum[wy.mappos][2])
+    map(mapnum[wy.mappos][1],mapnum[wy.mappos][2])--地图绘制
     spr(39,wy.x,wy.y+6,1,1,wy.sprflip)--主角影子(用来跳跃区分)
     if #enemies>0 then--敌人精灵显示
         for e in all (enemies) do
             spr(191, e.x, e.y+8,1,1,e.sprflip)--影子
             draw_p(e)
             --rect(e.x,e.y,e.x+e.w,e.y+e.h,12) --可视碰撞盒
-            --if e.name=="slime" then--敌人检测范围
+            --if e.name=="lizi" then--敌人检测范围
                 --circ(e.x+e.w/2,e.y+e.h/2,e.crange,12)--圆检测范围
+                --check_p(e,e.crange)
             --end
         end
     end
-    --get sword 
-    if wy.state==wy.allstate.get and wy.getsowrd then
-        spr(41,wy.x-4,wy.y-8,2,1)
-    end
-    draw_p(wy)--主角绘制
-    if #obj>0 then--物体显示
-        for o in all (obj) do
-        spr(o.spr, o.x, o.y)
-        --rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
+    --获得后，显示
+    if wy.state==wy.allstate.get then
+        if wy.getadheart then
+            spr(52,wy.x,wy.y-8,1,1)
+        elseif wy.getsowrd then
+            spr(41,wy.x-4,wy.y-8,2,1)
         end
     end
-    if not sword.isappear then
+    draw_p(wy)--主角绘制
+    if #obj>0 then--物体绘制
+        for o in all (obj) do
+            if  o.mappos==wy.mappos then
+                spr(o.spr, o.x, o.y)
+                o.appear=1
+            else
+                o.appear=0
+                --rect(o.x,o.y,o.x+o.w,o.y+o.h,12)--物体的碰撞盒
+            end
+        end
+    end
+    if not sword.isappear and wy.state != wy.allstate.get then
         actdireshow(wy)
     end
-    --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)--主角spr框
+    --rect(wy.x, wy.y, wy.x+wy.w, wy.y+wy.h,8)
+    --rect(wy.cx, wy.cy, wy.cx+wy.cw, wy.cy+wy.ch,12)--主角spr框
     draweapon(wy)
     for b in all(bullets) do--射击物（敌人）的绘制
         spr(b.frame,b.x,b.y)
@@ -85,15 +88,15 @@ function draw_game()
     ui_show()
 end
 function actdireshow(_sb)--朝向标识显示
-    local data=explodeval("[-3,3],[-2,-2],[3,-3],[8,-2],[9,3],[8,8],[3,9],[-2,8]")--124578
-    sspr(atdirex[_sb.lastdire],atdirey[_sb.lastdire],2,2,_sb.x+data[_sb.lastdire][1],_sb.y+data[_sb.lastdire][2]) 
+    local data=explodeval("[-6,3],[-4,-3],[3,-5],[9,-3],[11,3],[9,9],[3,11],[-4,9]")--12345678
+    sspr(atdirex[_sb.lastdire],atdirey[_sb.lastdire],3,3,_sb.x+data[_sb.lastdire][1],_sb.y+data[_sb.lastdire][2]) 
 end
 function draweapon(_sb)--根据朝向绘制武器攻击
-    --1,2,3,4,5,6,7,8
-    local swordx,swordy,swordw,swordh=explodeval("16,26,16,24,16,24,20,26"),explodeval("12,10,16,18, 8, 8,16,16"),explodeval("7, 6, 4, 6, 7, 6, 4, 6"),explodeval("4, 6, 7, 6, 4, 6, 7, 6")
+    local swordt=explodeval("43,18,45,19,44,35,61,34") --12345678
+    local swordpos=explodeval("[-7,0],[-7,-7],[0,-7],[7,-7],[7,0],[7,7],[0,7],[-7,7]")
     if sword.isappear then	
-        sspr(swordx[_sb.lastdire],swordy[_sb.lastdire],swordw[_sb.lastdire],swordh[_sb.lastdire],sword.x,sword.y)
-	end
+       draw_p(sword,_sb.x+swordpos[_sb.lastdire][1],_sb.y+swordpos[_sb.lastdire][2],swordt[_sb.lastdire],false)
+    end
 end
 function draw_mamenu()--主菜单
     local cor1,cor2=7,7--color
@@ -106,60 +109,29 @@ function draw_mamenu()--主菜单
     cprint("exitgame",64,100,cor2)
     spr(mainmenu_cursor.spr,38,89+(mainmenu_cursor.count-1)*10)--光标
 end
-
 function draw_gover()--游戏结束界面
-    showend()
-end
-function draw_win()--游戏胜利界面
     showend()
 end
 function showend()--游戏结束动画播放
     --*绘制游戏结束画面
     cprint("gameover",64,90,7)
-    --*按键回到游戏开始
 end
 function mapenemy_reset()--切换场景时，重置敌人
     map_trrrans = function(_num,_x,_y)
-        ({createnemy_urchin,createnemy_crab,createnemy_spider,createnemy_slime,createnemy_lizi,createnemy_snake,createnemy_bat,createnemy_ghost})[_num](_x,_y)
+        ({createnemy_urchin,createnemy_crab,createnemy_spider,createnemy_slime,createnemy_lizi,createnemy_snake})[_num](_x,_y)
     end
     for ep in all(maps[wy.mappos]) do
-        --ep=enemy position  
         map_trrrans(ep[3],ep[1],ep[2])--根据地图上绘制的敌人，创建敌人实例
     end
 end
---[[
-function map_trrrans(_num,_x,_y)
-    switch(_num,{
-        [1]=function()
-            createnemy_urchin(_x,_y)
-        end,
-        [2]=function()
-            createnemy_crab(_x,_y)
-        end,
-        [3]=function()
-            createnemy_spider(_x,_y)
-        end,
-        [4]=function()
-            createnemy_slime(_x,_y)
-        end,
-        [5]=function()
-            createnemy_lizi(_x,_y)
-        end,}
-    )
-end
-function switch(num, cases)
-    if cases[num] then--能找到，就执行对应函数
-        return cases[num]()--把结果返回，方便链式调用
-    end
-end]]
-function draw_p(_sb)--绘制主角：cx和cy代表差值
-	local x,y,frame,flip=_sb.x,_sb.y,_sb.frame,_sb.sprflip
-    --黑边
-    t1=explodeval("1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1")
-    t2=explodeval("[-1,0],[1,0],[0,-1],[0,1]")
-    pal(t1) -- 所有颜色映射为1颜色
-    for _,d in ipairs(t2) do--把四周的偏移写成坐标表，一个循环就搞定
-        spr(frame, x+d[1], y+d[2], 1, 1, flip)
+
+function draw_p(_sb,_x,_y,_spr,_flip)--绘制主角：cx和cy代表差值
+	local x,y,frame,flip=_x or _sb.x, _y or _sb.y, _spr or _sb.frame,_flip or _sb.sprflip
+    --黑色、边缘偏移
+    local black_t,side_t=explodeval("1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"),explodeval("[-1,0],[1,0],[0,-1],[0,1]")
+    pal(black_t) --所有颜色映射为1颜色
+    for _,d in ipairs(side_t) do--把四周的偏移写成坐标表，一个循环就搞定
+        spr(frame,x+d[1],y+d[2],1,1,flip)
     end
     pal()--恢复默认
 	spr(frame,x,y,1,1,flip)--本体

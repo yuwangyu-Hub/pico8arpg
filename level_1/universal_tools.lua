@@ -18,8 +18,9 @@ function cprint(txt,x,y,c)--xy位置，c颜色
 	print(txt,x-#txt*2,y,c)
 end
 --主角与物碰撞
-function ck_sthcoll(_sth,_sb,cx,cy,cw,ch)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
-	return coll_boxcheck(_sb.x+cx-1, _sb.y+cy-1, _sb.w+cw+2, _sb.h+ch+2, _sth.x,_sth.y,_sth.w,_sth.h)
+function ck_sthcoll(_sb,_sth)--检测碰撞,参数代表差值(用于仅对主角碰撞器的缩放)
+	local x,y,w,h=_sb.cx or _sb.x , _sb.cy or _sb.y ,_sb.cw or _sb.w , _sb.ch or _sb.h
+	return coll_boxcheck(x-1, y-1, w+2, h+2, _sth.x,_sth.y,_sth.w,_sth.h)
 end
 --具体的碰撞盒
 --物体1、物体2、物体1的宽、物体1的高、物体2的宽、物体2的高
@@ -55,35 +56,24 @@ function checkdir(_ob2,_sb1)--obj/sb
 		return 0
 	end
 end
-function judge(v,p,e)--用于下方判断,v:数据集合、p:player、e:enemy
-	return v[checkdir(p,e)] or false
-end
 --检测敌人如果靠墙后识别 玩家位置 是否在靠墙一侧。如果在靠墙一侧就false不追，如果不在靠墙一侧true追
 function en_nestwall(p,en)--p:玩家,en:敌人
-	if check_wall_iswalk(en,8,8,wy.mappos)==1 then --34567
-		local data={[3]=true,[4]=true,[5]=true,[6]=true,[7]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==2 then--567
-		local data={[5]=true,[6]=true,[7]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==3 then--15678
-		local data={[1]=true,[5]=true,[6]=true,[7]=true,[8]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==4 then--178
-		local data={[1]=true,[7]=true,[8]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==5 then--12378
-		local data={[1]=true,[2]=true,[3]=true,[7]=true,[8]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==6 then--123
-		local data={[1]=true,[2]=true,[3]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==7 then--12345
-		local data={[1]=true,[2]=true,[3]=true,[4]=true,[5]=true}
-		return judge(data,p,en)
-	elseif check_wall_iswalk(en,8,8,wy.mappos)==8 then--345
-		local data={[3]=true,[4]=true,[5]=true}
-		return judge(data,p,en)
+	if check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==1 then --34567
+		return ({[3]=true,[4]=true,[5]=true,[6]=true,[7]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==2 then--567
+		return ({[5]=true,[6]=true,[7]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==3 then--15678
+		return ({[1]=true,[5]=true,[6]=true,[7]=true,[8]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==4 then--178
+		return ({[1]=true,[7]=true,[8]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==5 then--12378
+		return ({[1]=true,[2]=true,[3]=true,[7]=true,[8]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==6 then--123
+		return ({[1]=true,[2]=true,[3]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==7 then--12345
+		return ({[1]=true,[2]=true,[3]=true,[4]=true,[5]=true})[checkdir(p,en)]
+	elseif check_wall_iswalk(en.x,en.y,8,8,wy.mappos)==8 then--345
+		return ({[3]=true,[4]=true,[5]=true})[checkdir(p,en)]
 	else--0
 		return true
 	end
@@ -125,6 +115,7 @@ function setspd_ydire(sb,spd)
 	if spd then uspd=spd end
 	sb.spd.spx,sb.spd.spy=0,diry[sb.dire]*uspd
 end
+
 function setflrxy(_sb)--将 xy位置 四舍五入到最近的整数
 	_sb.x, _sb.y=flr(_sb.x), flr(_sb.y)
 end 
@@ -140,47 +131,66 @@ function rnd_move(_sb,mt)--四方向随机移动,movet
 	--移动
 	setspd_xydire(_sb)
 	--敌人后停止
-	local t=rnd({3,4,5,6}) --*bug
+	local data=explodeval("2,2,3,3,7,7,7,8,8,9,9,9")
+	local t=rnd(data) --*bug
 	--一定距离后停止返回idle
 	if mt>=t then
 		_sb.state=_sb.allstate.idle
 	end
 end
+
+function check_inbounds(_sb)--检查是否在画面内，如果在返回true
+	return _sb.x>=2 and _sb.x<=118 and _sb.y>=2 and _sb.y<=118
+end
+function inbounds_side(_sb)--检查哪一条边在画面内
+	if _sb.x<2 then 
+		return 1 
+	elseif _sb.x>118 then 
+		return 5 
+	elseif _sb.y<2 then 
+		return 3 
+	elseif _sb.y>118 then 
+		return 7 
+	else
+		return 0
+	end
+end
+
 --value(1-3)
-function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将靠近墙(value个像素的预判距离)
+function check_closewall_or_en(_sb,value,dire,c_type)--检测翻滚是否即将靠近墙/敌人？(value个像素的预判距离)
+	local _x,_y,_w,_h=_sb.cx or _sb.x,_sb.cy or _sb.y,_sb.cw or 7 ,_sb.ch or 7
 	local _e,colldire_e,is_e_coll --e:最近的敌人
 	if #enemies!=0 then --敌人
 		_e=findnearest_object(enemies, _sb)--检测最近的敌人
 		colldire_e=checkdir(_e,_sb)--敌人在主角的朝向
-		--is_e_coll=ck_sthcoll(_e, _sb, 0, 0, 0, 0) --是否撞上敌人
 	end
 	local zpoints={ --翻滚正角度的点(wall+en)
-		{x=_sb.x-value,y=_sb.y},--1
-		{x=_sb.x-value,y=_sb.y+7},--2
-		{x=_sb.x+7,y=_sb.y-value},--3
-		{x=_sb.x,y=_sb.y-value},--4
-		{x=_sb.x+7+value,y=_sb.y+7},--5
-		{x=_sb.x+7+value,y=_sb.y},--6
-		{x=_sb.x,y=_sb.y+7+value},--7
-		{x=_sb.x+7,y=_sb.y+7+value},--8
-		{x=_sb.x-value,y=_sb.y},--9(重复1)
-		{x=_sb.x-value,y=_sb.y+7}--10(重复2)
+		{x=_x-value,y=_y},--1
+		{x=_x-value,y=_y+_h},--2
+		{x=_x+_w,y=_y-value},--3
+		{x=_x,y=_y-value},--4
+		{x=_x+_w+value,y=_y+_h},--5
+		{x=_x+_w+value,y=_y},--6
+		{x=_x,y=_y+_h+value},--7
+		{x=_x+_w,y=_y+_h+value},--8
+		{x=_x-value,y=_y},--9(重复1)
+		{x=_x-value,y=_y+_h}--10(重复2)
 	}
 	local xpoints={ --翻滚斜角度的点(wall)
-		{x=_sb.x+value,y=_sb.y-value},
-		{x=_sb.x-value,y=_sb.y+value},--2
-		{x=_sb.x+7-value,y=_sb.y-value},
-   		{x=_sb.x+7+value,y=_sb.y+value},--4
-    	{x=_sb.x+7+value,y=_sb.y+7-value},
-    	{x=_sb.x+7-value,y=_sb.y+7+value},--6
-    	{x=_sb.x+value,y=_sb.y+7+value},
-    	{x=_sb.x-value,y=_sb.y+7-value}--8
+		{x=_x+value,y=_y-value},
+		{x=_x-value,y=_y+value},--2
+		{x=_x+_w-value,y=_y-value},
+   		{x=_x+_w+value,y=_y+value},--4
+    	{x=_x+_w+value,y=_y+_h-value},
+    	{x=_x+_w-value,y=_y+_h+value},--6
+    	{x=_x+value,y=_y+_h+value},
+    	{x=_x-value,y=_y+_h-value}--8
 	}
 	local en_xp={--
-		{x=_sb.x-value,y=_sb.y-value},--（2）
-		{x=_sb.x+7+value,y=_sb.y-value},--（4）
-		{x=_sb.x+7+value,y=_sb.y+7+value},--（6）
-		{x=_sb.x-value,y=_sb.y+7+value},--（8）
+		{x=_x-value,y=_y-value},--（2）
+		{x=_x+_w+value,y=_y-value},--（4）
+		{x=_x+_w+value,y=_y+_h+value},--（6）
+		{x=_x-value,y=_y+_h+value},--（8）
 	}
 	if dire!=0 then
 		if c_type=="wall" then
@@ -206,10 +216,10 @@ end
 function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙 iwcd:
 	local xymove=""--xy轴移动方向,贴墙斜角度也可翻滚，只是速度较低:1
 	local _rollspd
-	if not _sb.isclosewall then
+	if not _sb.isclosewall then--如果不是贴墙
 		_rollspd=_sb.rollspeed
 	end
-	if check_closewall_or_en(_sb,3,_sb.lastdire,"wall") then
+	if check_closewall_or_en(_sb,3,_sb.lastdire,"wall") then--如果靠近贴墙或敌人
 		_rollspd=1--速度为1
 		_sb.isclosewall=true
 	end
@@ -238,35 +248,44 @@ function check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙 iwcd:
 			xymove=data[ind][4]
 			_sb.isclosewall=true
 		end
-		
 	else--1357
 		if _sb.dire==1 then
 			local v={[8]=true,[1]=true,[2]=true}
 			if v[iwcd] then
-			--if iwcd==8 or iwcd==1 or iwcd==2 then
 				_rollspd,xymove=0,"no"--速度为0
 			end
-		else
+		else --357
 			if iwcd==_sb.dire-1 or iwcd==_sb.dire or iwcd==_sb.dire+1 then
 				_rollspd,xymove=0,"no"--速度为0
 			end
 		end
 	end
-	return _rollspd,xymove	
+	--if _sb.cx<3 or _sb.cx >120 or _sb.cy<3 or _sb.cy >124 then
+		--_rollspd=1
+	--end
+	return _rollspd,xymove
 end
 function roll(_sb,iwcd)--is_wall_coll_dire
 	local _rollspd,xymove=check_roll_near_wall(_sb,iwcd)--检测翻滚是否贴墙
 	local t={["x"]=setspd_xdire,["y"]=setspd_ydire}
+	if not _rollspd then _rollspd= _sb.dire%2==1 and 3 or 2.1213 end
 	(t[xymove]or setspd_xydire)(_sb,_rollspd)
+	--[[if xymore=="x" then
+		setspd_xdire(_sb,_rollspd)
+	elseif xymore=="y" then
+		setspd_ydire(_sb,_rollspd)
+	else
+		setspd_xydire(_sb,_rollspd)
+	end]]
 	--翻滚所需时间结束
-	if _sb.roll_t>=5  then
+	if _sb.roll_t>=5 then
 		setspd_0(_sb)
 		_sb.isroll, _sb.isclosewall, _sb.roll_t, _sb.state=false, false, 0, _sb.allstate.idle
 		setflrxy(_sb)--前面翻滚的归一化会导致一定xy坐标不为整数的可能性。
 	end
 end
 function hurtdir(_sb,_v1,_v2)--如果碰撞了受伤方向设置为检测方向
-	if ck_sthcoll(_sb,_v1,0,0,0,0) then
+	if ck_sthcoll(_sb,_v1) then
 		if checkdir(_sb,_v2)!=0 then
 			_sb.hurtdire=checkdir(_sb,_v2)
 		end
@@ -277,7 +296,7 @@ function check_p_hurt(_sb,type,v)--玩家受伤,最近的敌人,type:检测类�
 	if type=="en" then--检测类型为敌人
 		if v.name=="ghost" then--如果敌人是小幽灵
 			if v.state==v.allstate.fly then
-				 return hurtdir(_sb,v,v)
+				return hurtdir(_sb,v,v)
 			end
 		else
 			return hurtdir(_sb,v,v)
@@ -308,17 +327,23 @@ function hurtmove(_sb,speed)--依照方向执行受伤
 	end
 	_sb.spd.spx, _sb.spd.spy = dirx[_sb.hurtdire]*m_spd, diry[_sb.hurtdire]*m_spd
 end
-function hurtdo(_sb,ht)
-	hurtmove(_sb,2.5)
+function hurtdo(_e,_spr,t1,t2)
+	_e.wudi_t=anim_sys(_spr,_e,_e.wudi_t,t1,t2)
+	if check_inbounds(_e) then
+		hurtmove(_e,2.5)
+	else
+		setspd_0(_e)
+	end
 	--受伤动画
-	if ht>=1 then
-		_sb.state=_sb.allstate.idle
-		_sb.hp-=1
+	if _e.wudi_t>=1 then
+		_e.state=_e.allstate.idle
+		_e.hp-=1
 	end
 end
-function death_do(_e,dt)
-	anim_sys(en_dspr,_e,dt,.4,1)
-	if dt>=4 then
+function death_do(_e)
+	_e.die_t+=.4
+	anim_sys(en_dspr,_e,_e.die_t,.4,1)
+	if _e.die_t>=4 then
 		del(enemies,_e)
 	end
 end
@@ -327,20 +352,20 @@ function nomalize(sb,speed1,speed2)--归一化
 	respeed=(sb.dire==2 or sb.dire==4 or sb.dire==6 or sb.dire==8) and speed1 or speed2 
 	return respeed
 end
-function check_wall_iswalk(v,w,h,num)--检测物体v(物体)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）num:地图位置编号
+function check_wall_iswalk(x,y,w,h,num)--检测物体v(物体)是否靠近墙壁（1-8分别对应墙靠近玩家的位置，0不靠墙）num:地图位置编号
 	--mapnum[num][1]和mapnum[num][2]用来对应不同地图下的图块位置偏移量
 	--*w,h为物体的宽度和高度
 	--*修改函数，来匹配不同尺寸的物体/人物
 	--检测该点是否在图块上
 	--八个点分别为上下左右四个侧面的两个端点。
-	local x1,y1,x2,y2=flr((v.x-1)/8)+mapnum[num][1],flr((v.y)/8)+mapnum[num][2],flr((v.x-1)/8)+mapnum[num][1],flr((v.y+h-1)/8)+mapnum[num][2]
-	local x3,y3,x4,y4=flr((v.x)/8)+mapnum[num][1],flr((v.y+h)/8)+mapnum[num][2],flr((v.x+w-1)/8)+mapnum[num][1],flr((v.y+h)/8)+mapnum[num][2]
-	local x5,y5,x6,y6=flr((v.x+w)/8)+mapnum[num][1],flr((v.y+h-1)/8)+mapnum[num][2],flr((v.x+w)/8)+mapnum[num][1],flr((v.y)/8)+mapnum[num][2]
-	local x7,y7,x8,y8=flr((v.x+w-1)/8)+mapnum[num][1],flr((v.y-1)/8)+mapnum[num][2],flr((v.x)/8)+mapnum[num][1],flr((v.y-1)/8)+mapnum[num][2]
+	local x1,y1,x2,y2=flr((x-1)/8)+mapnum[num][1],flr((y)/8)+mapnum[num][2],flr((x-1)/8)+mapnum[num][1],flr((y+h-1)/8)+mapnum[num][2]
+	local x3,y3,x4,y4=flr(x/8)+mapnum[num][1],flr((y+h)/8)+mapnum[num][2],flr((x+w-1)/8)+mapnum[num][1],flr((y+h)/8)+mapnum[num][2]
+	local x5,y5,x6,y6=flr((x+w)/8)+mapnum[num][1],flr((y+h-1)/8)+mapnum[num][2],flr((x+w)/8)+mapnum[num][1],flr((y)/8)+mapnum[num][2]
+	local x7,y7,x8,y8=flr((x+w-1)/8)+mapnum[num][1],flr((y-1)/8)+mapnum[num][2],flr((x)/8)+mapnum[num][1],flr((y-1)/8)+mapnum[num][2]
 	--分别对应这八个点的图块
 	local lu,ld,dl,dr,rd,ru,ur,ul=fget(mget(x1,y1),0),fget(mget(x2,y2),0),fget(mget(x3,y3),0),fget(mget(x4,y4),0),fget(mget(x5,y5),0),fget(mget(x6,y6),0),fget(mget(x7,y7),0),fget(mget(x8,y8),0)--左上,左下,下左,下右,右下,右上,上右,上左
 	--物体的四个顶点位置
-	local x02,y02,x04,y04,x06,y06,x08,y08=flr((v.x-1)/8),flr((v.y-1)/8),flr((v.x+w)/8),flr((v.y-1)/8),flr((v.x+h)/8),flr((v.y+w)/8),flr((v.x-1)/8),flr((v.y+h)/8)--左上角--右上角--右下角--左下角
+	local x02,y02,x04,y04,x06,y06,x08,y08=flr((x-1)/8),flr((y-1)/8),flr((x+w)/8),flr((y-1)/8),flr((x+w)/8),flr((y+h)/8),flr((x-1)/8),flr((y+h)/8)--左上角--右上角--右下角--左下角
 	if (lu or ld) and not(ur or ul) and not (dl or dr) then --是否靠墙1
 		if lu and not ld then
 			return 1,"down" --因为左上角检测点检测到了，而左下角没检测到，所以在下面
@@ -397,14 +422,14 @@ function check_wall_iswalk(v,w,h,num)--检测物体v(物体)是否靠近墙壁�
 	end
 end
 function wallside(coll_dire)--是否站在墙角边缘(用于滑动)
-	local data={{flr((wy.x-1)/8),flr((wy.y+3)/8),flr((wy.x-1)/8),flr((wy.y+4)/8)},{flr((wy.x+4)/8),flr((wy.y-1)/8),flr((wy.x+3)/8),flr((wy.y-1)/8)},{flr((wy.x+8)/8),flr((wy.y+3)/8),flr((wy.x+8)/8),flr((wy.y+4)/8)},{flr((wy.x+4)/8),flr((wy.y+8)/8),flr((wy.x+3)/8),flr((wy.y+8)/8)}}
-	local index=(coll_dire+1)/2
-	return checkwallside(data[index][1],data[index][2],data[index][3],data[index][4])
+	local data=({{flr((wy.x-1)/8),flr((wy.y+3)/8),flr((wy.x-1)/8),flr((wy.y+4)/8)},{flr((wy.x+4)/8),flr((wy.y-1)/8),flr((wy.x+3)/8),flr((wy.y-1)/8)},{flr((wy.x+8)/8),flr((wy.y+3)/8),flr((wy.x+8)/8),flr((wy.y+4)/8)},{flr((wy.x+4)/8),flr((wy.y+8)/8),flr((wy.x+3)/8),flr((wy.y+8)/8)}})[(coll_dire+1)/2]
+	return checkwallside(data[1],data[2],data[3],data[4])
 end
 function checkwallside(x1,y1,x2,y2)
 	return not (fget(mget(x1+mapnum[wy.mappos][1],y1+mapnum[wy.mappos][2]),0) and fget(mget(x2+mapnum[wy.mappos][1],y2+mapnum[wy.mappos][2]),0))
 end
 function wallcoll_move(player,coll_dire,oneside) --玩家与墙壁的碰撞移动
+	
 	if coll_dire==1 or coll_dire==3 or coll_dire==5 or coll_dire==7 then
 		z1357wmove(coll_dire,player,oneside)
 	-------------------------------斜4角度----------------------------
@@ -431,12 +456,12 @@ function z1357wmove(_dire,_sb,side)--正wall
 			setspd_0(_sb)
 		end
 	elseif _sb.dire==data[2] or _sb.dire==data[3] then
-		--(({[1]=setspd_ydire,[5]=setspd_ydire})[_dire]or setspd_xdire)(_sb)
-		if _dire==1 or _dire==5 then
+		(_dire%4==1 and setspd_ydire or setspd_xdire)(_sb)
+		--[[if _dire==1 or _dire==5 then
 			setspd_ydire(_sb)--*bug
 		else
 			setspd_xdire(_sb)--*bug
-		end
+		end]]
 	else
 		move(_sb)
 	end
@@ -475,7 +500,7 @@ function edge_wmove(side,player)--斜墙边缘对角碰撞
 end
 function check_hp(e)--检测敌人血量
 	if e.hp<=0 then
-		e.state=e.allstate.death
+		e.state,e.rnd=e.allstate.death,flr(rnd(10))
 	end
 end
 function check_p_dis(e,p)--检测玩家与敌人之间的距离
@@ -484,17 +509,21 @@ end
 function dist(x1,y1,x2,y2)--计算两点之间的距离
 	return sqrt((x1-x2)^2+(y1-y2)^2)
 end
-function check_p(e,c)--矩形范围内检测玩家
+function check_p(e,c)--矩形范围内检测玩家,c为检测长度
 	--x,y,w,h,1357
-	local data=({{e.x-c,e.y,c+7,7},{e.x,e.y-c,7,c+7},{e.x,e.y,c+7,7},{e.x,e.y,7,c+7}})[(e.lastdire+1)/2]
-	--local ck=--rect(ck.x,ck.y,ck.x+ck.w,ck.y+ck.h,3)
-	return ck_sthcoll({x=data[1],y=data[2],w=data[3],h=data[4]},wy,0,0,0,0)
+	local data=({{e.x-c,e.y,c,7},{e.x,e.y-c,7,c},{e.x+7,e.y,c+7,7},{e.x,e.y+7,7,c+7}})[(e.lastdire+1)/2]
+	--rect(data[1],data[2],data[1]+data[3],data[2]+data[4],12)
+	return ck_sthcoll(wy,{x=data[1],y=data[2],w=data[3],h=data[4]})
 end
 function firebullet(c)--栗子怪发射子弹
 	setspd_xydire(c)
 	cnut.t+=0.1
 	xypluspd(c)
 	anim_sys(c.sprs,c,c.t,.1,4)
+end
+
+function drop_heart(en,_mapos)--生成血袋
+	makeobj(3,en.x,en.y,_mapos)
 end
 
 

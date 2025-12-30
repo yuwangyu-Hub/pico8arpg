@@ -1,22 +1,16 @@
---盒子,金币,
--- 1,  2
-o_name={"box","coin"}
-o_spr= {81,82}
-o_type={"move","get"}
-function makeobj(mb,_sx,_sy,_sw,_sh,_xc,_yc,_wc,_hc)
-    local ins={}--obj instance
-    ins.sprx=_sx --绘制x点
-    ins.spry=_sy --绘制y点
-    ins.sprw=_sw --绘制宽度
-    ins.sprh=_sh --绘制高度
-    ins.x=_sx+_xc  --碰撞器尺寸：与spr的差值
-    ins.y=_sy+_yc
-    ins.w=_sw+_wc
-    ins.h=_sh+_hc
-    ins.name=o_name[mb]
-    ins.spr=o_spr[mb]
-    ins.type=o_type[mb]
-    ins.collitem=false --是否碰撞到其他物体，如果碰撞了后面就不可推动
+--心之容器、剑、一次性物品不会刷新
+--类型：只有一次或可多次
+o_name={"addheart","sword","heal_1"}
+o_spr=explodeval("52,30,38")
+o_mappos=explodeval("10,3,0")
+o_appear=explodeval("0,0,0") --0：不出现，1：出现
+--o_used=explodeval("1,1,1") --1未使用，0已使用
+function makeobj(mb,_x,_y)--,_sx,_sy,_sw,_sh,_xc,_yc,_wc,_hc)
+    local ins={}
+    ins.name,ins.spr,ins.mappos,ins.w,ins.h=o_name[mb],o_spr[mb],o_mappos[mb],8,8
+    ins.appear=o_appear[mb]
+    ins.x=_x
+    ins.y=_y
     add(obj,ins)
     return ins
 end

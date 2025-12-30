@@ -2,35 +2,24 @@
 function makerole(cha_tpye,x,y,sprs,state)--角色的创建模板
 	local role={}
 	role.name=chaname[cha_tpye]
-	role.x,role.y=x*8,y*8
-	role.hp=chahp[cha_tpye]
-	role.speed=chaspd[cha_tpye]
-	role.lastdire=chalastdire[cha_tpye] --最后方向
-	role.crange=chacrange[cha_tpye] --检测范围
-	role.w,role.h=7,7
-	role.allstate=state
-	role.sprs=sprs
+	role.x,role.y,role.w,role.h=x,y,7,7
+	role.hp,role.speed,role.crange,role.lastdire=chahp[cha_tpye],chaspd[cha_tpye],chacrange[cha_tpye],chalastdire[cha_tpye]
+	role.dire,role.allstate,role.sprs=3,state,sprs
 	role.spd={spx=0,spy=0} --加速度
-	role.dire=3--方向
-	role.hurtdire=0 --初始受伤方向
+	role.hurtdire=1 --初始受伤方向?有疑问
 	 --受伤后的移动时间
-	if type(sprs.idle)=="number" then
-		role.frame=sprs.idle
-	else
-		role.frame=sprs.idle[1]
-	end
-	role.state = state.idle
+	role.frame=type(sprs.idle)=="number" and sprs.idle or sprs.idle[1]
+	role.state=state.idle
 	role.sprflip=false
-	role.idle_t=0
-	role.wudi_t=0--无敌时间
-	role.die_t=0
-	role.move_t=0
+	role.idle_t,role.wudi_t,role.die_t,role.move_t=0,0,0,0
+	role.rnd=0 --敌人的掉落几率
+	role.drop_heart=false
 	return role
 end
 -- 初始化玩家数据
 -- @return 玩家对象
 function init_player()
-	local player = makerole(1,7,7,
+	local player = makerole(1,54,70,
 		{idle = 2, --  idle状态精灵
 		move=explodeval("1,2,3,4"), -- 移动状态精灵序列
 		push=explodeval("13,15,13,14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())
@@ -49,57 +38,52 @@ function init_player()
 		archery="archery",
 		roll="roll",
 		push="push",
+		get="get",
 		hurt="hurt",
 		death="death"})
-	-- 玩家状态常量
-	player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
-	player.curhp=6--当前血量
-	player.move_t=0--用来绘制移动动画
-	player.ishurt=false
-	player.hurtmt=0
-	player.isroll = false -- 是否翻滚
-	player.rollspeed = 3 -- 翻滚速度
-	player.roll_t = 0 -- 翻滚计时器
-	player.isclosewall=false--是否靠近墙壁(翻滚时)
-	player.isattack = false -- 是否攻击
-	player.att_t = 0 -- 攻击计时器
+	--player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
+	player.curhp,player.maxhp=3,6--当前血量
+	player.is_s_scene,player.mappos=true,1--场景切换、地图位置编号
+	player.ishurt,player.isroll,player.isclosewall,player.isattack=false,false,false,false
+	player.getsth,player.getsowrd,player.get_t=false,false,0
+	player.getadheart=false
+	player.hurtmt,player.move_t,player.roll_t,player.att_t,player.rollspeed=0,0,0,0,3--受伤移动、绘制移动动画、翻滚计时、攻击计时、翻滚速度
 	return player
 end
 -- 初始化武器数据 武器对象
 function init_sword()
-	sword={}
-	sword.x,sword.y,sword.w,sword.h=0,0,7,7
-	sword.sprx,sword.spry=explodeval("-7,-6,2,8,8,8,2,-6"),explodeval("2,-6,-7,-6,2,8,8,8")	 --1 2 3 4 5 6 7 8
+	sword={x=0,y=0,w=7,h=7,sprx=explodeval("-7,-6,2,8,8,8,2,-6"),spry=explodeval("2,-6,-7,-6,2,8,8,8")}--1 2 3 4 5 6 7 8
 	sword.isappear = false -- 是否显示
 	return sword
 end
 function createnemy_urchin(_x,_y)
 	local urchin = makerole(2,_x,_y,
-		{idle=105,
-		hurt={105,121}},
+		{idle=137,
+		hurt={137,138}},
 		{idle = "idle",
 		hurt="hurt",
 		death = "death"})
 	add(enemies,urchin)
 	return urchin
 end
-function createnemy_snake(_x,_y)
-	local snake = makerole(3,_x,_y,
-		{idle=99,
-		move={98,99},
-		hurt={99,115}},
+function createnemy_crab(_x,_y)
+	local crab = makerole(3,_x,_y,
+		{idle=139,
+		move={139,140},
+		hurt={139,141}},
 		{idle = "idle",
 		move = "move",
 		hurt="hurt",
 		death = "death"})
-	add(enemies,snake)
-	return snake
+	add(enemies,crab)
+	return crab
 end
+
 function createnemy_spider(_x,_y)
 	local spider = makerole(4,_x,_y,
-		{idle=103,
-		move={102,103},
-		hurt={103,104}},
+		{idle=143,
+		move={142,143},
+		hurt={143,159}},
 		{idle = "idle",
 		move = "move",
 		hurt="hurt",
@@ -109,25 +93,60 @@ function createnemy_spider(_x,_y)
 end
 function createnemy_slime(_x,_y)
 	local slime = makerole(5,_x,_y,
-		{idle={96,117},
-		charge={97,113},
-		jump=114,
-		hurt={96,112}},
+		{idle={153,154},
+		charge={155,156},
+		jump=157,
+		hurt={153,158}},
 		{idle = "idle",
 		charge="charge",--跳跃前的蓄力
 		jump = "jump",
 		hurt="hurt",
-		death = "death"})
-	--slime.w,slime.h=2,2
+		death="death"})
 	add(enemies,slime)
 	return slime
 end
+function createnemy_lizi(_x,_y)
+	local lizi = makerole(6,_x,_y,
+		{idle=explodeval("185,187,189"),
+		move=explodeval("[189,190],[185,186],[189,190],[187,188]"),--1357
+		hurt=explodeval("[189,175],[185,173],[189,175],[187,174]")--1357
+		},
+		{idle = "idle",
+		move = "move",
+		atk="atk",
+		hurt="hurt",
+		death = "death"})
+	lizi.atk_t,lizi.hurtframe=0,0
+	add(enemies,lizi)
+	return lizi
+end
+function init_cnut(en)--栗子弹
+	cnut={}
+	cnut.x,cnut.y,cnut.w,cnut.h,cnut.dire,cnut.spd,cnut.speed,cnut.sprs,cnut.frame=en.x,en.y,5,5,en.dire,{spx=0,spy=0},1,explodeval("169,170,171,172"),96
+	cnut.t=0
+	add(bullets,cnut)
+	return cnut
+end
+
+function createnemy_snake(_x,_y)
+	local snake = makerole(7,_x,_y,
+		{idle=64,
+		move={64,65},
+		hurt={64,66}},
+		{idle = "idle",
+		move = "move",
+		hurt="hurt",
+		death = "death"})
+	add(enemies,snake)
+	return snake
+end
+
 function createnemy_bat(_x,_y)
-	local bat = makerole(6,_x,_y,
-		{idle=101,
-		fly={100,101},
-		rest=101,
-		hurt={100,116}},
+	local bat = makerole(8,_x,_y,
+		{idle=67,
+		fly={68,67},
+		rest=67,
+		hurt={68,69}},
 		{idle = "idle",
 		fly = "fly",
 		rest="rest",
@@ -137,11 +156,11 @@ function createnemy_bat(_x,_y)
 	return bat
 end
 function createnemy_ghost(_x,_y)
-	local ghost = makerole(7,_x,_y,
-		{idle=126,--空白
-		apr={126,122,123},--出现
-		fly={123,124},
-		hurt={123,125}},
+	local ghost = makerole(9,_x,_y,
+		{idle=96,--空白
+		apr=explodeval("96,82,83"),--出现
+		fly={83,84},
+		hurt={83,85}},
 		{idle = "idle",--idle:隐藏
 		apr="apr",--出现
 		fly = "fly",
@@ -151,35 +170,5 @@ function createnemy_ghost(_x,_y)
 	)
 	add(enemies,ghost)
 	return ghost
-end
-function createnemy_lizi(_x,_y)
-	local lizi = makerole(8,_x,_y,
-		{idle={89,106,108},
-		move=explodeval("[108,109],[89,90],[108,109],[106,107]"),--1357
-		hurt=explodeval("[108,120],[89,118],[108,120],[106,119]")--1357
-		},
-		{idle = "idle",
-		move = "move",
-		atk="atk",
-		hurt="hurt",
-		death = "death"})
-	lizi.atk_t=0
-	lizi.hurtframe=0
-	add(enemies,lizi)
-	return lizi
-end
-function init_cnut(en)--栗子弹
-	cnut={}
-	cnut.x=en.x
-	cnut.y=en.y
-	cnut.t=0
-	cnut.dire=en.dire
-	cnut.spd={spx=0,spy=0}
-	cnut.w,cnut.h=5,5
-	cnut.speed=1
-	cnut.sprs=explodeval("77,78,94,93")
-	cnut.frame=77
-	add(bullets,cnut)
-	return cnut
 end
 --大海龟Boss：两阶段

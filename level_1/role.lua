@@ -12,6 +12,8 @@ function makerole(cha_tpye,x,y,sprs,state)--角色的创建模板
 	role.state=state.idle
 	role.sprflip=false
 	role.idle_t,role.wudi_t,role.die_t,role.move_t=0,0,0,0
+	role.rnd=0 --敌人的掉落几率
+	role.drop_heart=false
 	return role
 end
 -- 初始化玩家数据
@@ -37,13 +39,21 @@ function init_player()
 		roll="roll",
 		push="push",
 		get="get",
+		switch="switch",--切换场景状态
 		hurt="hurt",
 		death="death"})
 	--player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
-	player.curhp=6--当前血量
+	--,player.y=54,70
+	player.cx=player.x+1
+	player.cy=player.y+3--碰撞盒的位置
+	player.cw=5
+	player.ch=4
+	player.curhp,player.maxhp=3,6--当前血量
+	player.switch_t=0--切换场景时间
 	player.is_s_scene,player.mappos=true,1--场景切换、地图位置编号
 	player.ishurt,player.isroll,player.isclosewall,player.isattack=false,false,false,false
 	player.getsth,player.getsowrd,player.get_t=false,false,0
+	player.getadheart=false
 	player.hurtmt,player.move_t,player.roll_t,player.att_t,player.rollspeed=0,0,0,0,3--受伤移动、绘制移动动画、翻滚计时、攻击计时、翻滚速度
 	return player
 end
@@ -119,7 +129,8 @@ function createnemy_lizi(_x,_y)
 end
 function init_cnut(en)--栗子弹
 	cnut={}
-	cnut.x,cnut.y,cnut.w,cnut.h,cnut.t,cnut.dire,cnut.spd,cnut.speed,cnut.sprs,cnut.frame=en.x,en.y,5,5,0,en.dire,{spx=0,spy=0},1,explodeval("169,170,171,172"),96
+	cnut.x,cnut.y,cnut.w,cnut.h,cnut.dire,cnut.spd,cnut.speed,cnut.sprs,cnut.frame=en.x,en.y,5,5,en.dire,{spx=0,spy=0},1,explodeval("169,170,171,172"),96
+	cnut.t=0
 	add(bullets,cnut)
 	return cnut
 end
@@ -136,35 +147,3 @@ function createnemy_snake(_x,_y)
 	add(enemies,snake)
 	return snake
 end
-
-function createnemy_bat(_x,_y)
-	local bat = makerole(8,_x,_y,
-		{idle=67,
-		fly={68,67},
-		rest=67,
-		hurt={68,69}},
-		{idle = "idle",
-		fly = "fly",
-		rest="rest",
-		hurt="hurt",
-		death = "death"})
-	add(enemies,bat)
-	return bat
-end
-function createnemy_ghost(_x,_y)
-	local ghost = makerole(9,_x,_y,
-		{idle=96,--空白
-		apr=explodeval("96,82,83"),--出现
-		fly={83,84},
-		hurt={83,85}},
-		{idle = "idle",--idle:隐藏
-		apr="apr",--出现
-		fly = "fly",
-		rest="rest",--休息
-		hurt="hurt",
-		death = "death"}
-	)
-	add(enemies,ghost)
-	return ghost
-end
---大海龟Boss：两阶段

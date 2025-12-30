@@ -1,36 +1,33 @@
 function update_game()--游戏进行时
-	check_map_sth()--检测地图上的东西
-	--主角受伤检测（无敌时间0，主角不在攻击状态）
-	if check_p_hurt(wy,"en") and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
-		wy.ishurt=true
-		wy.state=wy.allstate.hurt
+	mapsys()--地图系统
+	if wy.is_s_scene then
+		mapenemy_reset()--地图上敌人刷新
+		wy.is_s_scene=false
 	end
 	--受伤无敌
-	if wy.ishurt then--如果受伤，受伤无敌时间增加
+	if wy.ishurt then--如果受伤，受伤无敌时间增加 
 		--受伤闪烁和无敌时间相同
 		wy.wudi_t+=1
 		if wy.wudi_t>20 then
-			wy.ishurt=false
-			wy.wudi_t=0
+			wy.ishurt,wy.wudi_t=false,0
 		end
 	end 
 	updatep_state(wy)--主角的行为: 更新玩家状态
+	--创建敌人组
 	for e in all(enemies) do
-		en_update(e,"urchin",enstate_urchin)
-		en_update(e,"snake",enstate_snake)
-		en_update(e,"slime",enstate_slime)
-		en_update(e,"bat",enstate_bat)
-		en_update(e,"spider",enstate_spider)
-		en_update(e,"ghost",enstate_ghost)
-		en_update(e,"lizi",enstate_lizi)
+		local t={["urchin"]=enstate_urchin,["crab"]=enstate_4direcmove,["slime"]=enstate_slime,["spider"]=enstate_4direcmove,["lizi"]=enstate_lizi,["snake"]=enstate_4direcmove,["bat"]=enstate_bat,["ghost"]=enstate_ghost}
+		t[e.name](e)
+		--主角受伤检测（无敌时间0，主角不在攻击状态）
+		if check_p_hurt(wy,"en",e) and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
+			wy.ishurt,wy.state=true,wy.allstate.hurt
+		end
 	end
 	--敌人子弹的检测
 	for b in all(bullets) do
 		firebullet(b)--开火
 		--玩家受伤
 		if check_p_hurt(wy,"bu",b) and wy.wudi_t==0 and wy.state!=wy.allstate.attack then --检测玩家受伤
-			wy.ishurt=true
-			wy.state=wy.allstate.hurt
+			wy.ishurt,wy.state=true,wy.allstate.hurt
 			del(bullets,b)
 		end
 		--如果子弹越过屏幕
@@ -39,23 +36,17 @@ function update_game()--游戏进行时
 		end
 	end
 end
-function en_update(e,name,func)
-	if e.name==name then func(e) end
-end
 function update_mamenu()--菜单
 	blinkt+=1
-	wy = init_player()  -- 初始化玩家
-	sword = init_sword()  -- 初始化武器
-	--startgame()
+	wy,sword = init_player(),init_sword()  -- 初始化武器
 	input_mamenu()--主菜单输入
 end
 function update_gover()--游戏结束
 	--游戏结束
 	if btnp(4) and time()>5 then
+		enemies={}--人物死亡后，敌人组清空
 		_upd,_drw=update_mamenu,draw_mamenu
 	end
 end
-function update_win()
-	--游戏通关
-end
-
+--function update_win()
+--end
