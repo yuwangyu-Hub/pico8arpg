@@ -1,15 +1,14 @@
-
 function update_game()--游戏进行时
 	mapsys()--地图系统
-	
-	if wy.is_s_scene then
+	if wy.is_s_scene then--地图切换
 		mapenemy_reset()--地图上敌人刷新
+		bullets={}
 		wy.state=wy.allstate.switch--主角状态重置为idle,修复翻滚切换场景后的穿墙bug
 		wy.is_s_scene=false
 	end
+
 	if wy.state== wy.allstate.idle or wy.state==wy.allstate.move then
 		input_direct_sys()--检测方向
-		
 	end
 	--受伤无敌
 	if wy.ishurt then--如果受伤，受伤无敌时间增加 

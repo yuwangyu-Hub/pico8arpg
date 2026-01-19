@@ -11,15 +11,7 @@ function input_direct_sys()
 	end
 end
 function input_mamenu()--主菜单输入
-    --[[if btn(2) then
-        if mainmenu_cursor.count==2 then
-            mainmenu_cursor.count=1
-        end
-    elseif btn(3) then
-        if mainmenu_cursor.count==1 then
-            mainmenu_cursor.count=2
-        end
-    end]]
+    
     if btn(2) then
         mainmenu_cursor.count = max(1, mainmenu_cursor.count - 1)
     elseif btn(3) then

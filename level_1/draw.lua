@@ -1,29 +1,67 @@
 function sceneset(p,table)--t:table
     local maptable=table
-    wy.mappos,enemies,p.is_s_scene=maptable[p.mappos],{},true
+    wy.mappos=maptable[p.mappos]--设置当前地图位置
+    enemies={} --清空敌人组
+    p.is_s_scene=true --是否为场景地图
 end
-function sceneswitch_u(p)
+function sceneswitch_u(p)--场切上
     if p.y<-6 then--上
         p.y+=126
         sceneset(p,{[1]=4,[2]=5,[3]=6,[4]=7,[5]=8,[7]=9,[8]=10})
     end
 end
-function sceneswitch_d(p)
+function sceneswitch_d(p)--场切下
     if p.y>126 then--下
-        p.y-=127
-        sceneset(p,{[4]=1,[5]=2,[6]=3,[7]=4,[8]=5,[9]=7,[10]=8})
+        if p.mappos==11 then
+            p.x=64
+            p.y=80
+        elseif p.mappos==12 then
+            p.x=16
+            p.y=100
+        else
+            p.y-=127
+        end
+        sceneset(p,{[4]=1,[5]=2,[6]=3,[7]=4,[8]=5,[9]=7,[10]=8,[11]=4,[12]=6})
     end
 end
-function sceneswitch_l(p)
-    if p.x<-6 then--左
+function sceneswitch_l(p)--场切左
+    if p.x<-6 then
         p.x+=128
-        sceneset(p,{[2]=1,[3]=2,[5]=4,[6]=5,[8]=7,[10]=9})
+        sceneset(p,{[2]=1,[3]=2,[5]=4,[6]=5,[8]=7,[10]=9,[12]=11})
     end
 end
-function sceneswitch_r(p)
-    if p.x>124 then--右
+function sceneswitch_r(p)--场切右
+    if p.x>124 then
         p.x-=125
-        sceneset(p,{[1]=2,[2]=3,[4]=5,[5]=6,[7]=8,[9]=10})
+        sceneset(p,{[1]=2,[2]=3,[4]=5,[5]=6,[7]=8,[9]=10,[11]=12})
+    end
+end
+function sceneswitch_in(p)--门/洞的进
+    if p.mappos==4 then
+        if fget(mget(flr((p.x+4)/ 8+mapnum[p.mappos][1]),flr((p.y+4)/8+mapnum[p.mappos][2])),1) then --当进洞
+            --切换到洞口场景            
+            wy.mappos=11
+            wy.x=64
+            wy.y=120
+            enemies={}
+            p.is_s_scene=true --s:switch
+        end 
+    end
+    if p.mappos==6 then
+          if fget(mget(flr((p.x+4)/8+mapnum[p.mappos][1]),flr((p.y+4)/8+mapnum[p.mappos][2])),1) then --当进洞            
+            wy.mappos=12
+            wy.x=64
+            wy.y=120
+            enemies={}
+            p.is_s_scene=true
+        end
+    end
+    
+end
+function sceneswitch_othercart(p)--切换到另一个卡
+    if p.y<-6 then--上
+        --游戏结束
+        _upd,_drw=update_gover,draw_gover
     end
 end
 function mapsys()--地图切换系统
@@ -31,17 +69,21 @@ function mapsys()--地图切换系统
         [1] = {sceneswitch_u, sceneswitch_r},
         [2] = {sceneswitch_u, sceneswitch_l, sceneswitch_r},
         [3] = {sceneswitch_u, sceneswitch_l},
-        [4] = {sceneswitch_u, sceneswitch_d, sceneswitch_r},
+        [4] = {sceneswitch_u, sceneswitch_d, sceneswitch_r,sceneswitch_in},
         [5] = {sceneswitch_u, sceneswitch_d, sceneswitch_l, sceneswitch_r},
-        [6] = {sceneswitch_d, sceneswitch_l},
+        [6] = {sceneswitch_d, sceneswitch_l,sceneswitch_in,sceneswitch_othercart},
         [7] = {sceneswitch_u, sceneswitch_d, sceneswitch_r},
         [8] = {sceneswitch_u, sceneswitch_d, sceneswitch_l},
         [9] = {sceneswitch_d, sceneswitch_r},
-        [10] = {sceneswitch_d, sceneswitch_l}}
+        [10] = {sceneswitch_d, sceneswitch_l},
+        [11] = {sceneswitch_in,sceneswitch_r,sceneswitch_d},
+        [12] = {sceneswitch_in,sceneswitch_l,sceneswitch_d}}
+    --根据当前地图位置调用对应的切换函数
     for _, func in ipairs(switches[wy.mappos] or {}) do
         func(wy)
     end
 end
+
 function draw_game()
     map(mapnum[wy.mappos][1],mapnum[wy.mappos][2])--地图绘制
     spr(39,wy.x,wy.y+6,1,1,wy.sprflip)--主角影子(用来跳跃区分)
@@ -112,7 +154,7 @@ end
 function draw_gover()--游戏结束界面
     showend()
 end
-function showend()--游戏结束动画播放
+function showend()--游戏结束anim
     --*绘制游戏结束画面
     cprint("gameover",64,90,7)
 end

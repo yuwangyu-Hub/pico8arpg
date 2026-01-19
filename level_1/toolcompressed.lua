@@ -7,4 +7,3 @@ function toval(val)val=trim(val)if is_array_format(val) then local content=sub(v
 function toval_arr(arr)local result={}for i=1,#arr do local val=arr[i] if val!=nil and #val >= 2 and sub(val,1,1)=="[" and sub(val,#val,#val)=="]" then add(result, toval(val))else add(result, flr(val+0))end end return result end
 --精灵反转
 function spr_flip(_sb)local dire=_sb.dire if dire==2 or dire==1 or dire==8 then _sb.sprflip=true elseif dire==4 or dire==5 or dire==6 then _sb.sprflip=false end end
-

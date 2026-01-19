@@ -135,7 +135,7 @@ function updatep_state(player)--状态机: 更新玩家状态
 		end,
 		hurt=function()
 			player.hurtmt+=0.1
-			hurtmove(player,1)
+			hurtmove(player,1,"player")
 			if player.hurtmt>=1 then
 				player.hurtmt,player.state=0,pst.idle
 				player.curhp-=1	
@@ -153,6 +153,3 @@ function updatep_state(player)--状态机: 更新玩家状态
 	}
 	switchstate[player.state]()
 end
-
-
-

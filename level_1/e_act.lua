@@ -226,4 +226,3 @@ function enstate_lizi(en)
 	}
 	switchstate[en.state]()
 end
-

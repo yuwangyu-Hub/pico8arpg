@@ -1,4 +1,3 @@
---makerole(name,x,y,hp,speed,sprs,state)--角色的创建模板
 function makerole(cha_tpye,x,y,sprs,state)--角色的创建模板
 	local role={}
 	role.name=chaname[cha_tpye]
@@ -16,20 +15,18 @@ function makerole(cha_tpye,x,y,sprs,state)--角色的创建模板
 	role.drop_heart=false
 	return role
 end
--- 初始化玩家数据
--- @return 玩家对象
 function init_player()
 	local player = makerole(1,54,70,
-		{idle = 2, --  idle状态精灵
-		move=explodeval("1,2,3,4"), -- 移动状态精灵序列
-		push=explodeval("13,15,13,14"), -- 推动状态精灵序列 (1(1), 2(3), 3(5), 4())
-		roll=explodeval("5,6,6,7,7,5"), -- 翻滚状态精灵序列
-		       -- 3, 2/4, 1/5, 6/8, 7
-		attack=explodeval("8,9,10,11,12"), -- 攻击状态精灵序列
+		{idle = 2,
+		move=explodeval("1,2,3,4"),
+		push=explodeval("13,15,13,14"), --推动序列(1(1),2(3),3(5),4())
+		roll=explodeval("5,6,6,7,7,5"),
+		-- 3, 2/4, 1/5, 6/8, 7
+		attack=explodeval("8,9,10,11,12"),
 		fall=explodeval("24,25,26"),
 		death=explodeval("27,28,29"),
-		hurt=explodeval("22,40"), -- 受伤状态精灵		
-		get=23 -- 获取物品状态精灵（只一次）
+		hurt=explodeval("22,40"),		
+		get=23 --获取物品状态精灵（只一次）
 		},
 		{idle="idle",--在状态机中，识别为字符串
 		move="move",
@@ -43,11 +40,12 @@ function init_player()
 		hurt="hurt",
 		death="death"})
 	--player.spr_cx,player.spr_cy=0,0--精灵和真正坐标位置的差值
-	--,player.y=54,70
+	--player.y=54,70
 	player.cx=player.x+1
 	player.cy=player.y+3--碰撞盒的位置
 	player.cw=5
 	player.ch=4
+	player.attackdire=0
 	player.curhp,player.maxhp=3,6--当前血量
 	player.switch_t=0--切换场景时间
 	player.is_s_scene,player.mappos=true,1--场景切换、地图位置编号
@@ -57,7 +55,6 @@ function init_player()
 	player.hurtmt,player.move_t,player.roll_t,player.att_t,player.rollspeed=0,0,0,0,3--受伤移动、绘制移动动画、翻滚计时、攻击计时、翻滚速度
 	return player
 end
--- 初始化武器数据 武器对象
 function init_sword()
 	sword={x=0,y=0,w=7,h=7,sprx=explodeval("-7,-6,2,8,8,8,2,-6"),spry=explodeval("2,-6,-7,-6,2,8,8,8")}--1 2 3 4 5 6 7 8
 	sword.isappear = false -- 是否显示
@@ -85,7 +82,6 @@ function createnemy_crab(_x,_y)
 	add(enemies,crab)
 	return crab
 end
-
 function createnemy_spider(_x,_y)
 	local spider = makerole(4,_x,_y,
 		{idle=143,
@@ -134,7 +130,6 @@ function init_cnut(en)--栗子弹
 	add(bullets,cnut)
 	return cnut
 end
-
 function createnemy_snake(_x,_y)
 	local snake = makerole(7,_x,_y,
 		{idle=64,

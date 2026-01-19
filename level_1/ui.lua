@@ -26,15 +26,3 @@ function health(_sb)--血量
         end
     end
 end
---[[
-function ui_weap()--武器/道具
-    local x1,y1,x2,y2=92,110,114,110
-    circfill(x1,y1+1,8,1)
-    circfill(x1,y1,8,6)
-    circfill(x2,y2+1,8,1)
-    circfill(x2,y2,8,6)
-    sspr(104,106,6,13,x1-4,y1-6)--o位置显示
-    sspr(111,106,9,13,x2-4,y2-6)--x位置显示
-    spr(48,x1+2,y1+4)
-    spr(49,x2+2,y2+4)
-end]]

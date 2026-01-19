@@ -305,6 +305,8 @@ function check_p_hurt(_sb,type,v)--玩家受伤,最近的敌人,type:检测类�
 		return hurtdir(_sb,v,v)
 	end
 end
+
+
 function check_en_hurt(_sword,_en,_p) --敌人受伤
 	if _sword.isappear and _en.state!=_en.allstate.hurt and _en.wudi_t==0 then
 		return hurtdir(_en,_sword,_p)
@@ -320,16 +322,23 @@ function switch_framehurt(en)
 		en.state,en.hurtframe=en.allstate.hurt,(en.dire+1)/2
 	end
 end
-function hurtmove(_sb,speed)--依照方向执行受伤
+
+function hurtmove(_sb,speed,tpye)--依照方向执行受伤
 	local m_spd=speed --受伤移动速度
 	if check_closewall_or_en(_sb,2,_sb.hurtdire,"wall") then
-		m_spd=0--速度为1
+		m_spd=0--速度为0
 	end
-	_sb.spd.spx, _sb.spd.spy = dirx[_sb.hurtdire]*m_spd, diry[_sb.hurtdire]*m_spd
+	if tpye=="player" then
+		_sb.spd.spx, _sb.spd.spy = dirx[_sb.hurtdire]*m_spd, diry[_sb.hurtdire]*m_spd
+	else --enemy
+		_sb.spd.spx, _sb.spd.spy = dirx[wy.lastdire]*m_spd, diry[wy.lastdire]*m_spd
+	end
+
+	
 end
-function hurtdo(_e,_spr,t1,t2)
+function hurtdo(_e,_spr,t1,t2)--敌人的受伤后退行为
 	_e.wudi_t=anim_sys(_spr,_e,_e.wudi_t,t1,t2)
-	if check_inbounds(_e) then
+	if check_inbounds(_e) then--检测是否在边缘
 		hurtmove(_e,2.5)
 	else
 		setspd_0(_e)
@@ -522,7 +531,7 @@ function firebullet(c)--栗子怪发射子弹
 	anim_sys(c.sprs,c,c.t,.1,4)
 end
 
-function drop_heart(en,_mapos)--生成血袋
+function drop_heart(en,_mapos)--生成掉落的血
 	makeobj(3,en.x,en.y,_mapos)
 end
 
